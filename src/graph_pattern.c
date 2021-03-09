@@ -34,34 +34,13 @@ gsl_spmatrix * square_graph(int m){
 }
 
 gsl_spmatrix * matrix_position(int m){
-  gsl_spmatrix * matrix = gsl_spmatrix_alloc(2*m,m*m);
-  for (size_t i = 0 ; i < m*m ; i++){
-    for (size_t j = 0 ; j < m*m ; j++){
-      gsl_spmatrix_set(matrix,i,j,get_number_edge_square(i,j,m));
-    }
+  gsl_spmatrix * matrix = gsl_spmatrix_alloc(2,m*m);
+  for (size_t i = 0 ; i < m ; i++){
+    gsl_spmatrix_set(matrix,0,i,1);
+    gsl_spmatrix_set(matrix,1,m-1-i,1);
   }
   return matrix;
 }
   
-
-
-void main(void){
-
-  int m = 2;
-  gsl_spmatrix * matrix = square_graph(m);
-
-  for (size_t i = 0 ; i < m*m ; i++){
-    for (size_t j = 0 ; j < m*m ; j++){
-      printf(" %f ",gsl_spmatrix_get(matrix,i,j));
-    }
-    printf("\n");
-  }
-}
-    
-
-
-
-
-
 
 
