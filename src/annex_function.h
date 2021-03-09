@@ -3,7 +3,7 @@
 
 #include "graph.h"
 
-struct graph_t * graph_copy(struct graph *);
+struct graph_t * graph_copy(struct graph_t *);
 
 
 #endif // _ANNEX_FUNCTION_H_
