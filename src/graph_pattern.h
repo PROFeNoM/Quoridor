@@ -13,6 +13,7 @@
 int get_number_edge_square(size_t i,size_t j,int m);
 // return the spmatrix of a square graph of size m by m
 gsl_spmatrix * square_graph(int m);
+gsl_spmatrix * matrix_position(int m);
 
 
 #endif // _GRAPH_PATTERN_H_

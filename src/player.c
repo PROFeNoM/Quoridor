@@ -84,6 +84,6 @@ void finalize()
 {
   printf("The game is finished");
   gsl_spmatrix_free(player.graph->t);
-  gsl_spmatric_free(player.graph->o);
-  free(player.graph)
+  gsl_spmatrix_free(player.graph->o);
+  free(player.graph);
 }
