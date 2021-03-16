@@ -14,3 +14,12 @@ struct graph_t* graph_copy(struct graph_t* graph)
 
     return cp;
 }
+
+
+
+void graph_free(struct graph_t *graph)
+{
+  gsl_spmatrix_free(graph->t);
+  gsl_spmatrix_free(graph->o);
+  free(graph);
+}
