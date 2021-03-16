@@ -1,5 +1,5 @@
 #ifndef _ANNEX_FUNCTION_H_
-#define _ANNEX_FUNCTON_H_
+#define _ANNEX_FUNCTION_H_
 
 #include "graph.h"
 
