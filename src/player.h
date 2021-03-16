@@ -1,8 +1,6 @@
 #ifndef _QUOR_PLAYER_H_
 #define _QUOR_PLAYER_H_
 
-#include <stdlib.h>
-
 #include "move.h"
 #include "graph.h"
 
@@ -10,26 +8,22 @@
  * RETURNS:
  * - the player name as an [a-zA-Z0-9 -_]* string
  */
-char const* get_player_name();
+char const *get_player_name();
 
-/* Player graph initialization
+/* Player initialization
  * PARAM:
- * - graph : the graph where the game is played
+ * - id        : the color assigned to the player
+ * - graph     : the graph where the game is played
+ * - num_walls : the number of walls assigned to the player
  * PRECOND:
+ * - `id` is either BLACK or WHITE
  * - `graph` is a heap-allocated copy of the graph where the game is
  *   played, that must be freed in the end
- * - initialize_graph has never been called before
+ * - `num_walls` is the number of edges of `graph` divided by 15,
+     rounded up
+ * - initialize has never been called before
  */
-void initialize_graph(struct graph_t* graph);
-
-/* Player color initialization
- * PARAM:
- * - id : the color assigned to the player
- * PRECOND:
- * - id is either BLACK or WHITE
- * - initialize_color has never been called before
- */
-void initialize_color(enum color_t id);
+void initialize(enum color_t id, struct graph_t *graph, size_t num_walls);
 
 /* Computes next move
  * PARAM:
