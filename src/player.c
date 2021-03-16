@@ -68,6 +68,13 @@ struct move_t get_new_move(struct move_t previous_move)
     size_t i = player.position[player.id];
     if (gsl_spmatrix_get(player.graph->t, i, j) > 0 && j != player.position[previous_move.c])
       pos[nb_pos++] = j;
+    if (gsl_spmatrix_get(player.graph->t, i, j) > 0 && j == player.position[previous_move.c])
+      for (size_t k = 0; k < player.graph->num_vertices; k++) {
+	if (gsl_spmatrix_get(player.graph->t, i, j) == gsl_spmatrix_get(player.graph->t, j, k))
+	  pos[nb_pos++] = k;
+	else if (gsl_spmatrix_get(player.graph->t, j, k) > 0 && k != i)
+	  pos[nb_pos++] = k;
+      }
   }
 
   size_t ind = (size_t) rand() % nb_pos;
