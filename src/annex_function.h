@@ -5,5 +5,6 @@
 
 struct graph_t * graph_copy(struct graph_t *);
 
+void graph_free(struct graph_t *);
 
 #endif // _ANNEX_FUNCTION_H_
