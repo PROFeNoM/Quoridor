@@ -17,19 +17,13 @@ struct graph_t* graph_copy(struct graph_t* graph)
     return cp;
 }
 
-// Returns owner (either '1' or '2') of the vertex i, else 'X' if vertex isn't owned
-char get_vertex_owner(gsl_spmatrix* o, size_t m, size_t i)
-{
-    double player1_ownership = gsl_spmatrix_get(o, 0, i);
-    double player2_ownership = gsl_spmatrix_get(o, 1, i);
-    return player1_ownership ? '1' : (player2_ownership ? '2' : 'X');
-}
 
-void display_graph(struct graph_t* graph, size_t m)
+void display_graph(struct graph_t* graph, size_t m, struct move_t* player1, struct move_t* player2)
 {
     for (size_t i = 0; i < m; i++){
         for (size_t j = 0; j < m; j++){
-            printf(" %c ", get_vertex_owner(graph->o, m, i * m + j));
+            size_t vertex = i * m + j;
+            printf(" %c ", vertex == player1->m ? '1' : (vertex == player2->m ? '2' : 'X'));
         }
         printf("\n");
     }
