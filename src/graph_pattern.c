@@ -33,11 +33,14 @@ gsl_spmatrix * square_graph(int m){
 }
 
 gsl_spmatrix * matrix_position(int m){
-  gsl_spmatrix * matrix = gsl_spmatrix_alloc(2,m*m);
+  size_t num_vertices = m*m;
+  gsl_spmatrix * matrix = gsl_spmatrix_alloc(2, num_vertices);
+  
   for (size_t i = 0 ; i < m ; i++){
-    gsl_spmatrix_set(matrix,0,i,1);
-    gsl_spmatrix_set(matrix,1,m-1-i,1);
+    gsl_spmatrix_set(matrix, 0, i, 1);
+    gsl_spmatrix_set(matrix, 1, num_vertices-1-i,1);
   }
+  
   return matrix;
 }
 
@@ -61,7 +64,7 @@ enum color_t get_next_player(enum color_t id){
 }
 
 int is_winning(struct player_server * players, struct graph_t * graph, enum color_t id){
-  return gsl_spmatrix_get(graph->o, get_next_player(id), players[id].pos) == 1;
+  return gsl_spmatrix_get(graph->o, get_next_player(id), players[id].pos);
 }
 
 void update(struct player_server * players,struct move_t move){

@@ -76,6 +76,7 @@ int main(int argc , char * argv[]){
   while (1){
     move = players[get_next_player(move.c)].play(move);
     update(players,move);
+    display_graph(graph, m, players);
     if (is_winning(players, graph, move.c)){
       break ;
     }
