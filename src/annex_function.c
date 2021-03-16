@@ -10,10 +10,7 @@ struct graph_t* graph_copy(struct graph_t* graph)
     gsl_spmatrix_memcpy(cp->t, graph->t);
 
     cp->o = gsl_spmatrix_alloc(2, graph->num_vertices);
-    gsl_spmatrix_memcpy(cp->o, graph->o)
-
-    cp->p[0] = graph->p[0];
-    cp->p[1] = graph->p[1];
+    gsl_spmatrix_memcpy(cp->o, graph->o);
 
     return cp;
 }
