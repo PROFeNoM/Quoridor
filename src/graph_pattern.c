@@ -60,8 +60,8 @@ enum color_t get_next_player(enum color_t id){
   }
 }
 
-int is_winning(struct player_server, struct graph_t * graph, enum color_t id){
-  return gsl_spmatrix_get(graph->o, get_next_player(id), player_server.pos) == 1;
+int is_winning(struct player_server * players, struct graph_t * graph, enum color_t id){
+  return gsl_spmatrix_get(graph->o, get_next_player(id), players[id].pos) == 1;
 }
 
 void update(struct player_server * players,struct move_t move){

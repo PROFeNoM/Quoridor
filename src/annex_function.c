@@ -18,12 +18,12 @@ struct graph_t* graph_copy(struct graph_t* graph)
 }
 
 
-void display_graph(struct graph_t* graph, size_t m, struct move_t* player1, struct move_t* player2)
+void display_graph(struct graph_t* graph, size_t m, struct player_server * players)
 {
     for (size_t i = 0; i < m; i++){
         for (size_t j = 0; j < m; j++){
             size_t vertex = i * m + j;
-            printf(" %c ", vertex == player1->m ? '1' : (vertex == player2->m ? '2' : 'X'));
+            printf(" %c ", vertex == players[0].pos ? '1' : (vertex == players[1].pos ? '2' : 'X'));
         }
         printf("\n");
     }

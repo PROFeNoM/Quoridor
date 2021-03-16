@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "graph_pattern.h"
+#include "annex_function.h"
 
 // Global parameters
 static char * t = "c"; // Global seed for the random number generator
@@ -37,7 +38,7 @@ int main(int argc , char * argv[]){
 
   parse_opts(argc-2, argv);
 
-  struct graph_t * graph = initialize_graph(int m);
+  struct graph_t * graph = initialize_graph(m);
   struct player_server players[2];
 
   void * joueur_1;
@@ -72,10 +73,10 @@ int main(int argc , char * argv[]){
   struct move_t move = {.m = 0 , .e = {-1,-1} ,.t = NO_TYPE , .c=WHITE};
   int tour = 0 ;
   
-  while (true){
+  while (1){
     move = players[get_next_player(move.c)].play(move);
-    graph_update(graph,move);
-    if (is_winning(players[move.c], graph, move.c)){
+    update(players,move);
+    if (is_winning(players, graph, move.c)){
       break ;
     }
   }

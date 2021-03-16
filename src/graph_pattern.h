@@ -12,6 +12,7 @@ struct player_server {
   char const * (* get_player_name)(void);
   void (*initialize)(enum color_t id,struct graph_t *graph,size_t num_walls);
   struct move_t (*play)(struct move_t previous_move);
+  void (*finalize)();
   size_t pos;
 };
 
@@ -23,7 +24,7 @@ gsl_spmatrix * square_graph(int m);
 gsl_spmatrix * matrix_position(int m);
 struct graph_t * initialize_graph(int m);
 enum color_t get_next_player(enum color_t);
-int is_winning(struct player_server, struct graph_t * graph, enum color_t id);
+int is_winning(struct player_server *, struct graph_t * graph, enum color_t id);
 void update(struct player_server * players,struct move_t move);
 
 
