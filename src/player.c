@@ -9,12 +9,12 @@ struct player {
   char *name;
   struct graph_t *graph;
   size_t position[2];
-  enum color_t id;
   size_t num_walls;
+  enum color_t id;
 };
 
-struct player player = {.name= NULL, .graph = NULL, .position = {{UNINITIALIZED, UNINITIALIZED}},
-			.id = -1, num_walls = UNINITIALIZED};
+struct player player = {.name= NULL, .graph = NULL, .position = {UNINITIALIZED, UNINITIALIZED},
+			.id = -1, .num_walls = UNINITIALIZED};
 
 char const* get_player_name()
 {
