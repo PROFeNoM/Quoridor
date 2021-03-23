@@ -1,108 +1,115 @@
-#include <dlfcn.h>
-#include <getopt.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include "graph_pattern.h"
-#include "annex_function.h"
+#include "server.h"
 
-// Global parameters
-static char * t = "c"; // Global seed for the random number generator
-static int m = 2;
-
-////////////////////////////////////////////////////////////////
-// Function for parsing the options of the program
-// Currently available options are :
-// -t : type of board
-// -m : size of board
-
-void parse_opts(int argc, char* argv[]) {
-  int opt;
-  while ((opt = getopt(argc, argv, "m:t")) != -1) {
-    switch (opt) {
-    case 't':
-      t = optarg;
-      break;
-    case 'm':
-      m = atoi(optarg);
-      break;
-    default: /* '?' */
-      fprintf(stderr, "Usage: %s [-t type of board] [-m size of board]\n",
-              argv[0]);
-      exit(EXIT_FAILURE);
-    }
-  }
-}
-
-
-int main(int argc , char * argv[]){
-
-  parse_opts(argc-2, argv);
-
-  struct graph_t * graph = initialize_graph(m);
-  struct player_server players[2];
-
-  void * joueur_1;
-  void * joueur_2;
-  
-  joueur_1 = dlopen(argv[argc-2],RTLD_LAZY);
-  if (!joueur_1){
-    fputs (dlerror(),stderr);
-    exit(1);
-  }
-  joueur_2 = dlopen(argv[argc-1],RTLD_LAZY);
-  if (!joueur_2){
-    fputs (dlerror(),stderr);
-    exit(1);
-  }
-  
-  players[BLACK].get_player_name = dlsym(joueur_1,"get_player_name");
-  players[BLACK].initialize  = dlsym(joueur_1,"initialize");
-  players[BLACK].play = dlsym(joueur_1,"play");
-  players[BLACK].finalize = dlsym(joueur_1,"finalize");
-  players[WHITE].get_player_name = dlsym(joueur_2,"get_player_name");
-  players[WHITE].initialize  = dlsym(joueur_2,"initialize");
-  players[WHITE].play = dlsym(joueur_2,"play");
-  players[WHITE].finalize = dlsym(joueur_2,"finalize");
-
- 
-  
-  players[BLACK].initialize(BLACK,graph_copy(graph),22);
-  players[WHITE].initialize(WHITE,graph_copy(graph),22);
- 
-
-  struct move_t move = {.m = 0 , .e = {-1,-1} ,.t = NO_TYPE , .c=WHITE};
-  int tour = 0 ;
-  
-  while (1){
-    move = players[get_next_player(move.c)].play(move);
-    update(players,move);
-    display_graph(graph, m, players);
-    if (is_winning(players, graph, move.c)){
-      break ;
-    }
-  }
-  players[BLACK].finalize();
-  players[WHITE].finalize();
-   
-
-  dlclose(joueur_1);
-  dlclose(joueur_2);
-  return 0;
+void initialize_graph(size_t width, char type, struct graph_server *graph)
+{
+    graph->type = type;
+    graph->width = width;
+    
+    gsl_spmatrix *matrix = square_graph(width);
+    gsl_spmatrix *matrix_pos = matrix_position(width);
+    graph->graph = malloc(sizeof(struct graph_t));
+    graph->graph->num_vertices = width * width;
+    graph->graph->t = matrix;
+    graph->graph->o = matrix_pos;
 }
 
 
 
+void update(struct player_server *players, struct move_t move)
+{
+    players[move.c].pos = move.m;
+}
 
-
-  
-/*
-  for (size_t i = 0 ; i < m*m ; i++){
-    for (size_t j = 0 ; j < m*m ; j++){
-      printf(" %f ",gsl_spmatrix_get(matrix,i,j));
+void display_graph(struct graph_t *graph, size_t m, struct player_server *players)
+{
+    size_t player_one_pos = players[WHITE].pos;
+    size_t player_two_pos = players[BLACK].pos;
+    char *to_print = "";
+    for (size_t i = 0; i < m; i++)
+    {
+        for (size_t j = 0; j < m; j++)
+        {
+            size_t vertex = i * m + j;
+            to_print = (vertex == player_one_pos) ? "1" : 
+            (vertex == player_two_pos ? "2" : 
+            (gsl_spmatrix_get(graph->o, BLACK, vertex) == 1 ? "◻" : 
+            (gsl_spmatrix_get(graph->o, WHITE, vertex) == 1 ? "◼" : 
+            "⬚")));
+            printf(" %s ", to_print);
+        }
+        printf("\n");
     }
     printf("\n");
-  }
-  gsl_spmatrix * matrix_pos = matrix_position(m);
+}
 
-  struct graph_t graph ={.num_vertices = m*m , .t = matrix , .o = matrix_pos, .p={SIZE_MAX,SIZE_MAX}};
-  */
+void *load_player(struct player_server *player)
+{
+    static const char *function_name[] = {
+        "get_player_name", "initialize", "play", "finalize"};
+
+    if (!(player->get_player_name = load_function(player->lib, function_name[0])))
+        return NULL;
+    if (!(player->initialize = load_function(player->lib, function_name[1])))
+        return NULL;
+    if (!(player->play = load_function(player->lib, function_name[2])))
+        return NULL;
+    if (!(player->finalize = load_function(player->lib, function_name[3])))
+        return NULL;
+    return player;
+}
+
+void load_players(struct player_server *players, char *path_lib_player1, char *path_lib_player2)
+{
+    if (!(players[BLACK].lib = load_library(path_lib_player1)) || !(players[WHITE].lib = load_library(path_lib_player2)))
+    {
+        fprintf(stderr, "Error load player library : %s\n", dlerror());
+        exit(1);
+    }
+
+    if (!load_player(&players[BLACK]) || !load_player(&players[WHITE]))
+    {
+        fprintf(stderr, "Error load player function : %s\n", dlerror());
+        exit(1);
+    }
+}
+
+struct server *initialize_server(char *player1_lib, char *player2_lib, size_t width, char type)
+{
+    struct server *server = malloc(sizeof(struct server));
+    
+    initialize_graph(width, type, &server->graph);
+    load_players(server->players, player1_lib, player2_lib);
+
+    return server;
+}
+
+void run_server(struct server *server)
+{
+    server->players[BLACK].initialize(BLACK, graph_copy(server->graph.graph), 22);
+    server->players[WHITE].initialize(WHITE, graph_copy(server->graph.graph), 22);
+
+    struct move_t move = {.m = 0, .e = {-1, -1}, .t = NO_TYPE, .c = WHITE};
+    while (1)
+    {
+        move = server->players[get_next_player(move.c)].play(move);
+        update(server->players, move);
+        display_graph(server->graph.graph, server->graph.width, server->players);
+        if (is_winning(server->graph.graph, move.c, server->players[move.c].pos)){
+            break;
+        }
+    }
+    free_server(server);
+}
+
+void free_server(struct server *server)
+{
+    server->players[BLACK].finalize();
+    server->players[WHITE].finalize();
+
+    dlclose(server->players[BLACK].lib);
+    dlclose(server->players[WHITE].lib);
+
+    graph_free(server->graph.graph);
+
+    free(server);
+}
