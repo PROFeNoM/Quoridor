@@ -1,7 +1,7 @@
 #include <string.h>
 
-#include "annex_function.h"
-#include "player.h"
+#include "./../annex_function.h"
+#include "./../player.h"
 
 #define UNINITIALIZED 0
 
@@ -64,8 +64,9 @@ struct move_t get_new_move(struct move_t previous_move)
   size_t nb_pos = 0;
   size_t pos[player.graph->num_vertices];
 
+  size_t i = player.position[player.id];
+  
   for (size_t j = 0; j < player.graph->num_vertices; j++) {
-    size_t i = player.position[player.id];
     if (gsl_spmatrix_get(player.graph->t, i, j) > 0 && j != player.position[previous_move.c])
       pos[nb_pos++] = j;
     if (gsl_spmatrix_get(player.graph->t, i, j) > 0 && j == player.position[previous_move.c])

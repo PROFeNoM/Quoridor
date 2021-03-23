@@ -38,7 +38,7 @@ void graph_free(struct graph_t *graph)
   free(graph);
 }
 
-void is_connected(struct graph_t* graph, size_t a, size_t b)
+int is_connected(struct graph_t* graph, size_t a, size_t b)
 {
     return gsl_spmatrix_get(graph->t, a, b) > 0;
 }

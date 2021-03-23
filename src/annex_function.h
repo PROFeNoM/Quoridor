@@ -13,7 +13,7 @@ void display_graph(struct graph_t*, size_t, struct player_server *);
 
 void graph_free(struct graph_t *);
 
-void is_connected(struct graph_t*, size_t, size_t);
+int is_connected(struct graph_t*, size_t, size_t);
 
 void add_wall(struct graph_t*, size_t, size_t);
 
