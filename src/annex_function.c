@@ -38,4 +38,14 @@ void graph_free(struct graph_t *graph)
   free(graph);
 }
 
+void is_connected(struct graph_t* graph, size_t a, size_t b)
+{
+    return gsl_spmatrix_get(graph->t, a, b) > 0;
+}
 
+void add_wall(struct graph_t* graph, size_t a, size_t b)
+{
+    static int wall_placed = 1;
+    gsl_spmatrix_set(graph->t, a, b, -wall_placed);
+    gsl_spmatrix_set(graph->t, b, a, -wall_placed++);
+}
