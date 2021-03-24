@@ -1,10 +1,10 @@
 #include "server.h"
-
+#include "utils.h"
 void initialize_graph(size_t width, char type, struct graph_server *graph)
 {
     graph->type = type;
     graph->width = width;
-    
+
     gsl_spmatrix *matrix = square_graph(width);
     gsl_spmatrix *matrix_pos = matrix_position(width);
     graph->graph = malloc(sizeof(struct graph_t));
@@ -88,7 +88,7 @@ void run_server(struct server *server)
     server->players[BLACK].initialize(BLACK, graph_copy(server->graph.graph), 22);
     server->players[WHITE].initialize(WHITE, graph_copy(server->graph.graph), 22);
 
-    struct move_t move = {.m = 0, .e = {-1, -1}, .t = NO_TYPE, .c = WHITE};
+    struct move_t move = {.m = 0, .e = {{-1, -1}}, .t = NO_TYPE, .c = WHITE};
     while (1)
     {
         move = server->players[get_next_player(move.c)].play(move);

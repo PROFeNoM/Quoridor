@@ -5,7 +5,7 @@
 
 #include "graph.h"
 #include "graph_pattern.h"
-#include "utils.h"
+
 
 /**
  * 
