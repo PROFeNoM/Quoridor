@@ -50,7 +50,6 @@ int is_winning(struct graph_t *graph, enum color_t player_id, size_t position)
   return gsl_spmatrix_get(graph->o, get_next_player(player_id), position);
 }
 
-
 double get_connection(struct graph_t* graph, size_t a, size_t b)
 {
     return gsl_spmatrix_get(graph->t, a, b);
@@ -67,6 +66,7 @@ void change_connection(struct graph_t* graph, size_t a, size_t b, double connect
 }
 
 int is_vertice_on_graph(struct graph_t* graph, size_t a)
+
 {
     return 0 <= a && a <= graph->num_vertices;
 }

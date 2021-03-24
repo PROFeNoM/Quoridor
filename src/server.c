@@ -1,5 +1,6 @@
 #include "server.h"
 #include "utils.h"
+
 void initialize_graph(size_t width, char type, struct graph_server *graph)
 {
     graph->type = type;
@@ -12,8 +13,6 @@ void initialize_graph(size_t width, char type, struct graph_server *graph)
     graph->graph->t = matrix;
     graph->graph->o = matrix_pos;
 }
-
-
 
 void update(struct player_server *players, struct move_t move)
 {
