@@ -6,12 +6,7 @@ void initialize_graph(size_t width, char type, struct graph_server *graph)
     graph->type = type;
     graph->width = width;
 
-    gsl_spmatrix *matrix = square_graph(width);
-    gsl_spmatrix *matrix_pos = matrix_position(width);
-    graph->graph = malloc(sizeof(struct graph_t));
-    graph->graph->num_vertices = width * width;
-    graph->graph->t = matrix;
-    graph->graph->o = matrix_pos;
+    graph->graph = get_graph(type, width);
 }
 
 void update(struct player_server *players, struct move_t move)

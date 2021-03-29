@@ -7,11 +7,13 @@ enum direction_t {NO_DIRECTION=0,NORTH,SOUTH,WEST,EAST};
 
 
 // get the index of direction of j according to i
-int get_direction_square(size_t i,size_t j,int m);
+int get_direction_square(size_t i,size_t j, size_t m);
 
 // return the spmatrix of a square graph of size m by m
-gsl_spmatrix * square_graph(int m);
+gsl_spmatrix * square_graph(size_t m);
 
-gsl_spmatrix * matrix_position(int m);
+gsl_spmatrix * matrix_position(size_t m);
+
+struct graph_t *get_graph(char type, size_t width);
 
 #endif // _GRAPH_PATTERN_H_

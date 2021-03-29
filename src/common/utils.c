@@ -104,7 +104,7 @@ int is_path_existing(struct graph_t* graph, size_t pos, gsl_spmatrix* o, int vis
 int is_player_blocked(struct graph_t* graph, struct player_server *player, int p)
 {
     int visited[graph->num_vertices];
-    for (int i = 0; i < graph->num_vertices; i++)
+    for (size_t i = 0; i < graph->num_vertices; i++)
         visited[i] = 0;
 
     int path = is_path_existing(graph, player->pos, graph->o, visited, p);
