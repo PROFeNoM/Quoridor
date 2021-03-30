@@ -16,7 +16,7 @@ COMMON_OBJ			=	$(COMMON_SRC:%.c=%.o)
 
 PLAYER_LIB			=	$(PLAYER_OBJ:%.o=%.so)
 SERVER_BIN			=	./build/server/server
-TESTS_BIN			=	./build/tests/alltest
+TESTS_BIN			=	./build/tests/alltests
 INSTALL_LIB			=	$(PLAYER_LIB:./build/player/%.so=$(INSTALL_DIR)/%_1.so) $(PLAYER_LIB:./build/player/%.so=$(INSTALL_DIR)/%_2.so)
 INSTALL_BIN			=	$(SERVER_BIN:./build/server/%=$(INSTALL_DIR)/%) $(TESTS_BIN:./build/tests/%=$(INSTALL_DIR)/%)
 
