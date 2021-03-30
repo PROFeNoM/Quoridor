@@ -23,10 +23,15 @@ INSTALL_BIN			=	$(SERVER_BIN:./build/server/%=$(INSTALL_DIR)/%) $(TESTS_BIN:./bu
 DEP					=	$(PLAYER_OBJ:%.o=%.d) $(PLAYER_COMMON_OBJ:%.o=%.d) $(SERVER_OBJ:%.o=%.d) $(SERVER_COMMON_OBJ:%.o=%.d)
 
 CC 					= 	gcc
-CPPFLAGS 			= 	-I${INCLUDE_DIR} -I${GSL_PATH}
+ifdef GSL_PATH
+CPPFLAGS 			= 	-I${INCLUDE_DIR} -I${GSL_PATH}/include -lm -L$(GSL_PATH)/lib/ -lgsl -lgslcblas
+LDFLAGS 			= 	`$(GSL_PATH)/bin/gsl-config --cflags --libs` -ldl
+else
+CPPFLAGS 			= 	-I${INCLUDE_DIR} -I$ -lm
+LDFLAGS 			= 	`gsl-config --cflags --libs` -ldl
+endif
 CFLAGS 				= 	-Wall -Wextra -std=c99 -g
 DEPFLAGS			= 	-MT $@ -MMD -MP -MF $(@D)/$*.d
-LDFLAGS 			= 	`gsl-config --cflags --libs` -ldl
 LIBFLAGS 			= 	-shared
 DYNAMICFLAGS		=	-fPIC
 TESTSFLAGS			=	-lgcov
@@ -123,7 +128,7 @@ install/%: build/tests/% %_copy
 
 $(TESTS_BIN): $(BUILD_DIR)
 	@echo $(COLOR)$(ITALIC)$(PURPLE)"\tCompilation AllTests BINARY"$(NOCOLOR)
-	@$(CC) $(CFLAGS) $(CPPFLAGS) $(TESTSFLAGS) $(TESTS_SRC) -o $@ $(LDFLAGS)
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(TESTSFLAGS) $(TESTS_SRC) -o $@ $(LDFLAGS)
 
 # SRC_DIR = src
 # INSTALL_DIR = install

@@ -15,7 +15,8 @@ static int m = 2;
 
 void parse_opts(int argc, char* argv[]) {
   int opt;
-  while ((opt = getopt(argc, argv, "m:t")) != -1) {
+  while ((opt = getopt(argc, argv, "m:t:")) != -1)
+  {
     switch (opt) {
     case 't':
       t = *optarg;
@@ -23,7 +24,7 @@ void parse_opts(int argc, char* argv[]) {
     case 'm':
       m = atoi(optarg);
       break;
-    default: /* '?' */
+    default:
       fprintf(stderr, "Usage: %s [-t type of board] [-m size of board]\n",
               argv[0]);
       exit(EXIT_FAILURE);
@@ -33,10 +34,10 @@ void parse_opts(int argc, char* argv[]) {
 
 int main(int argc , char * argv[]){
 
-  parse_opts(argc-2, argv);
+  parse_opts(argc, argv);
 
   struct server *server;
-  server = initialize_server(argv[argc - 2], argv[argc - 1], m, t);
+  server = initialize_server(argv[optind], argv[optind + 1], m, t);
   
   run_server(server);
   
