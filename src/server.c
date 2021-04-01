@@ -84,7 +84,7 @@ void run_server(struct server *server)
     graph_free(copy_graph);
     
     copy_graph = graph_copy(server->graph.graph);
-    server->players[WHITE].initialize(WHITE, graph_copy(server->graph.graph), 22);
+    server->players[WHITE].initialize(WHITE, copy_graph, 22);
     graph_free(copy_graph);
 
     struct move_t move = {.m = 0, .e = {{-1, -1}}, .t = NO_TYPE, .c = WHITE};
