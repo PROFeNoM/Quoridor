@@ -79,8 +79,13 @@ struct server *initialize_server(char *player1_lib, char *player2_lib, size_t wi
 
 void run_server(struct server *server)
 {
-    server->players[BLACK].initialize(BLACK, graph_copy(server->graph.graph), 22);
+    struct graph_t *copy_graph = graph_copy(server->graph.graph);
+    server->players[BLACK].initialize(BLACK, copy_graph, 22);
+    graph_free(copy_graph);
+    
+    copy_graph = graph_copy(server->graph.graph);
     server->players[WHITE].initialize(WHITE, graph_copy(server->graph.graph), 22);
+    graph_free(copy_graph);
 
     struct move_t move = {.m = 0, .e = {{-1, -1}}, .t = NO_TYPE, .c = WHITE};
     while (1)
