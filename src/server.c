@@ -26,8 +26,8 @@ void display_graph(struct graph_t *graph, size_t m, struct player_server *player
             size_t vertex = i * m + j;
             to_print = (vertex == player_one_pos) ? "1" : 
             (vertex == player_two_pos ? "2" : 
-            (gsl_spmatrix_get(graph->o, BLACK, vertex) == 1 ? "◻" : 
-            (gsl_spmatrix_get(graph->o, WHITE, vertex) == 1 ? "◼" : 
+            (gsl_spmatrix_uint_get(graph->o, BLACK, vertex) == 1 ? "◻" : 
+            (gsl_spmatrix_uint_get(graph->o, WHITE, vertex) == 1 ? "◼" : 
             "⬚")));
             printf(" %s ", to_print);
         }

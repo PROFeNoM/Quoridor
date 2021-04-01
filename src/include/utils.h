@@ -34,10 +34,10 @@ int is_vertice_on_graph(struct graph_t *, size_t);
 void add_wall(struct graph_t *, struct edge_t[]);
 
 // Return 1 if given vertice is in area, else 0
-int is_vertice_in_area(size_t, gsl_spmatrix *, int);
+int is_vertice_in_area(size_t, gsl_spmatrix_uint *, int);
 
 // Return 1 if a path exist between a vertice and a
-int is_path_existing(struct graph_t *, size_t, gsl_spmatrix *, int[], int);
+int is_path_existing(struct graph_t *, size_t, gsl_spmatrix_uint *, int[], int);
 
 // Return 1 if the player is blocked, else 0
 int is_player_blocked(struct graph_t *, struct player_server*, int);

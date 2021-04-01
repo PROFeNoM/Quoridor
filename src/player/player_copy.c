@@ -46,7 +46,7 @@ struct move_t get_first_move()
   size_t memory[player.graph->num_vertices];
   size_t inc = 0;
   for (size_t index = 0; index < player.graph->num_vertices; index++) {
-    if (gsl_spmatrix_get(player.graph->o, player.id, index) == 1) {
+    if (gsl_spmatrix_uint_get(player.graph->o, player.id, index) == 1) {
       memory[inc++] = index;
     }
   }
@@ -67,13 +67,13 @@ struct move_t get_new_move(struct move_t previous_move)
   size_t i = player.position[player.id];
   
   for (size_t j = 0; j < player.graph->num_vertices; j++) {
-    if (gsl_spmatrix_get(player.graph->t, i, j) > 0 && j != player.position[previous_move.c])
+    if (gsl_spmatrix_uint_get(player.graph->t, i, j) > 0 && j != player.position[previous_move.c])
       pos[nb_pos++] = j;
-    if (gsl_spmatrix_get(player.graph->t, i, j) > 0 && j == player.position[previous_move.c])
+    if (gsl_spmatrix_uint_get(player.graph->t, i, j) > 0 && j == player.position[previous_move.c])
       for (size_t k = 0; k < player.graph->num_vertices; k++) {
-	if (gsl_spmatrix_get(player.graph->t, i, j) == gsl_spmatrix_get(player.graph->t, j, k))
+	if (gsl_spmatrix_uint_get(player.graph->t, i, j) == gsl_spmatrix_uint_get(player.graph->t, j, k))
 	  pos[nb_pos++] = k;
-	else if (gsl_spmatrix_get(player.graph->t, j, k) > 0 && k != i)
+	else if (gsl_spmatrix_uint_get(player.graph->t, j, k) > 0 && k != i)
 	  pos[nb_pos++] = k;
       }
   }

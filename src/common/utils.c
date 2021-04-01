@@ -6,11 +6,11 @@ struct graph_t* graph_copy(struct graph_t* graph)
 
     cp->num_vertices = graph->num_vertices;
 
-    cp->t = gsl_spmatrix_alloc(graph->num_vertices, graph->num_vertices);
-    gsl_spmatrix_memcpy(cp->t, graph->t);
+    cp->t = gsl_spmatrix_uint_alloc(graph->num_vertices, graph->num_vertices);
+    gsl_spmatrix_uint_memcpy(cp->t, graph->t);
 
-    cp->o = gsl_spmatrix_alloc(2, graph->num_vertices);
-    gsl_spmatrix_memcpy(cp->o, graph->o);
+    cp->o = gsl_spmatrix_uint_alloc(2, graph->num_vertices);
+    gsl_spmatrix_uint_memcpy(cp->o, graph->o);
 
     return cp;
 }
@@ -18,8 +18,8 @@ struct graph_t* graph_copy(struct graph_t* graph)
 
 void graph_free(struct graph_t *graph)
 {
-  gsl_spmatrix_free(graph->t);
-  gsl_spmatrix_free(graph->o);
+  gsl_spmatrix_uint_free(graph->t);
+  gsl_spmatrix_uint_free(graph->o);
   free(graph);
 }
 
@@ -47,12 +47,12 @@ enum color_t get_next_player(enum color_t id)
 
 int is_winning(struct graph_t *graph, enum color_t player_id, size_t position)
 {
-  return gsl_spmatrix_get(graph->o, get_next_player(player_id), position);
+  return gsl_spmatrix_uint_get(graph->o, get_next_player(player_id), position);
 }
 
 double get_connection(struct graph_t* graph, size_t a, size_t b)
 {
-    return gsl_spmatrix_get(graph->t, a, b);
+    return gsl_spmatrix_uint_get(graph->t, a, b);
 }
 
 int is_connected(struct graph_t* graph, size_t a, size_t b)
@@ -62,7 +62,7 @@ int is_connected(struct graph_t* graph, size_t a, size_t b)
 
 void change_connection(struct graph_t* graph, size_t a, size_t b, double connection)
 {
-    gsl_spmatrix_set(graph->t, a, b, connection);
+    gsl_spmatrix_uint_set(graph->t, a, b, connection);
 }
 
 int is_vertice_on_graph(struct graph_t* graph, size_t a)
@@ -78,12 +78,12 @@ void add_wall(struct graph_t* graph, struct edge_t e[])
     change_connection(graph, e[1].fr, e[1].to, -wall_placed++);
 }
 
-int is_vertice_in_area(size_t pos, gsl_spmatrix* o, int p)
+int is_vertice_in_area(size_t pos, gsl_spmatrix_uint* o, int p)
 {
-    return gsl_spmatrix_get(o, p, pos) == 1;
+    return gsl_spmatrix_uint_get(o, p, pos) == 1;
 }
 
-int is_path_existing(struct graph_t* graph, size_t pos, gsl_spmatrix* o, int visited[], int p)
+int is_path_existing(struct graph_t* graph, size_t pos, gsl_spmatrix_uint* o, int visited[], int p)
 {
     visited[(int)pos] = 1;
     if (is_vertice_in_area(pos, o, p))

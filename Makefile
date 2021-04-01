@@ -30,11 +30,11 @@ else
 CPPFLAGS 			= 	-I${INCLUDE_DIR} -I$ -lm
 LDFLAGS 			= 	`gsl-config --cflags --libs` -ldl
 endif
-CFLAGS 				= 	-Wall -Wextra -std=c99 -g
+CFLAGS 				= 	-Wall -Wextra -std=c99
 DEPFLAGS			= 	-MT $@ -MMD -MP -MF $(@D)/$*.d
 LIBFLAGS 			= 	-shared
 DYNAMICFLAGS		=	-fPIC
-TESTSFLAGS			=	-lgcov
+TESTSFLAGS			=	-g -O0 -fprofile-arcs -ftest-coverage
 
 COLOR				=	"\033["
 GREEN				=	";32m"
@@ -128,7 +128,7 @@ install/%: build/tests/% %_copy
 
 $(TESTS_BIN): $(BUILD_DIR)
 	@echo $(COLOR)$(ITALIC)$(PURPLE)"\tCompilation AllTests BINARY"$(NOCOLOR)
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(TESTSFLAGS) $(TESTS_SRC) -o $@ $(LDFLAGS)
+	@$(CC) $(CFLAGS) $(CPPFLAGS) $(TESTSFLAGS) $(TESTS_SRC) -o $@ $(LDFLAGS)
 
 # SRC_DIR = src
 # INSTALL_DIR = install
