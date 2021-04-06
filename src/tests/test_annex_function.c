@@ -126,9 +126,18 @@ int test_can_player_move_to()
     struct graph_t* graph1 = get_graph('c', 3);
     assert(can_player_move_to(graph1, 1, 0, 4, 2) == 1);
     assert(can_player_move_to(graph1, 0, 1, 1, 6) == 0);
-
+    assert(can_player_move_to(graph1, 2, 0, 0, 1) == 1);
     graph_free(graph1);
 
+    struct graph_t* graph2 = get_graph('c', 4);
+    struct edge_t e1[2] = {
+            { 4, 5 },
+            { 8, 9 }
+    };
+    add_wall(graph2, e1);
+    assert(can_player_move_to(graph2, 9, 0, 6, 5) == 1);
+    assert(can_player_move_to(graph2, 1, 0, 6, 5) == 1);
+    assert(can_player_move_to(graph2, 4, 0, 6, 5) == 0);
     return 1;
 }
 

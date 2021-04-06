@@ -87,12 +87,16 @@ void add_wall(struct graph_t* graph, struct edge_t e[])
     if (is_horizontal_relation(graph, e[0].fr, e[0].to))
     {
         change_connection(graph, e[0].fr, e[0].to, e[0].fr > e[1].fr ? POINT_TO_NORTH : POINT_TO_SOUTH);
+        change_connection(graph, e[0].to, e[0].fr, e[0].fr > e[1].fr ? POINT_TO_NORTH : POINT_TO_SOUTH);
         change_connection(graph, e[1].fr, e[1].to, e[0].fr > e[1].fr ? POINT_TO_SOUTH : POINT_TO_NORTH);
+        change_connection(graph, e[1].to, e[1].fr, e[0].fr > e[1].fr ? POINT_TO_SOUTH : POINT_TO_NORTH);
     }
     else
     {
         change_connection(graph, e[0].fr, e[0].to, e[0].fr > e[1].fr ? POINT_TO_WEST : POINT_TO_EAST);
+        change_connection(graph, e[0].to, e[0].fr, e[0].fr > e[1].fr ? POINT_TO_WEST : POINT_TO_EAST);
         change_connection(graph, e[1].fr, e[1].to, e[0].fr > e[1].fr ? POINT_TO_EAST : POINT_TO_WEST);
+        change_connection(graph, e[1].to, e[1].fr, e[0].fr > e[1].fr ? POINT_TO_EAST : POINT_TO_WEST);
     }
 }
 
