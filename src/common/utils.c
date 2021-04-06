@@ -123,17 +123,17 @@ int is_path_existing(struct graph_t* graph, size_t pos, gsl_spmatrix_uint* o, in
     return 0;
 }
 
-int is_player_blocked(struct graph_t* graph, struct player_server *player, int p)
+int is_player_blocked(struct graph_t* graph, size_t player_position, int p)
 {
     int visited[graph->num_vertices];
     for (size_t i = 0; i < graph->num_vertices; i++)
         visited[i] = 0;
 
-    return !is_path_existing(graph, player->pos, graph->o, visited, p);
+    return !is_path_existing(graph, player_position, graph->o, visited, p);
 }
 
 // size of e is 2
-int can_add_wall(struct graph_t* graph, struct edge_t e[], struct player_server * players)
+int can_add_wall(struct graph_t* graph, struct edge_t e[], size_t player1_position, size_t player2_position)
 {
     // TODO: Check nb of walls left for the active player
     // TODO: Change struct player_server to integers
@@ -195,8 +195,8 @@ int can_add_wall(struct graph_t* graph, struct edge_t e[], struct player_server 
     // Check if players aren't blocked
     struct graph_t* graph_with_wall = graph_copy(graph);
     add_wall(graph_with_wall, e);
-    if (is_player_blocked(graph_with_wall, &players[0], 1)
-        || is_player_blocked(graph_with_wall, &players[1], 0))
+    if (is_player_blocked(graph_with_wall, player1_position, 1)
+        || is_player_blocked(graph_with_wall, player2_position, 0))
         return 0;
     graph_free(graph_with_wall);
 
@@ -256,4 +256,14 @@ int can_player_move_to(struct graph_t* graph, size_t pos, int active_player, siz
 
     // The position isn't accessible
     return 0;
+}
+
+int is_move_legal(struct graph_t* graph, struct move_t* move, size_t player1_position, size_t player2_position)
+{
+    if (move->t == WALL)
+        return can_add_wall(graph, move->e, player1_position, player2_position);
+    else if (move->t == MOVE)
+        return can_player_move_to(graph, move->m, move->c, player1_position, player2_position);
+    else
+        return 0;
 }
