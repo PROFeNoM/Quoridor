@@ -6,6 +6,13 @@
 #include "graph.h"
 #include "server.h"
 
+enum wall_orientation {
+    POINT_TO_NORTH = 5,
+    POINT_TO_SOUTH,
+    POINT_TO_WEST,
+    POINT_TO_EAST
+};
+
 struct graph_t * graph_copy(struct graph_t *);
 
 void graph_free(struct graph_t *);
@@ -19,10 +26,10 @@ enum color_t get_next_player(enum color_t);
 int is_winning(struct graph_t *, enum color_t, size_t);
 
 // Return the connection between two vertices
-double get_connection(struct graph_t *, size_t, size_t);
+int get_connection(struct graph_t *, size_t, size_t);
 
 // Change the connection between two vertices
-void change_connection(struct graph_t *, size_t, size_t, double);
+void change_connection(struct graph_t *, size_t, size_t, int);
 
 // Return 1 if vertices are connected, else 0
 int is_connected(struct graph_t *, size_t, size_t);

@@ -54,7 +54,7 @@ struct move_t get_first_move()
   player.position[player.id] = memory[random_index];
   
   struct move_t first_move = {.m = player.position[player.id], .e = {{-1,-1}},
-			       .t = NO_TYPE, .c = player.id}; 
+			       .t = MOVE, .c = player.id}; 
   return first_move;
 }
 

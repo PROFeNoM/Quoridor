@@ -18,7 +18,7 @@ struct player player = {.name= NULL, .graph = NULL, .position = {UNINITIALIZED, 
 
 char const* get_player_name()
 {
-  player.name = "random strategy";
+  player.name = "daftStrat";
   return player.name;
 }
 
@@ -36,7 +36,6 @@ void initialize(enum color_t id, struct graph_t* graph, size_t num_walls)
     player.position[0] = graph->num_vertices;
     player.position[1] = graph->num_vertices;
   }
-
   else
     is_initialized = 1;
 }
@@ -54,7 +53,7 @@ struct move_t get_first_move()
   player.position[player.id] = memory[random_index];
   
   struct move_t first_move = {.m = player.position[player.id], .e = {{-1,-1}},
-			       .t = NO_TYPE, .c = player.id}; 
+			       .t = MOVE, .c = player.id}; 
   return first_move;
 }
 

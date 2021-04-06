@@ -3,7 +3,7 @@
 
 #include "graph.h"
 
-enum direction_t {NO_DIRECTION=0,NORTH,SOUTH,WEST,EAST};
+enum direction_t {NO_DIRECTION=0,NORTH,SOUTH,WEST,EAST, MAX_DIRECTION};
 
 
 // get the index of direction of j according to i
