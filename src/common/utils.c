@@ -50,32 +50,55 @@ int is_winning(struct graph_t *graph, enum color_t player_id, size_t position)
   return gsl_spmatrix_uint_get(graph->o, get_next_player(player_id), position);
 }
 
-double get_connection(struct graph_t* graph, size_t a, size_t b)
+int get_connection(struct graph_t* graph, size_t a, size_t b)
 {
     return gsl_spmatrix_uint_get(graph->t, a, b);
 }
 
 int is_connected(struct graph_t* graph, size_t a, size_t b)
 {
-    return get_connection(graph, a, b) > 0;
+    return MAX_DIRECTION > get_connection(graph, a, b) && get_connection(graph, a, b) > 0;
 }
 
-void change_connection(struct graph_t* graph, size_t a, size_t b, double connection)
+void change_connection(struct graph_t* graph, size_t a, size_t b, int connection)
 {
     gsl_spmatrix_uint_set(graph->t, a, b, connection);
 }
 
 int is_vertice_on_graph(struct graph_t* graph, size_t a)
-
 {
-    return 0 <= a && a <= graph->num_vertices;
+    return a < graph->num_vertices;
 }
 
 void add_wall(struct graph_t* graph, struct edge_t e[])
 {
-    static int wall_placed = 1;
-    change_connection(graph, e[0].fr, e[0].to, -wall_placed);
-    change_connection(graph, e[1].fr, e[1].to, -wall_placed++);
+    int relation = get_connection(graph, e[0].fr, e[0].to);
+    if (relation == WEST || relation == EAST)
+    {
+        if (e[0].fr > e[1].fr)
+        {
+            change_connection(graph, e[0].fr, e[0].to, POINT_TO_NORTH);
+            change_connection(graph, e[1].fr, e[1].to, POINT_TO_SOUTH);
+        }
+        else
+        {
+            change_connection(graph, e[0].fr, e[0].to, POINT_TO_SOUTH);
+            change_connection(graph, e[1].fr, e[1].to, POINT_TO_NORTH);
+        }
+    }
+    else
+    {
+        if (e[0].fr > e[1].fr)
+        {
+            change_connection(graph, e[0].fr, e[0].to, POINT_TO_WEST);
+            change_connection(graph, e[1].fr, e[1].to, POINT_TO_EAST);
+        }
+        else
+        {
+            change_connection(graph, e[0].fr, e[0].to, POINT_TO_EAST);
+            change_connection(graph, e[1].fr, e[1].to, POINT_TO_WEST);
+        }
+    }
 }
 
 int is_vertice_in_area(size_t pos, gsl_spmatrix_uint* o, int p)
@@ -124,13 +147,13 @@ int can_add_wall(struct graph_t* graph, struct edge_t e[], struct player_server 
         return 0;
 
     // Check vertices relation
-    double relation1 = get_connection(graph, e[0].fr, e[0].to);
+    int relation1 = get_connection(graph, e[0].fr, e[0].to);
     int flag_connection = 0;
     if (relation1 == EAST || relation1 == WEST)
     {
         if (is_connected(graph, e[0].fr, e[1].fr))
         {
-            double relation2 = get_connection(graph, e[0].fr, e[1].fr);
+            int relation2 = get_connection(graph, e[0].fr, e[1].fr);
             if (relation2 != NORTH && relation2 != SOUTH)
                 return 0;
 
@@ -142,7 +165,7 @@ int can_add_wall(struct graph_t* graph, struct edge_t e[], struct player_server 
             if (flag_connection)
                 return 0;
 
-            double relation2 = get_connection(graph, e[0].fr, e[1].to);
+            int relation2 = get_connection(graph, e[0].fr, e[1].to);
             if (relation2 != NORTH && relation2 != SOUTH)
                 return 0;
 
@@ -156,7 +179,7 @@ int can_add_wall(struct graph_t* graph, struct edge_t e[], struct player_server 
     {
         if (is_connected(graph, e[0].fr, e[1].fr))
         {
-            double relation2 = get_connection(graph, e[0].fr, e[1].fr);
+            int relation2 = get_connection(graph, e[0].fr, e[1].fr);
             if (relation2 != EAST && relation2 != WEST)
                 return 0;
 
@@ -168,7 +191,7 @@ int can_add_wall(struct graph_t* graph, struct edge_t e[], struct player_server 
             if (flag_connection)
                 return 1;
 
-            double relation2 = get_connection(graph, e[0].fr, e[1].to);
+            int relation2 = get_connection(graph, e[0].fr, e[1].to);
             if (relation2 != EAST && relation2 != WEST)
                 return 0;
 

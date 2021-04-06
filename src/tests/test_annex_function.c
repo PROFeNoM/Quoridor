@@ -65,10 +65,60 @@ int test_can_add_wall()
     return 1;
 }
 
+
+int test_add_wall()
+{
+    struct edge_t e1[2] = {
+            { 0, 1 },
+            { 2, 3 }
+    };
+
+    struct graph_t *graph1 = get_graph('c', 2);
+
+    add_wall(graph1, e1);
+
+    assert(get_connection(graph1, 0, 1) == POINT_TO_SOUTH);
+    assert(get_connection(graph1, 2, 3) == POINT_TO_NORTH);
+
+    struct edge_t e2[2] = {
+            { 1, 3 },
+            { 0, 2 }
+    };
+
+    add_wall(graph1, e2);
+    assert(get_connection(graph1, 1, 3) == POINT_TO_WEST);
+    assert(get_connection(graph1, 0, 2) == POINT_TO_EAST);
+
+    struct edge_t e1bis[2] = {
+            { 2, 3 },
+            { 0, 1 },
+    };
+
+    struct graph_t *graph2 = get_graph('c', 2);
+
+    add_wall(graph2, e1bis);
+
+    assert(get_connection(graph2, 0, 1) == POINT_TO_SOUTH);
+    assert(get_connection(graph2, 2, 3) == POINT_TO_NORTH);
+
+    struct edge_t e2bis[2] = {
+            { 0, 2 },
+            { 1, 3 },
+    };
+
+    add_wall(graph2, e2bis);
+    assert(get_connection(graph2, 1, 3) == POINT_TO_WEST);
+    assert(get_connection(graph2, 0, 2) == POINT_TO_EAST);
+
+    return 1;
+}
+
+
 int main(int argc, char *argv[])
 {
     (void)argc;
     (void)argv;
     TESTCASE("Test of can_add_wall", test_can_add_wall);
+    TESTCASE("Test of add_wall", test_add_wall);
     return 0;
 }
