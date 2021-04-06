@@ -132,6 +132,38 @@ int test_can_player_move_to()
     return 1;
 }
 
+int test_is_move_legal()
+{
+    struct graph_t* graph1 = get_graph('c', 3);
+
+    struct move_t m1 = { 1, { no_edge(), no_edge() }, MOVE, BLACK };
+    assert(is_move_legal(graph1, &m1, 4, 2) == 1);
+
+    struct move_t m2 = { 0, { no_edge(), no_edge() }, MOVE, WHITE };
+    assert(is_move_legal(graph1, &m2, 1, 6) == 0);
+
+    struct move_t m3 = { 2, { no_edge(), no_edge() }, MOVE, BLACK };
+    assert(is_move_legal(graph1, &m3, 0, 1) == 1);
+
+
+    struct graph_t* graph2 = get_graph('c', 4);
+    struct edge_t e1[2] = {
+            { 4, 5 },
+            { 8, 9 }
+    };
+    add_wall(graph2, e1);
+
+    struct move_t m4 = { 9, { no_edge(), no_edge() }, MOVE, BLACK };
+    assert(is_move_legal(graph2, &m4, 6, 5) == 1);
+
+    struct move_t m5 = { 1, { no_edge(), no_edge() }, MOVE, BLACK };
+    assert(is_move_legal(graph2, &m5, 6, 5) == 1);
+
+    struct move_t m6 = { 4, { no_edge(), no_edge() }, MOVE, BLACK };
+    assert(is_move_legal(graph2, &m6, 6, 5) == 0);
+
+    return 1;
+}
 
 int main(int argc, char *argv[])
 {
@@ -140,5 +172,6 @@ int main(int argc, char *argv[])
     TESTCASE("Test of can_add_wall", test_can_add_wall);
     TESTCASE("Test of add_wall", test_add_wall);
     TESTCASE("Test of can_player_move_to", test_can_player_move_to);
+    TESTCASE("Test of is_move_legal", test_is_move_legal);
     return 0;
 }

@@ -67,6 +67,9 @@ int can_player_move_to(struct graph_t*, size_t, int, size_t, size_t);
 // Return 1 if no player is on the vertex, else 0
 int is_vertex_unoccupied(size_t, size_t, size_t);
 
+// Return 1 if the move is legal, else 0
+int is_move_legal(struct graph_t*, struct move_t*, size_t, size_t);
+
 // Release allocated memory
 void graph_free(struct graph_t *);
 
