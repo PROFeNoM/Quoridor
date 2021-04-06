@@ -25,6 +25,9 @@ enum color_t get_next_player(enum color_t);
 
 int is_winning(struct graph_t *, enum color_t, size_t);
 
+// Return 1 if position is owned by the given player
+int is_owned(struct graph_t*, int, size_t);
+
 // Return the connection between two vertices
 int get_connection(struct graph_t *, size_t, size_t);
 

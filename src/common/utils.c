@@ -50,6 +50,11 @@ int is_winning(struct graph_t *graph, enum color_t player_id, size_t position)
   return gsl_spmatrix_uint_get(graph->o, get_next_player(player_id), position);
 }
 
+int is_owned(struct graph_t* graph, int player, size_t pos)
+{
+    return gsl_spmatrix_uint_get(graph->o, player, pos) == 1;
+}
+
 int get_connection(struct graph_t* graph, size_t a, size_t b)
 {
     return gsl_spmatrix_uint_get(graph->t, a, b);
