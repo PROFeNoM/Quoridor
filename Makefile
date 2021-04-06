@@ -58,7 +58,7 @@ install: INSTALL_start build $(INSTALL_LIB) $(INSTALL_BIN) INSTALL_end
 test:	TESTS_start $(TESTS_BIN) TESTS_end
 
 clean:
-	rm -rf ./build $(INSTALL_BIN) $(INSTALL_LIB)
+	rm -rf ./build $(INSTALL_BIN) $(INSTALL_LIB) *.gcno
 
 
 ############################## HELPERS RULES ##############################
