@@ -58,6 +58,12 @@ int is_player_blocked(struct graph_t *, struct player_server*, int);
 // Return 1 if the wall can be added on the board, else 0
 int can_add_wall(struct graph_t *, struct edge_t[], struct player_server *);
 
+// Return 1 if a player can move to a given position on the board, else 0
+int can_player_move_to(struct graph_t*, size_t, int, size_t, size_t);
+
+// Return 1 if no player is on the vertex, else 0
+int is_vertex_unoccupied(size_t, size_t, size_t);
+
 // Release allocated memory
 void graph_free(struct graph_t *);
 

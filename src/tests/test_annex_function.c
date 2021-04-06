@@ -121,11 +121,24 @@ int test_add_wall()
 }
 
 
+int test_can_player_move_to()
+{
+    struct graph_t* graph1 = get_graph('c', 3);
+    assert(can_player_move_to(graph1, 1, 0, 4, 2) == 1);
+    assert(can_player_move_to(graph1, 0, 1, 1, 6) == 0);
+
+    graph_free(graph1);
+
+    return 1;
+}
+
+
 int main(int argc, char *argv[])
 {
     (void)argc;
     (void)argv;
     TESTCASE("Test of can_add_wall", test_can_add_wall);
     TESTCASE("Test of add_wall", test_add_wall);
+    TESTCASE("Test of can_player_move_to", test_can_player_move_to);
     return 0;
 }

@@ -126,6 +126,9 @@ int is_player_blocked(struct graph_t* graph, struct player_server *player, int p
 // size of e is 2
 int can_add_wall(struct graph_t* graph, struct edge_t e[], struct player_server * players)
 {
+    // TODO: Check nb of walls left for the active player
+    // TODO: Change struct player_server to integers
+
     // Vertices must be on graph
     if (!(is_vertex_on_graph(graph, e[0].fr) && is_vertex_on_graph(graph, e[0].to)
         && is_vertex_on_graph(graph, e[1].fr) && is_vertex_on_graph(graph, e[1].to)))
@@ -192,3 +195,56 @@ int can_add_wall(struct graph_t* graph, struct edge_t e[], struct player_server 
     return 1;
 }
 
+int is_vertex_unoccupied(size_t pos, size_t position_player1, size_t position_player2)
+{
+    return !(pos == position_player1 || pos == position_player2);
+}
+
+int is_connection_existing(struct graph_t* graph, size_t i, int direction)
+{
+    for (size_t j = 0; j < graph->num_vertices; j++)
+        if (get_connection(graph, i, j) == direction)
+            return 1;
+
+    return 0;
+}
+
+int can_player_move_to(struct graph_t* graph, size_t pos, int active_player, size_t position_player1, size_t position_player2)
+{
+    // Check if position is on the board
+    if (!is_vertex_on_graph(graph, pos))
+        return 0;
+
+    // Check if the opponent isn't already on it
+    if (!is_vertex_unoccupied(pos, position_player1, position_player2))
+        return 0;
+
+    size_t initial_position = active_player == 0 ? position_player1 : position_player2;
+    size_t opponent_position = active_player == 0 ? position_player2 : position_player1;
+
+    // The position is directly accessible, hence the player can move to it
+    if (is_connected(graph, initial_position, pos))
+        return 1;
+
+    // The position isn't directly accessible
+    // Check if player are facing each other, and can jump to the position
+    if (is_connected(graph, initial_position, opponent_position))
+    {
+        // Check if the opponent is next to the position
+        if (!is_connected(graph, opponent_position, pos))
+            return 0;
+
+        // The opponent is next to the position
+
+        // Check if position is behind the opponent
+        if (get_connection(graph, initial_position, opponent_position) == get_connection(graph, opponent_position, pos))
+            return 1;
+
+        // There's a wall/edge of the board behind the opponent player
+        if (!is_connection_existing(graph, opponent_position, get_connection(graph, initial_position, opponent_position)))
+            return 1;
+    }
+
+    // The position isn't accessible
+    return 0;
+}
