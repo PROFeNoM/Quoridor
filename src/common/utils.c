@@ -65,43 +65,38 @@ void change_connection(struct graph_t* graph, size_t a, size_t b, int connection
     gsl_spmatrix_uint_set(graph->t, a, b, connection);
 }
 
-int is_vertice_on_graph(struct graph_t* graph, size_t a)
+int is_vertex_on_graph(struct graph_t* graph, size_t a)
 {
     return a < graph->num_vertices;
 }
 
+int is_horizontal_relation(struct graph_t* graph, size_t a, size_t b)
+{
+    int relation = get_connection(graph, a, b);
+    return relation == EAST || relation == WEST;
+}
+
+int is_vertical_relation(struct graph_t* graph, size_t a, size_t b)
+{
+    int relation = get_connection(graph, a, b);
+    return relation == NORTH || relation == SOUTH;
+}
+
 void add_wall(struct graph_t* graph, struct edge_t e[])
 {
-    int relation = get_connection(graph, e[0].fr, e[0].to);
-    if (relation == WEST || relation == EAST)
+    if (is_horizontal_relation(graph, e[0].fr, e[0].to))
     {
-        if (e[0].fr > e[1].fr)
-        {
-            change_connection(graph, e[0].fr, e[0].to, POINT_TO_NORTH);
-            change_connection(graph, e[1].fr, e[1].to, POINT_TO_SOUTH);
-        }
-        else
-        {
-            change_connection(graph, e[0].fr, e[0].to, POINT_TO_SOUTH);
-            change_connection(graph, e[1].fr, e[1].to, POINT_TO_NORTH);
-        }
+        change_connection(graph, e[0].fr, e[0].to, e[0].fr > e[1].fr ? POINT_TO_NORTH : POINT_TO_SOUTH);
+        change_connection(graph, e[1].fr, e[1].to, e[0].fr > e[1].fr ? POINT_TO_SOUTH : POINT_TO_NORTH);
     }
     else
     {
-        if (e[0].fr > e[1].fr)
-        {
-            change_connection(graph, e[0].fr, e[0].to, POINT_TO_WEST);
-            change_connection(graph, e[1].fr, e[1].to, POINT_TO_EAST);
-        }
-        else
-        {
-            change_connection(graph, e[0].fr, e[0].to, POINT_TO_EAST);
-            change_connection(graph, e[1].fr, e[1].to, POINT_TO_WEST);
-        }
+        change_connection(graph, e[0].fr, e[0].to, e[0].fr > e[1].fr ? POINT_TO_WEST : POINT_TO_EAST);
+        change_connection(graph, e[1].fr, e[1].to, e[0].fr > e[1].fr ? POINT_TO_EAST : POINT_TO_WEST);
     }
 }
 
-int is_vertice_in_area(size_t pos, gsl_spmatrix_uint* o, int p)
+int is_vertex_in_area(size_t pos, gsl_spmatrix_uint* o, int p)
 {
     return gsl_spmatrix_uint_get(o, p, pos) == 1;
 }
@@ -109,17 +104,12 @@ int is_vertice_in_area(size_t pos, gsl_spmatrix_uint* o, int p)
 int is_path_existing(struct graph_t* graph, size_t pos, gsl_spmatrix_uint* o, int visited[], int p)
 {
     visited[(int)pos] = 1;
-    if (is_vertice_in_area(pos, o, p))
+    if (is_vertex_in_area(pos, o, p))
         return 1;
 
-    // int flag_path = 0;
     for (size_t j = 0; j < graph->num_vertices; j++)
-        if (is_connected(graph, pos, j) && !visited[(int)j])
-        {
-            int path = is_path_existing(graph, j, o, visited, p);
-            if (path)
-                return 1;
-        }
+        if (is_connected(graph, pos, j) && !visited[(int)j] && is_path_existing(graph, j, o, visited, p))
+            return 1;
 
     return 0;
 }
@@ -130,16 +120,15 @@ int is_player_blocked(struct graph_t* graph, struct player_server *player, int p
     for (size_t i = 0; i < graph->num_vertices; i++)
         visited[i] = 0;
 
-    int path = is_path_existing(graph, player->pos, graph->o, visited, p);
-    return !path;
+    return !is_path_existing(graph, player->pos, graph->o, visited, p);
 }
 
 // size of e is 2
 int can_add_wall(struct graph_t* graph, struct edge_t e[], struct player_server * players)
 {
     // Vertices must be on graph
-    if (!(is_vertice_on_graph(graph, e[0].fr) && is_vertice_on_graph(graph, e[0].to)
-        && is_vertice_on_graph(graph, e[1].fr) && is_vertice_on_graph(graph, e[1].to)))
+    if (!(is_vertex_on_graph(graph, e[0].fr) && is_vertex_on_graph(graph, e[0].to)
+        && is_vertex_on_graph(graph, e[1].fr) && is_vertex_on_graph(graph, e[1].to)))
         return 0;
 
     // Check if vertices are connected AND if it won't overlap an other wall
@@ -147,14 +136,12 @@ int can_add_wall(struct graph_t* graph, struct edge_t e[], struct player_server 
         return 0;
 
     // Check vertices relation
-    int relation1 = get_connection(graph, e[0].fr, e[0].to);
     int flag_connection = 0;
-    if (relation1 == EAST || relation1 == WEST)
+    if (is_horizontal_relation(graph, e[0].fr, e[0].to))
     {
         if (is_connected(graph, e[0].fr, e[1].fr))
         {
-            int relation2 = get_connection(graph, e[0].fr, e[1].fr);
-            if (relation2 != NORTH && relation2 != SOUTH)
+            if (!is_vertical_relation(graph, e[0].fr, e[1].fr))
                 return 0;
 
             flag_connection = 1;
@@ -162,11 +149,7 @@ int can_add_wall(struct graph_t* graph, struct edge_t e[], struct player_server 
 
         if (is_connected(graph, e[0].fr, e[1].to))
         {
-            if (flag_connection)
-                return 0;
-
-            int relation2 = get_connection(graph, e[0].fr, e[1].to);
-            if (relation2 != NORTH && relation2 != SOUTH)
+            if (flag_connection || !is_vertical_relation(graph, e[0].fr, e[1].to))
                 return 0;
 
             flag_connection = 1;
@@ -179,8 +162,7 @@ int can_add_wall(struct graph_t* graph, struct edge_t e[], struct player_server 
     {
         if (is_connected(graph, e[0].fr, e[1].fr))
         {
-            int relation2 = get_connection(graph, e[0].fr, e[1].fr);
-            if (relation2 != EAST && relation2 != WEST)
+            if (!is_horizontal_relation(graph, e[0].fr, e[1].fr))
                 return 0;
 
             flag_connection = 1;
@@ -188,11 +170,7 @@ int can_add_wall(struct graph_t* graph, struct edge_t e[], struct player_server 
 
         if (is_connected(graph, e[0].fr, e[1].to))
         {
-            if (flag_connection)
-                return 1;
-
-            int relation2 = get_connection(graph, e[0].fr, e[1].to);
-            if (relation2 != EAST && relation2 != WEST)
+            if (flag_connection || !is_horizontal_relation(graph, e[0].fr, e[1].to))
                 return 0;
 
             flag_connection = 1;
@@ -208,7 +186,6 @@ int can_add_wall(struct graph_t* graph, struct edge_t e[], struct player_server 
     if (is_player_blocked(graph_with_wall, &players[0], 1)
         || is_player_blocked(graph_with_wall, &players[1], 0))
         return 0;
-    // TODO: There's a problem during the tests with this free.
     graph_free(graph_with_wall);
 
     // The wall doesn't violate any rules, hence it's a legal move

@@ -34,16 +34,22 @@ void change_connection(struct graph_t *, size_t, size_t, int);
 // Return 1 if vertices are connected, else 0
 int is_connected(struct graph_t *, size_t, size_t);
 
-// Return 1 if given vertice is on the graph, else 0
-int is_vertice_on_graph(struct graph_t *, size_t);
+// Return 1 if given vertex is on the graph, else 0
+int is_vertex_on_graph(struct graph_t *, size_t);
+
+// Return 1 if given vertices are in a West-East relationship
+int is_horizontal_relation(struct graph_t*, size_t, size_t);
+
+// Return 1 if given vertices are in a North-South relationship
+int is_vertical_relation(struct graph_t*, size_t, size_t);
 
 // Add a wall between given edges
 void add_wall(struct graph_t *, struct edge_t[]);
 
-// Return 1 if given vertice is in area, else 0
-int is_vertice_in_area(size_t, gsl_spmatrix_uint *, int);
+// Return 1 if given vertex is in area, else 0
+int is_vertex_in_area(size_t, gsl_spmatrix_uint *, int);
 
-// Return 1 if a path exist between a vertice and a
+// Return 1 if a path exist between a vertex and a
 int is_path_existing(struct graph_t *, size_t, gsl_spmatrix_uint *, int[], int);
 
 // Return 1 if the player is blocked, else 0

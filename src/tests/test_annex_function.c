@@ -62,6 +62,10 @@ int test_can_add_wall()
     assert(can_add_wall(graph3, e31, players3) == 1);
     add_wall(graph3, e31);
 
+    graph_free(graph1);
+    graph_free(graph2);
+    graph_free(graph3);
+
     return 1;
 }
 
@@ -109,6 +113,9 @@ int test_add_wall()
     add_wall(graph2, e2bis);
     assert(get_connection(graph2, 1, 3) == POINT_TO_WEST);
     assert(get_connection(graph2, 0, 2) == POINT_TO_EAST);
+
+    graph_free(graph1);
+    graph_free(graph2);
 
     return 1;
 }
