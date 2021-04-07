@@ -15,6 +15,18 @@ struct graph_t* graph_copy(struct graph_t* graph)
     return cp;
 }
 
+void display_graph_value(struct graph_t *graph)
+{
+    for (size_t i = 0; i < graph->num_vertices; i++)
+    {
+        printf("%3zu : ", i);
+        for (size_t j = 0; j < graph->num_vertices; j++)
+        {
+            printf("%d ", get_connection(graph, i, j));
+        }
+        printf("\n");
+    }
+}
 
 void graph_free(struct graph_t *graph)
 {

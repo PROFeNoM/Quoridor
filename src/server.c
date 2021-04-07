@@ -14,22 +14,41 @@ void update(struct player_server *players, struct move_t move)
     players[move.c].pos = move.m;
 }
 
+int is_valid_graph_position(struct graph_t *graph, size_t vertex)
+{
+    return gsl_spmatrix_uint_get(graph->t, vertex, 0) != NOT_CONNECTED;
+}
+
 void display_graph(struct graph_t *graph, size_t m, struct player_server *players)
 {
     size_t player_one_pos = players[WHITE].pos;
     size_t player_two_pos = players[BLACK].pos;
     char *to_print = "";
+    char *down_link = "";
+    char *right_link = "";
+    char *left_link = "";
+
     for (size_t i = 0; i < m; i++)
     {
         for (size_t j = 0; j < m; j++)
         {
             size_t vertex = i * m + j;
+            int is_valid_position = is_valid_graph_position(graph, vertex);
             to_print = (vertex == player_one_pos) ? "1" : 
-            (vertex == player_two_pos ? "2" : 
-            (gsl_spmatrix_uint_get(graph->o, BLACK, vertex) == 1 ? "◻" : 
-            (gsl_spmatrix_uint_get(graph->o, WHITE, vertex) == 1 ? "◼" : 
-            "⬚")));
-            printf(" %s ", to_print);
+                        (vertex == player_two_pos ? "2" : 
+                        (gsl_spmatrix_uint_get(graph->o, BLACK, vertex) == 1 ? "◻" : 
+                        (gsl_spmatrix_uint_get(graph->o, WHITE, vertex) == 1 ? "◼" : 
+                        (is_valid_position ? "⬚" : " "))));
+            left_link = (vertex > 0 && is_connected(graph, vertex, vertex - 1)) ? "-" : " ";
+            right_link = (vertex < m*m-1 && is_connected(graph, vertex, vertex+1)) ? "-": " ";
+            printf("%s%s%s", left_link, to_print, right_link);
+        }
+        printf("\n");
+        for (size_t j = 0; j < m && i < m-1; j++)
+        {
+            size_t vertex = i * m + j;
+            down_link = is_connected(graph, vertex, vertex + m) ? "|" : " " ;
+            printf(" %s ", down_link);
         }
         printf("\n");
     }

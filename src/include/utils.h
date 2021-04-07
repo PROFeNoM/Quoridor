@@ -10,7 +10,8 @@ enum wall_orientation {
     POINT_TO_NORTH = 5,
     POINT_TO_SOUTH,
     POINT_TO_WEST,
-    POINT_TO_EAST
+    POINT_TO_EAST,
+    NOT_CONNECTED
 };
 
 struct graph_t * graph_copy(struct graph_t *);
