@@ -62,6 +62,11 @@ int is_winning(struct graph_t *graph, enum color_t player_id, size_t position)
   return gsl_spmatrix_uint_get(graph->o, get_next_player(player_id), position);
 }
 
+int is_owned(struct graph_t* graph, int player, size_t pos)
+{
+    return gsl_spmatrix_uint_get(graph->o, player, pos) == 1;
+}
+
 int get_connection(struct graph_t* graph, size_t a, size_t b)
 {
     return gsl_spmatrix_uint_get(graph->t, a, b);
@@ -99,12 +104,16 @@ void add_wall(struct graph_t* graph, struct edge_t e[])
     if (is_horizontal_relation(graph, e[0].fr, e[0].to))
     {
         change_connection(graph, e[0].fr, e[0].to, e[0].fr > e[1].fr ? POINT_TO_NORTH : POINT_TO_SOUTH);
+        change_connection(graph, e[0].to, e[0].fr, e[0].fr > e[1].fr ? POINT_TO_NORTH : POINT_TO_SOUTH);
         change_connection(graph, e[1].fr, e[1].to, e[0].fr > e[1].fr ? POINT_TO_SOUTH : POINT_TO_NORTH);
+        change_connection(graph, e[1].to, e[1].fr, e[0].fr > e[1].fr ? POINT_TO_SOUTH : POINT_TO_NORTH);
     }
     else
     {
         change_connection(graph, e[0].fr, e[0].to, e[0].fr > e[1].fr ? POINT_TO_WEST : POINT_TO_EAST);
+        change_connection(graph, e[0].to, e[0].fr, e[0].fr > e[1].fr ? POINT_TO_WEST : POINT_TO_EAST);
         change_connection(graph, e[1].fr, e[1].to, e[0].fr > e[1].fr ? POINT_TO_EAST : POINT_TO_WEST);
+        change_connection(graph, e[1].to, e[1].fr, e[0].fr > e[1].fr ? POINT_TO_EAST : POINT_TO_WEST);
     }
 }
 
@@ -126,18 +135,21 @@ int is_path_existing(struct graph_t* graph, size_t pos, gsl_spmatrix_uint* o, in
     return 0;
 }
 
-int is_player_blocked(struct graph_t* graph, struct player_server *player, int p)
+int is_player_blocked(struct graph_t* graph, size_t player_position, int p)
 {
     int visited[graph->num_vertices];
     for (size_t i = 0; i < graph->num_vertices; i++)
         visited[i] = 0;
 
-    return !is_path_existing(graph, player->pos, graph->o, visited, p);
+    return !is_path_existing(graph, player_position, graph->o, visited, p);
 }
 
 // size of e is 2
-int can_add_wall(struct graph_t* graph, struct edge_t e[], struct player_server * players)
+int can_add_wall(struct graph_t* graph, struct edge_t e[], size_t player1_position, size_t player2_position)
 {
+    // TODO: Check nb of walls left for the active player
+    // TODO: Change struct player_server to integers
+
     // Vertices must be on graph
     if (!(is_vertex_on_graph(graph, e[0].fr) && is_vertex_on_graph(graph, e[0].to)
         && is_vertex_on_graph(graph, e[1].fr) && is_vertex_on_graph(graph, e[1].to)))
@@ -195,8 +207,8 @@ int can_add_wall(struct graph_t* graph, struct edge_t e[], struct player_server 
     // Check if players aren't blocked
     struct graph_t* graph_with_wall = graph_copy(graph);
     add_wall(graph_with_wall, e);
-    if (is_player_blocked(graph_with_wall, &players[0], 1)
-        || is_player_blocked(graph_with_wall, &players[1], 0))
+    if (is_player_blocked(graph_with_wall, player1_position, 1)
+        || is_player_blocked(graph_with_wall, player2_position, 0))
         return 0;
     graph_free(graph_with_wall);
 
@@ -204,3 +216,66 @@ int can_add_wall(struct graph_t* graph, struct edge_t e[], struct player_server 
     return 1;
 }
 
+int is_vertex_unoccupied(size_t pos, size_t position_player1, size_t position_player2)
+{
+    return !(pos == position_player1 || pos == position_player2);
+}
+
+int is_connection_existing(struct graph_t* graph, size_t i, int direction)
+{
+    for (size_t j = 0; j < graph->num_vertices; j++)
+        if (get_connection(graph, i, j) == direction)
+            return 1;
+
+    return 0;
+}
+
+int can_player_move_to(struct graph_t* graph, size_t pos, int active_player, size_t position_player1, size_t position_player2)
+{
+    // Check if position is on the board
+    if (!is_vertex_on_graph(graph, pos))
+        return 0;
+
+    // Check if the opponent isn't already on it
+    if (!is_vertex_unoccupied(pos, position_player1, position_player2))
+        return 0;
+
+    size_t initial_position = active_player == 0 ? position_player1 : position_player2;
+    size_t opponent_position = active_player == 0 ? position_player2 : position_player1;
+
+    // The position is directly accessible, hence the player can move to it
+    if (is_connected(graph, initial_position, pos))
+        return 1;
+
+    // The position isn't directly accessible
+    // Check if player are facing each other, and can jump to the position
+    if (is_connected(graph, initial_position, opponent_position))
+    {
+        // Check if the opponent is next to the position
+        if (!is_connected(graph, opponent_position, pos))
+            return 0;
+
+        // The opponent is next to the position
+
+        // Check if position is behind the opponent
+        if (get_connection(graph, initial_position, opponent_position) == get_connection(graph, opponent_position, pos))
+            return 1;
+
+        // There's a wall/edge of the board behind the opponent player
+        if (!is_connection_existing(graph, opponent_position, get_connection(graph, initial_position, opponent_position)))
+            return 1;
+    }
+
+    // The position isn't accessible
+    return 0;
+}
+
+int is_move_legal(struct graph_t* graph, struct move_t* move, size_t player1_position, size_t player2_position)
+{
+    if (move->t == WALL)
+        return can_add_wall(graph, move->e, player1_position, player2_position);
+    else if (move->t == MOVE)
+        return can_player_move_to(graph, move->m, move->c, player1_position, player2_position);
+    else
+        return 0;
+}

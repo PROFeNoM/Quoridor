@@ -40,7 +40,7 @@ gsl_spmatrix_uint *fill_graph(size_t m, int (*is_not_connected)(size_t, size_t, 
       {
         for (size_t k = 0; k < m * m; k++)
         {
-          if (is_not_connected(k%m, k/m, m))
+          if (is_not_connected(k/m, k%m, m))
             gsl_spmatrix_uint_set(matrix, x * m + j, k, NOT_CONNECTED);
           else
             gsl_spmatrix_uint_set(matrix, x * m + j, k, get_direction_square(x * m + j, k, m));
