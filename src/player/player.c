@@ -18,7 +18,7 @@ struct player player = {.name= NULL, .graph = NULL, .position = {UNINITIALIZED, 
 
 char const* get_player_name()
 {
-  player.name = "daftStrat";
+  player.name = "randomStrat";
   return player.name;
 }
 
@@ -40,17 +40,19 @@ void initialize(enum color_t id, struct graph_t* graph, size_t num_walls)
     is_initialized = 1;
 }
 
+
 struct move_t get_first_move()
 {
-  size_t memory[player.graph->num_vertices];
-  size_t inc = 0;
+  size_t starting_positions[player.graph->num_vertices];
+  size_t nb_pos = 0;
   for (size_t index = 0; index < player.graph->num_vertices; index++) {
-    if (gsl_spmatrix_uint_get(player.graph->o, player.id, index) == 1) {
-      memory[inc++] = index;
+    if (is_owned(player.graph, player.id, index) == 1) {
+      starting_positions[nb_pos++] = index;
     }
   }
-  size_t random_index = (size_t) rand() % inc;
-  player.position[player.id] = memory[random_index];
+ 
+  size_t random_index = (size_t) rand() % nb_pos;
+  player.position[player.id] = starting_positions[random_index];
   
   struct move_t first_move = {.m = player.position[player.id], .e = {{-1,-1}},
 			       .t = MOVE, .c = player.id}; 
@@ -63,37 +65,46 @@ struct move_t get_new_move(struct move_t previous_move)
   size_t nb_pos = 0;
   size_t pos[player.graph->num_vertices];
 
-  size_t i = player.position[player.id];
+  size_t position_player1 = player.position[player.id];
+  size_t position_player2 = player.position[previous_move.c];
   
   for (size_t j = 0; j < player.graph->num_vertices; j++) {
-    if (gsl_spmatrix_uint_get(player.graph->t, i, j) > 0 && j != player.position[previous_move.c])
+    if (can_player_move_to(player.graph, j, player.id, position_player1, position_player2))
       pos[nb_pos++] = j;
-    if (gsl_spmatrix_uint_get(player.graph->t, i, j) > 0 && j == player.position[previous_move.c])
-      for (size_t k = 0; k < player.graph->num_vertices; k++) {
-	if (gsl_spmatrix_uint_get(player.graph->t, i, j) == gsl_spmatrix_uint_get(player.graph->t, j, k))
-	  pos[nb_pos++] = k;
-	else if (gsl_spmatrix_uint_get(player.graph->t, j, k) > 0 && k != i)
-	  pos[nb_pos++] = k;
-      }
   }
 
   size_t ind = (size_t) rand() % nb_pos;
   player.position[player.id] = pos[ind];
 
-  struct move_t new_move = {.m = player.position[player.id], .e = {{-1,-1}},
+  struct move_t new_move = {.m = position_player1, .e = {{-1,-1}},
 			    .t = MOVE, .c = player.id};
   return new_move;
 }
 
-
-struct move_t play(struct move_t previous_move)
+int is_first_move()
 {
-  if (player.position[player.id] == player.graph->num_vertices)
-    return get_first_move();
+  return player.position[player.id] == player.graph->num_vertices;
+}
 
+void update(struct move_t previous_move)
+{
   if (previous_move.t == MOVE) {
     player.position[previous_move.c] = previous_move.m;
   }
+
+  else if (previous_move.t == WALL) {
+    add_wall(player.graph, previous_move.e);
+  }
+}
+
+
+
+struct move_t play(struct move_t previous_move)
+{
+  if (is_first_move())
+    return get_first_move();
+
+  update(previous_move);
 
   return get_new_move(previous_move);
 }
