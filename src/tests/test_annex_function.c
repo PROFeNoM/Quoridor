@@ -12,10 +12,7 @@ int test_can_add_wall()
     };
 
     struct graph_t *graph1 = get_graph('c', 2);
-    struct player_server p1 = { .pos = 0 };
-    struct player_server p2 = { .pos = 1 };
-    struct player_server players1[2] = { p1, p2 };
-    assert(can_add_wall(graph1, e1, players1) == 1);
+    assert(can_add_wall(graph1, e1, 0, 1) == 1);
 
 
     struct edge_t e21[2] = {
@@ -24,10 +21,7 @@ int test_can_add_wall()
     };
 
     struct graph_t *graph2 = get_graph('c', 3);
-    p1.pos = 1;
-    p2.pos = 7;
-    struct player_server players2[2] = { p1, p2 };
-    assert(can_add_wall(graph2, e21, players2) == 1);
+    assert(can_add_wall(graph2, e21, 1, 7) == 1);
 
     add_wall(graph2, e21);
 
@@ -35,20 +29,20 @@ int test_can_add_wall()
             { 2, 5 },
             { 1, 4 }
     };
-    assert(can_add_wall(graph2, e22, players2) == 0);
+    assert(can_add_wall(graph2, e22, 1, 7) == 0);
 
     struct edge_t e23[2] = {
             { 3, 4 },
             { 6, 7 }
     };
-    assert(can_add_wall(graph2, e23, players2) == 1);
+    assert(can_add_wall(graph2, e23, 1, 7) == 1);
     add_wall(graph2, e23);
 
     struct edge_t e24[2] = {
             { 1, 4 },
             { 2, 5 }
     };
-    assert(can_add_wall(graph2, e24, players2) == 0);
+    assert(can_add_wall(graph2, e24, 1, 7) == 0);
 
     struct edge_t e31[2] = {
             { 4, 8 },
@@ -56,10 +50,7 @@ int test_can_add_wall()
     };
 
     struct graph_t *graph3 = get_graph('c', 4);
-    p1.pos = 0;
-    p2.pos = 15;
-    struct player_server players3[2] = { p1, p2 };
-    assert(can_add_wall(graph3, e31, players3) == 1);
+    assert(can_add_wall(graph3, e31, 0, 15) == 1);
     add_wall(graph3, e31);
 
     graph_free(graph1);
@@ -141,6 +132,38 @@ int test_can_player_move_to()
     return 1;
 }
 
+int test_is_move_legal()
+{
+    struct graph_t* graph1 = get_graph('c', 3);
+
+    struct move_t m1 = { 1, { no_edge(), no_edge() }, MOVE, BLACK };
+    assert(is_move_legal(graph1, &m1, 4, 2) == 1);
+
+    struct move_t m2 = { 0, { no_edge(), no_edge() }, MOVE, WHITE };
+    assert(is_move_legal(graph1, &m2, 1, 6) == 0);
+
+    struct move_t m3 = { 2, { no_edge(), no_edge() }, MOVE, BLACK };
+    assert(is_move_legal(graph1, &m3, 0, 1) == 1);
+
+
+    struct graph_t* graph2 = get_graph('c', 4);
+    struct edge_t e1[2] = {
+            { 4, 5 },
+            { 8, 9 }
+    };
+    add_wall(graph2, e1);
+
+    struct move_t m4 = { 9, { no_edge(), no_edge() }, MOVE, BLACK };
+    assert(is_move_legal(graph2, &m4, 6, 5) == 1);
+
+    struct move_t m5 = { 1, { no_edge(), no_edge() }, MOVE, BLACK };
+    assert(is_move_legal(graph2, &m5, 6, 5) == 1);
+
+    struct move_t m6 = { 4, { no_edge(), no_edge() }, MOVE, BLACK };
+    assert(is_move_legal(graph2, &m6, 6, 5) == 0);
+
+    return 1;
+}
 
 int main(int argc, char *argv[])
 {
@@ -149,5 +172,6 @@ int main(int argc, char *argv[])
     TESTCASE("Test of can_add_wall", test_can_add_wall);
     TESTCASE("Test of add_wall", test_add_wall);
     TESTCASE("Test of can_player_move_to", test_can_player_move_to);
+    TESTCASE("Test of is_move_legal", test_is_move_legal);
     return 0;
 }

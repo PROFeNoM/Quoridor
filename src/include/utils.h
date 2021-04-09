@@ -10,7 +10,8 @@ enum wall_orientation {
     POINT_TO_NORTH = 5,
     POINT_TO_SOUTH,
     POINT_TO_WEST,
-    POINT_TO_EAST
+    POINT_TO_EAST,
+    NOT_CONNECTED
 };
 
 struct graph_t * graph_copy(struct graph_t *);
@@ -56,10 +57,10 @@ int is_vertex_in_area(size_t, gsl_spmatrix_uint *, int);
 int is_path_existing(struct graph_t *, size_t, gsl_spmatrix_uint *, int[], int);
 
 // Return 1 if the player is blocked, else 0
-int is_player_blocked(struct graph_t *, struct player_server*, int);
+int is_player_blocked(struct graph_t *, size_t, int);
 
 // Return 1 if the wall can be added on the board, else 0
-int can_add_wall(struct graph_t *, struct edge_t[], struct player_server *);
+int can_add_wall(struct graph_t *, struct edge_t[], size_t, size_t);
 
 // Return 1 if a player can move to a given position on the board, else 0
 int can_player_move_to(struct graph_t*, size_t, int, size_t, size_t);
@@ -67,7 +68,13 @@ int can_player_move_to(struct graph_t*, size_t, int, size_t, size_t);
 // Return 1 if no player is on the vertex, else 0
 int is_vertex_unoccupied(size_t, size_t, size_t);
 
+// Return 1 if the move is legal, else 0
+int is_move_legal(struct graph_t*, struct move_t*, size_t, size_t);
+
 // Release allocated memory
 void graph_free(struct graph_t *);
+
+// Display the t graph values of a graph_t
+void display_graph_value(struct graph_t *graph);
 
 #endif

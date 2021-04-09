@@ -27,7 +27,7 @@ ifdef GSL_PATH
 CPPFLAGS 			= 	-I${INCLUDE_DIR} -I${GSL_PATH}/include -lm -L$(GSL_PATH)/lib/ -lgsl -lgslcblas
 LDFLAGS 			= 	`$(GSL_PATH)/bin/gsl-config --cflags --libs` -ldl
 else
-CPPFLAGS 			= 	-I${INCLUDE_DIR} -I$ -lm
+CPPFLAGS 			= 	-I${INCLUDE_DIR}
 LDFLAGS 			= 	`gsl-config --cflags --libs` -ldl
 endif
 CFLAGS 				= 	-Wall -Wextra -std=c99
