@@ -152,9 +152,9 @@ int test__graph_square()
   gsl_spmatrix_uint_set(matrix,8,5,NORTH);
   gsl_spmatrix_uint_set(matrix,8,7,WEST);
 
-  gsl_spmatrix_uint matrix_test = square_graph(m);
+  gsl_spmatrix_uint *matrix_test = square_graph(m);
 
-  assert(gsl_spmatrix_uint_equal(matrix,matrix_test)==1);
+  assert(gsl_spmatrix_uint_equal(matrix,matrix_test) == 1);
 
   gsl_spmatrix_uint_free(matrix);
   gsl_spmatrix_uint_free(matrix_test);
