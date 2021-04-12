@@ -72,8 +72,8 @@ int test_add_wall()
 
     add_wall(graph1, e1);
 
-    assert(get_connection(graph1, 0, 1) == POINT_TO_SOUTH);
-    assert(get_connection(graph1, 2, 3) == POINT_TO_NORTH);
+    assert(get_connection_type(graph1, 0, 1) == POINT_TO_SOUTH);
+    assert(get_connection_type(graph1, 2, 3) == POINT_TO_NORTH);
 
     struct edge_t e2[2] = {
             { 1, 3 },
@@ -81,8 +81,8 @@ int test_add_wall()
     };
 
     add_wall(graph1, e2);
-    assert(get_connection(graph1, 1, 3) == POINT_TO_WEST);
-    assert(get_connection(graph1, 0, 2) == POINT_TO_EAST);
+    assert(get_connection_type(graph1, 1, 3) == POINT_TO_WEST);
+    assert(get_connection_type(graph1, 0, 2) == POINT_TO_EAST);
 
     struct edge_t e1bis[2] = {
             { 2, 3 },
@@ -93,8 +93,8 @@ int test_add_wall()
 
     add_wall(graph2, e1bis);
 
-    assert(get_connection(graph2, 0, 1) == POINT_TO_SOUTH);
-    assert(get_connection(graph2, 2, 3) == POINT_TO_NORTH);
+    assert(get_connection_type(graph2, 0, 1) == POINT_TO_SOUTH);
+    assert(get_connection_type(graph2, 2, 3) == POINT_TO_NORTH);
 
     struct edge_t e2bis[2] = {
             { 0, 2 },
@@ -102,8 +102,8 @@ int test_add_wall()
     };
 
     add_wall(graph2, e2bis);
-    assert(get_connection(graph2, 1, 3) == POINT_TO_WEST);
-    assert(get_connection(graph2, 0, 2) == POINT_TO_EAST);
+    assert(get_connection_type(graph2, 1, 3) == POINT_TO_WEST);
+    assert(get_connection_type(graph2, 0, 2) == POINT_TO_EAST);
 
     graph_free(graph1);
     graph_free(graph2);

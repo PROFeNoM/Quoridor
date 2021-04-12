@@ -1,5 +1,25 @@
 #include "graph_pattern.h"
 
+int c_constraint(int size)
+{
+  return size > 0;
+}
+
+int t_constraint(int size)
+{
+  return size > 0 && size % 3 == 0;
+}
+
+int h_constraint(int size)
+{
+  return t_constraint(size);
+}
+
+int s_constraint(int size)
+{
+  return size > 0 && size % 5 == 0;
+}
+
 int get_direction_square(size_t i, size_t j, size_t m)
 {
   if (i == j + 1 && (i / m == j / m))
