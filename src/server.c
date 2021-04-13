@@ -87,6 +87,7 @@ void run_server(struct server *server, int print)
         //updated_display(server, turn, move.c);
         if (print)
             display_game(server, turn, move.c);
+	//display_graph_value(server->graph.graph);
         turn++;
     } while (!is_winning(server->graph.graph, move.c, server->players[move.c].pos) && turn < TURN_MAX);
     free_server(server);
