@@ -4,9 +4,6 @@
 #include "graph_pattern.h"
 
 
-enum direction_t { NO_DIRECTION=0, NORTH, SOUTH, WEST, EAST, MAX_DIRECTION };
-
-
 // get the index of direction of j according to i
 int get_direction_square(size_t i,size_t j, size_t m);
 gsl_spmatrix_uint *fill_graph(size_t m, int (*is_not_connected)(size_t, size_t, size_t));
