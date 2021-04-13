@@ -26,7 +26,7 @@ char const* get_player_name()
 }
 
 /*
- * Initialize the player with informations given by the server if it is not already initialize :
+ * Initialize the player with informations given by the server if he is not already initialize :
  * - id : the id of the player : WHITE or BLACK
  * - graph : the graph to play with
  * - num_walls : the number of walls in the hand of the player
@@ -51,27 +51,46 @@ void initialize(enum color_t id, struct graph_t* graph, size_t num_walls)
 }
 
 /*
- * Return the first move for a player : the player is put on one of its own vertices
+ * Initialize and set a move
+ * - position : the new position of the player
+ * - edge1 : the first edge of the placed wall if a wall has been placed
+ * - edge2 : the second edge of the wall
+ * - id : the id of the player
+ * - movetype : type of the move
+ */
+struct move_t set_move(size_t position, struct edge_t edge1, struct edge_t edge2, size_t id, enum movetype_t movetype)
+{
+  struct move_t move;
+  move.m = position;
+  move.e[0] = edge1;
+  move.e[1] = edge2;
+  move.c = id;
+  move.t = movetype;
+
+  return move;
+}
+
+/*
+ * Return the first move for a player : the player is put on one of his own vertices
  */
 struct move_t get_first_move()
 {
   size_t starting_positions[player.graph->num_vertices];
   size_t nb_pos = 0;
+
+  //searching for available positions
   for (size_t index = 0; index < player.graph->num_vertices; index++) {
     if (is_owned(player.graph, player.id, index) == 1) {
       starting_positions[nb_pos++] = index;
     }
   }
- 
+
+  //choice of an available position
   size_t random_index = (size_t) rand() % nb_pos;
   player.position[player.id] = starting_positions[random_index];
-  
-  struct move_t first_move;
-  first_move.m = player.position[player.id];
-  first_move.e[0] = no_edge();
-  first_move.e[1] = no_edge();
-  first_move.t = MOVE;
-  first_move.c = player.id;
+
+  //move to the position
+  struct move_t first_move = set_move(player.position[player.id], no_edge(), no_edge(), player.id, MOVE);
   
   return first_move;
 }
@@ -99,12 +118,7 @@ struct move_t get_new_move()
   player.position[player.id] = pos[ind];
 
   //move to the position
-  struct move_t new_move;
-  new_move.m = player.position[player.id];
-  new_move.e[0] = no_edge();
-  new_move.e[1] = no_edge();
-  new_move.t = MOVE;
-  new_move.c = player.id;
+  struct move_t new_move = set_move(player.position[player.id], no_edge(), no_edge(), player.id, MOVE);
   
   return new_move;
 }
@@ -131,7 +145,10 @@ void update(struct move_t previous_move)
   }
 }
 
-
+/*
+ * Return the move of the active player
+ * - previous_move : previous move of the other player
+ */
 struct move_t play(struct move_t previous_move)
 {
   if (is_first_move())
@@ -142,7 +159,9 @@ struct move_t play(struct move_t previous_move)
   return get_new_move();
 }
 
-
+/*
+ * Free the player
+ */
 void finalize()
 {
   graph_free(player.graph);

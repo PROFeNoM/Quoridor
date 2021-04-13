@@ -4,6 +4,125 @@
 
 #define TESTCASE(X, Y) printf("%s ... %s\n", X, Y() ? "PASSED" : "FAILED");
 
+int test__is_winning_true_square_board()
+{
+    struct graph_t* graph1 = get_graph('c', 3);
+    assert(is_winning(graph1, WHITE, 0) == 1);
+    graph_free(graph1);
+
+    return 1;
+}
+
+int test__is_winning_false_square_board()
+{
+    struct graph_t* graph1 = get_graph('c', 3);
+    assert(is_winning(graph1, BLACK, 4) == 0);
+    graph_free(graph1);
+
+    return 1;
+}
+
+int test__is_owned_with_owner_square_board()
+{
+    struct graph_t* graph1 = get_graph('c', 3);
+    assert(is_owned(graph1, BLACK, 0) == 1);
+    graph_free(graph1);
+    return 1;
+}
+
+int test__is_owned_with_opponent_square_board()
+{
+    struct graph_t* graph1 = get_graph('c', 3);
+    assert(is_owned(graph1, WHITE, 0) == 0);
+    graph_free(graph1);
+    return 1;
+}
+
+int test__is_owned_with_a_vertex_in_a_hole_h_board()
+{
+    struct graph_t* graph1 = get_graph('h', 3);
+    assert(is_owned(graph1, BLACK, 1) == 0);
+    assert(is_owned(graph1, WHITE, 1) == 0);
+    graph_free(graph1);
+    return 1;
+}
+
+int test__get_connection_type_square_board()
+{
+    struct graph_t* graph1 = get_graph('c', 2);
+    for (size_t i = 0; i < 4; i++)
+        assert(get_connection_type(graph1, i, i) == NO_DIRECTION);
+    assert(get_connection_type(graph1, 0, 1) == EAST);
+    assert(get_connection_type(graph1, 0, 2) == SOUTH);
+    assert(get_connection_type(graph1, 0, 3) == NO_DIRECTION);
+    assert(get_connection_type(graph1, 1, 0) == WEST);
+    assert(get_connection_type(graph1, 1, 2) == NO_DIRECTION);
+    assert(get_connection_type(graph1, 1, 3) == SOUTH);
+    assert(get_connection_type(graph1, 2, 0) == NORTH);
+    assert(get_connection_type(graph1, 2, 1) == NO_DIRECTION);
+    assert(get_connection_type(graph1, 2, 3) == EAST);
+    assert(get_connection_type(graph1, 3, 0) == NO_DIRECTION);
+    assert(get_connection_type(graph1, 3, 1) == NORTH);
+    assert(get_connection_type(graph1, 3, 2) == WEST);
+
+    graph_free(graph1);
+    return 1;
+}
+
+int test__set_connection_type()
+{
+    struct graph_t* graph1 = get_graph('c', 2);
+    set_connection_type(graph1, 0, 1, NO_DIRECTION);
+    assert(get_connection_type(graph1, 0, 1) == NO_DIRECTION);
+    graph_free(graph1);
+    return 1;
+}
+
+int test__is_connected_with_connected_vertices()
+{
+    struct graph_t* graph1 = get_graph('c', 2);
+    assert(is_connected(graph1, 0, 1) == 1);
+    graph_free(graph1);
+    return 1;
+}
+
+int test__is_connected_with_unconnected_vertices()
+{
+    struct graph_t* graph1 = get_graph('c', 2);
+    assert(is_connected(graph1, 0, 3) == 0);
+    graph_free(graph1);
+    return 1;
+}
+
+int test__is_connected_with_wall_between_vertices()
+{
+    struct graph_t* graph1 = get_graph('c', 3);
+    struct edge_t e1[2] = {
+            { 0, 1 },
+            { 3, 4 }
+    };
+    add_wall(graph1, e1);
+    assert(is_connected(graph1, 0, 1) == 0);
+    graph_free(graph1);
+    return 1;
+}
+
+int test__is_vertex_in_graph_with_vertex_in_graph()
+{
+    struct graph_t* graph1 = get_graph('c', 2);
+    assert(is_vertex_in_graph(graph1, 0) == 1);
+    graph_free(graph1);
+    return 1;
+}
+
+int test__is_vertex_in_graph_with_vertex_out()
+{
+    struct graph_t* graph1 = get_graph('h', 3);
+    assert(is_vertex_in_graph(graph1, 1) == 0);
+    graph_free(graph1);
+    return 1;
+}
+
 int test_can_add_wall()
 {
     struct edge_t e1[2] = {
@@ -175,6 +294,30 @@ int main(int argc, char *argv[])
 {
     (void)argc;
     (void)argv;
+    TESTCASE("Test of is_winning where player is in opponent area on a square board",
+             test__is_winning_true_square_board);
+    TESTCASE("Test of is_winning where player isn't in opponent area on a square board",
+             test__is_winning_false_square_board);
+    TESTCASE("Test of is_owned with the vertex owner on a square board",
+             test__is_owned_with_owner_square_board);
+    TESTCASE("Test of is_owned with the opponent on a square board",
+             test__is_owned_with_opponent_square_board);
+    TESTCASE("Test of is_owned with a vertex in a hole on a 'h' type board",
+             test__is_owned_with_a_vertex_in_a_hole_h_board);
+    TESTCASE("Test of get_connection_type with a square board",
+             test__get_connection_type_square_board);
+    TESTCASE("Test of set_connection_type",
+             test__set_connection_type);
+    TESTCASE("Test of is_connected with connected vertices",
+             test__is_connected_with_connected_vertices);
+    TESTCASE("Test of is_connected with unconnected vertices",
+             test__is_connected_with_unconnected_vertices);
+    TESTCASE("Test of is_connected with a wall between vertices",
+             test__is_connected_with_wall_between_vertices);
+    TESTCASE("Test of is_vertex_in_graph with a vertex in graph",
+             test__is_vertex_in_graph_with_vertex_in_graph);
+    //TESTCASE("TEst of is_vertex_in_graph with a vertex out of the graph",
+    //         test__is_vertex_in_graph_with_vertex_out);
     TESTCASE("Test of can_add_wall", test_can_add_wall);
     TESTCASE("Test of add_wall", test_add_wall);
     TESTCASE("Test of can_player_move_to", test_can_player_move_to);
