@@ -49,7 +49,7 @@ gsl_spmatrix_uint *fill_graph(size_t m, int (*is_not_connected)(size_t, size_t, 
     size_t x = i;
     for (size_t j = 0; j < m; j++)
     {
-      if (is_not_connected(x, j, m))
+      if (is_not_connected(j, x, m))
       {
         for (size_t k = 0; k < m * m; k++)
         {
@@ -60,7 +60,7 @@ gsl_spmatrix_uint *fill_graph(size_t m, int (*is_not_connected)(size_t, size_t, 
       {
         for (size_t k = 0; k < m * m; k++)
         {
-          if (is_not_connected(k/m, k%m, m))
+          if (is_not_connected(k%m, k/m, m))
             gsl_spmatrix_uint_set(matrix, x * m + j, k, NOT_CONNECTED);
           else
             gsl_spmatrix_uint_set(matrix, x * m + j, k, get_direction_square(x * m + j, k, m));
@@ -98,7 +98,7 @@ gsl_spmatrix_uint *t_graph(size_t m)
 
 int h(size_t x, size_t y, size_t m)
 {
-  return is_in_hole(x, y, 0, m/3, m/3, m/3) || is_in_hole(x, y, 2*m/3, m/3, m/3, m/3);
+  return is_in_hole(x, y, m / 3, 0 , m/3, m/3) || is_in_hole(x, y, m/3, 2*m/3, m/3, m/3);
 }
 
 gsl_spmatrix_uint *h_graph(size_t m)
@@ -106,8 +106,9 @@ gsl_spmatrix_uint *h_graph(size_t m)
   return fill_graph(m, h);
 }
 
-int snake(size_t x, size_t y, size_t m){
-    return is_in_hole(x, y, 0, m / 5, m / 5, 4 * m / 5) || is_in_hole(x, y, 4 * m / 5, m / 5, m / 5, 4 * m / 5) || is_in_hole(x, y, 2 * m / 5, 0, m / 5, 4 * m / 5);
+int snake(size_t x, size_t y, size_t m)
+{
+  return is_in_hole(x, y, m / 5, 0, 4 * m / 5, m / 5) || is_in_hole(x, y, m / 5, 4 * m / 5, 4 * m / 5, m / 5) || is_in_hole(x, y, 0 , 2 * m / 5, 4 * m / 5, m / 5);
 }
 
 gsl_spmatrix_uint *s_graph(size_t m)

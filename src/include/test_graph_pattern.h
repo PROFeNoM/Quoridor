@@ -11,5 +11,7 @@ int square(size_t x, size_t y, size_t m);
 gsl_spmatrix_uint *square_graph(size_t m);
 int is_in_hole(size_t x, size_t y, size_t begin_x, size_t begin_y, size_t size_x, size_t size_y);
 int toric(size_t x, size_t y, size_t m);
+int h(size_t x, size_t y, size_t m);
+int snake(size_t x, size_t y, size_t m);
 
 #endif // TEST_GRAPH_PATTERN_H_
