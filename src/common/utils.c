@@ -44,9 +44,9 @@ enum color_t get_next_player(enum color_t id)
   return (id == BLACK) ? WHITE : BLACK;
 }
 
-int is_owned(struct graph_t *graph, int player, size_t pos)
+int is_owned(struct graph_t *graph, enum color_t player_id, size_t position)
 {
-    return gsl_spmatrix_uint_get(graph->o, player, pos) == 1;
+    return gsl_spmatrix_uint_get(graph->o, player_id, position) == 1;
 }
 
 int is_winning(struct graph_t *graph, enum color_t player_id, size_t position)
@@ -126,26 +126,26 @@ void add_wall(struct graph_t* graph, struct edge_t e[])
     }
 }
 
-int is_path_existing(struct graph_t *graph, int visited[], size_t pos, enum color_t player_id)
+int is_path_existing(struct graph_t *graph, int visited[], size_t position, enum color_t player_id)
 {
-    visited[pos] = 1;
-    if (is_winning(graph, player_id, pos))
+    visited[position] = 1;
+    if (is_winning(graph, player_id, position))
         return 1;
 
     for (size_t j = 0; j < graph->num_vertices; j++)
-        if (is_connected(graph, pos, j) && !visited[(int)j] && is_path_existing(graph, visited, j, player_id))
+        if (is_connected(graph, position, j) && !visited[(int)j] && is_path_existing(graph, visited, j, player_id))
             return 1;
 
     return 0;
 }
 
-int is_player_blocked(struct graph_t* graph, size_t player_position, enum color_t player_id)
+int is_player_blocked(struct graph_t* graph, size_t position, enum color_t player_id)
 {
     int visited[graph->num_vertices];
     for (size_t i = 0; i < graph->num_vertices; i++)
         visited[i] = 0;
 
-    return !is_path_existing(graph, visited, player_position, player_id);
+    return !is_path_existing(graph, visited, position, player_id);
 }
 
 // size of e is 2
