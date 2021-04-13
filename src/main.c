@@ -24,7 +24,7 @@ static int p = 0;
 
 int check_type_board()
 {
-  for (size_t i = 0; i < number_of_board_type; i++)
+  for (int i = 0; i < number_of_board_type; i++)
     if (board_type[i] == t)
       return i;
   return -1;
