@@ -6,7 +6,6 @@
 #include "graph.h"
 #include "graph_pattern.h"
 
-
 /**
  * 
  **/
@@ -31,7 +30,7 @@ struct server {
 };
 
 struct server *initialize_server(char *, char *, size_t, char);
-void run_server(struct server *);
+void run_server(struct server *, int);
 void free_server(struct server *server);
 
 #endif

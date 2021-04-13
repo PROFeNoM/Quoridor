@@ -1,5 +1,8 @@
 #include "server.h"
 #include "utils.h"
+#include "display.h"
+
+#define TURN_MAX 100
 
 void initialize_graph(size_t width, char type, struct graph_server *graph)
 {
@@ -12,47 +15,6 @@ void initialize_graph(size_t width, char type, struct graph_server *graph)
 void update(struct player_server *players, struct move_t move)
 {
     players[move.c].pos = move.m;
-}
-
-int is_valid_graph_position(struct graph_t *graph, size_t vertex)
-{
-    return gsl_spmatrix_uint_get(graph->t, vertex, 0) != NOT_CONNECTED;
-}
-
-void display_graph(struct graph_t *graph, size_t m, struct player_server *players)
-{
-    size_t player_one_pos = players[WHITE].pos;
-    size_t player_two_pos = players[BLACK].pos;
-    char *to_print = "";
-    char *down_link = "";
-    char *right_link = "";
-    char *left_link = "";
-
-    for (size_t i = 0; i < m; i++)
-    {
-        for (size_t j = 0; j < m; j++)
-        {
-            size_t vertex = i * m + j;
-            int is_valid_position = is_valid_graph_position(graph, vertex);
-            to_print = (vertex == player_one_pos) ? "1" : 
-                        (vertex == player_two_pos ? "2" : 
-                        (gsl_spmatrix_uint_get(graph->o, BLACK, vertex) == 1 ? "◻" : 
-                        (gsl_spmatrix_uint_get(graph->o, WHITE, vertex) == 1 ? "◼" : 
-                        (is_valid_position ? "⬚" : " "))));
-            left_link = (vertex > 0 && is_connected(graph, vertex, vertex - 1)) ? "-" : " ";
-            right_link = (vertex < m*m-1 && is_connected(graph, vertex, vertex+1)) ? "-": " ";
-            printf("%s%s%s", left_link, to_print, right_link);
-        }
-        printf("\n");
-        for (size_t j = 0; j < m && i < m-1; j++)
-        {
-            size_t vertex = i * m + j;
-            down_link = is_connected(graph, vertex, vertex + m) ? "|" : " " ;
-            printf(" %s ", down_link);
-        }
-        printf("\n");
-    }
-    printf("\n");
 }
 
 void *load_player(struct player_server *player)
@@ -75,13 +37,13 @@ void load_players(struct player_server *players, char *path_lib_player1, char *p
 {
     if (!(players[BLACK].lib = load_library(path_lib_player1)) || !(players[WHITE].lib = load_library(path_lib_player2)))
     {
-        fprintf(stderr, "Error load player library : %s\n", dlerror());
+        fprintf(stderr, "Error when loading player's library : %s\n", dlerror());
         exit(1);
     }
 
     if (!load_player(&players[BLACK]) || !load_player(&players[WHITE]))
     {
-        fprintf(stderr, "Error load player function : %s\n", dlerror());
+        fprintf(stderr, "Error when loading player's functions : %s\n", dlerror());
         exit(1);
     }
 }
@@ -96,8 +58,18 @@ struct server *initialize_server(char *player1_lib, char *player2_lib, size_t wi
     return server;
 }
 
-void run_server(struct server *server)
+struct move_t get_initial_move()
 {
+    struct move_t mv;
+    mv.m = 0;
+    mv.t = NO_TYPE;
+    mv.c = BLACK;
+    return mv;
+}
+
+void run_server(struct server *server, int print)
+{
+    size_t turn = 1;
     struct graph_t *copy_graph = graph_copy(server->graph.graph);
     server->players[BLACK].initialize(BLACK, copy_graph, 22);
     graph_free(copy_graph);
@@ -105,17 +77,18 @@ void run_server(struct server *server)
     copy_graph = graph_copy(server->graph.graph);
     server->players[WHITE].initialize(WHITE, copy_graph, 22);
     graph_free(copy_graph);
-
-    struct move_t move = {.m = 0, .e = {{-1, -1}}, .t = NO_TYPE, .c = WHITE};
-    while (1)
+    
+    struct move_t move = get_initial_move();
+    do
     {
         move = server->players[get_next_player(move.c)].play(move);
         update(server->players, move);
-        display_graph(server->graph.graph, server->graph.width, server->players);
-        if (is_winning(server->graph.graph, move.c, server->players[move.c].pos)){
-            break;
-        }
-    }
+        
+        //updated_display(server, turn, move.c);
+        if (print)
+            display_game(server, turn, move.c);
+        turn++;
+    } while (!is_winning(server->graph.graph, move.c, server->players[move.c].pos) && turn < TURN_MAX);
     free_server(server);
 }
 
