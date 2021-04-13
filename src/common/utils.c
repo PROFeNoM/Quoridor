@@ -87,33 +87,49 @@ int is_vertical_connection(struct graph_t* graph, size_t from, size_t to)
     return relation == NORTH || relation == SOUTH;
 }
 
+enum wall_orientation_t get_wall_orientation_opposed(enum wall_orientation_t orientation) 
+{
+    switch (orientation)
+    {
+    case POINT_TO_NORTH:
+        return POINT_TO_SOUTH;
+    case POINT_TO_SOUTH:
+        return POINT_TO_NORTH;
+    case POINT_TO_EAST:
+        return POINT_TO_WEST;
+    case POINT_TO_WEST:
+        return POINT_TO_EAST;
+    default:
+        return NOT_CONNECTED;
+    }
+}
+
 void add_wall(struct graph_t* graph, struct edge_t e[])
 {
     if (is_horizontal_connection(graph, e[0].fr, e[0].to))
     {
-        set_connection_type(graph, e[0].fr, e[0].to, e[0].fr > e[1].fr ? POINT_TO_NORTH : POINT_TO_SOUTH);
-        set_connection_type(graph, e[0].to, e[0].fr, e[0].fr > e[1].fr ? POINT_TO_NORTH : POINT_TO_SOUTH);
-        set_connection_type(graph, e[1].fr, e[1].to, e[0].fr > e[1].fr ? POINT_TO_SOUTH : POINT_TO_NORTH);
-        set_connection_type(graph, e[1].to, e[1].fr, e[0].fr > e[1].fr ? POINT_TO_SOUTH : POINT_TO_NORTH);
+        enum wall_orientation_t orientation_e1 = e[0].fr > e[1].fr ? POINT_TO_NORTH : POINT_TO_SOUTH;
+        enum wall_orientation_t orientation_e2 = get_wall_orientation_opposed(orientation_e1);
+        set_connection_type(graph, e[0].fr, e[0].to, orientation_e1);
+        set_connection_type(graph, e[0].to, e[0].fr, orientation_e1);
+        set_connection_type(graph, e[1].fr, e[1].to, orientation_e2);
+        set_connection_type(graph, e[1].to, e[1].fr, orientation_e2);
     }
     else
     {
-        set_connection_type(graph, e[0].fr, e[0].to, e[0].fr > e[1].fr ? POINT_TO_WEST : POINT_TO_EAST);
-        set_connection_type(graph, e[0].to, e[0].fr, e[0].fr > e[1].fr ? POINT_TO_WEST : POINT_TO_EAST);
-        set_connection_type(graph, e[1].fr, e[1].to, e[0].fr > e[1].fr ? POINT_TO_EAST : POINT_TO_WEST);
-        set_connection_type(graph, e[1].to, e[1].fr, e[0].fr > e[1].fr ? POINT_TO_EAST : POINT_TO_WEST);
+        enum wall_orientation_t orientation_e1 = e[0].fr > e[1].fr ? POINT_TO_WEST : POINT_TO_EAST;
+        enum wall_orientation_t orientation_e2 = get_wall_orientation_opposed(orientation_e1);
+        set_connection_type(graph, e[0].fr, e[0].to, orientation_e1);
+        set_connection_type(graph, e[0].to, e[0].fr, orientation_e1);
+        set_connection_type(graph, e[1].fr, e[1].to, orientation_e2);
+        set_connection_type(graph, e[1].to, e[1].fr, orientation_e2);
     }
-}
-
-int is_vertex_in_area(struct graph_t *graph, enum color_t player_id, size_t pos)
-{
-    return is_owned(graph, player_id, pos);
 }
 
 int is_path_existing(struct graph_t *graph, int visited[], size_t pos, enum color_t player_id)
 {
     visited[pos] = 1;
-    if (is_vertex_in_area(graph, player_id, pos))
+    if (is_winning(graph, player_id, pos))
         return 1;
 
     for (size_t j = 0; j < graph->num_vertices; j++)
@@ -195,8 +211,8 @@ int can_add_wall(struct graph_t* graph, struct edge_t e[], size_t p1_position, s
     // Check if players aren't blocked
     struct graph_t* graph_with_wall = graph_copy(graph);
     add_wall(graph_with_wall, e);
-    if (is_player_blocked(graph_with_wall, p1_position, 1)
-        || is_player_blocked(graph_with_wall, p2_position, 0))
+    if (is_player_blocked(graph_with_wall, p1_position, BLACK)
+        || is_player_blocked(graph_with_wall, p2_position, WHITE))
         return 0;
     graph_free(graph_with_wall);
 

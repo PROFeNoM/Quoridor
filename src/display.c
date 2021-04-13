@@ -191,129 +191,30 @@ void display_game(struct server *server, size_t turn, size_t current_player)
     sleep(1);
 }
 
-// "╔═══╗╔═══╗╔═══╗╔═══╗\n"
-// "║   ║║   ║║   ║║   ║"
-// "╚═══╝╚═══╝╚═══╝╚═══╝";
-// "╔═══╗╔═══╗╔═══╗╔═══╗\n"
-// "║   ║║   ║║   ║║ 2 ║"
-// "╚═══╝╚═══╝╚═══╝╚═══╝";
-// "╔═══╗╔═══╗╔═══╗╔═══╗\n"
-// "║   ║║   ║║ 1 ║║   ║"
-// "╚═══╝╚═══╝╚═══╝╚═══╝";
-void updated_display_board(struct graph_t *graph, size_t size_display, size_t p1_pos, size_t p2_pos)
-{
-    size_t graph_width = (size_t)sqrt(graph->num_vertices);
-    size_t shift_print = (size_display + 1) / 2 - 4 * ((graph_width + 1) / 2);
-
-    char *top_side_cell = "";
-    char *bottom_side_cell = "";
-    char *left_side_cell = "";
-    char *middle_side_cell = "";
-    char *right_side_cell = "";
-
-    set_back_color(BLACK_COLOR);
-    print_shift(size_display);
-
-    printf("\n");
-    for (size_t y = 0; y < graph_width; y++)
-    {
-        for (size_t d = 0; d < 3; d++)
-        {
-            print_shift(shift_print);
-            for (size_t x = 0; x < graph_width; x++)
-            {
-                size_t vertex = y*graph_width + x;
-                size_t is_valid_position = is_valid_graph_position(graph, vertex);
-
-                if (d == 0) {
-                    if (is_valid_position) {
-                        if (y > 0 && is_connected(graph, vertex, vertex - graph_width))
-                            top_side_cell = "╔   ╗";
-                        else
-                            top_side_cell = "╔═══╗";
-                    } else
-                        top_side_cell = "     ";
-                    printf("%s", top_side_cell);
-                } else if (d == 1) {
-                    if (is_valid_position) {
-                        if (x > 0 && is_connected(graph, vertex, vertex - 1))
-                            left_side_cell = " ";
-                        else
-                            left_side_cell = "║";
-
-                        if (vertex == p1_pos)
-                            middle_side_cell = "\033[37m♖\033[39m";
-                        else if (vertex == p2_pos)
-                            middle_side_cell = "\033[30m♖\033[39m";
-                        else if (gsl_spmatrix_uint_get(graph->o, WHITE, vertex) == 1) {
-                            //set_front_color(WHITE_COLOR);
-                            middle_side_cell = "\033[37m■\033[39m";
-                            //set_default_foreground();
-                        } else if (gsl_spmatrix_uint_get(graph->o, BLACK, vertex) == 1) {
-                            //set_front_color(0);
-                            middle_side_cell = "\033[30m■\033[39m";
-                            //set_default_foreground();
-                        } else
-                            middle_side_cell = " ";
-                        
-                        if (x < graph_width - 1 && is_connected(graph, vertex, vertex + 1))
-                            right_side_cell = " ";
-                        else
-                            right_side_cell = "║";
-                    } else {
-                        left_side_cell = " ";
-                        right_side_cell = " ";
-                        middle_side_cell = " ";
-                    }
-                    printf("%s %s %s", left_side_cell, middle_side_cell, right_side_cell);
-                } else {
-                    if (is_valid_position) {
-                        if (y < graph_width - 1 && is_connected(graph, vertex, vertex + graph_width))
-                            bottom_side_cell = "╚   ╝";
-                        else
-                            bottom_side_cell = "╚═══╝";
-                    } else
-                        bottom_side_cell = "     ";
-                    printf("%s", bottom_side_cell);
-                }
-            }
-            print_shift(shift_print);
-            printf("\n");
-        }
-    }
-    print_shift(size_display);
-    printf("\n");
-
-    set_default();
-}
-
-
-
-void updated_display(struct server *server, size_t turn, size_t current_player)
-{
-    size_t graph_width = server->graph.width;
-    size_t size_display = 20 + 5 * graph_width;
-    char const *current_player_name = server->players[current_player].get_player_name();
-
-    if (turn == 1) {
-        clear();
-    }
-
-    GOTO(0, 0);
-    display_header(size_display, turn, current_player_name);
-    updated_display_board(server->graph.graph, size_display, server->players[WHITE].pos, server->players[BLACK].pos);
-    display_footer(size_display);
-    sleep(1);
-}
-
 void display_graph_value(struct graph_t *graph)
 {
+    printf("      ");
+    for (size_t i = 0; i < graph->num_vertices; i++)
+    {
+        printf("%2zu | ", i);
+    }
+    printf("\n");
+    for (size_t i = 0; i < graph->num_vertices+1; i++)
+    {
+        printf("-----");
+    }
+    printf("\n");
     for (size_t i = 0; i < graph->num_vertices; i++)
     {
         printf("%3zu : ", i);
         for (size_t j = 0; j < graph->num_vertices; j++)
         {
-            printf("%d ", get_connection_type(graph, i, j));
+            printf("%2d | ", get_connection_type(graph, i, j));
+        }
+        printf("\n");
+        for (size_t i = 0; i < graph->num_vertices + 1; i++)
+        {
+            printf("-----");
         }
         printf("\n");
     }
