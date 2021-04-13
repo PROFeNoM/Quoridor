@@ -58,13 +58,21 @@ struct server *initialize_server(char *player1_lib, char *player2_lib, size_t wi
     return server;
 }
 
-struct move_t get_initial_move()
+struct move_t get_initial_move(int player)
 {
     struct move_t mv;
     mv.m = 0;
     mv.t = NO_TYPE;
-    mv.c = BLACK;
+    mv.c = player;
     return mv;
+}
+
+struct move_t initialize_players_position(struct server *server, int player)
+{
+    struct move_t move = get_initial_move(player);
+    move = server->players[move.c].play(move);
+
+    return move;
 }
 
 void run_server(struct server *server, int print)
@@ -77,18 +85,47 @@ void run_server(struct server *server, int print)
     copy_graph = graph_copy(server->graph.graph);
     server->players[WHITE].initialize(WHITE, copy_graph, 22);
     graph_free(copy_graph);
-    
-    struct move_t move = get_initial_move();
+
+    struct move_t black_init = initialize_players_position(server, BLACK);
+    if (is_owned(server->graph.graph, BLACK, black_init.m))
+        update(server->players, black_init);
+    else
+    {
+        printf("Illegal move during WHITE initialization.\n");
+        free_server(server);
+        return;
+    }
+
+    struct move_t white_init = initialize_players_position(server, WHITE);
+    if (is_owned(server->graph.graph, WHITE, white_init.m))
+        update(server->players, white_init);
+    else
+    {
+        printf("Illegal move during BLACK initialization.\n");
+        free_server(server);
+        return;
+    }
+
+    struct move_t move = white_init;
+
     do
     {
         move = server->players[get_next_player(move.c)].play(move);
-        update(server->players, move);
-        
+        if (is_move_legal(server->graph.graph, &move, server->players[0].pos, server->players[1].pos))
+            update(server->players, move);
+        else
+        {
+            printf("Illegal move by player %d\n", move.c);
+            break;
+        }
+
         //updated_display(server, turn, move.c);
         if (print)
             display_game(server, turn, move.c);
+	//display_graph_value(server->graph.graph);
         turn++;
     } while (!is_winning(server->graph.graph, move.c, server->players[move.c].pos) && turn < TURN_MAX);
+
     free_server(server);
 }
 
