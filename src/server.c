@@ -67,6 +67,27 @@ struct move_t get_initial_move()
     return mv;
 }
 
+int initialize_players_position(struct server *server, struct move_t move, int print)
+{
+    move = server->players[get_next_player(move.c)].play(move);
+    if (is_owned(server->graph.graph, WHITE, move.m))
+        update(server->players, move);
+    else
+        return 1; // Illegal move
+    if (print)
+        display_game(server, 0, move.c);
+
+    move = server->players[get_next_player(move.c)].play(move);
+    if (is_owned(server->graph.graph, BLACK, move.m))
+        update(server->players, move);
+    else
+        return 1; // Illegal move
+    if (print)
+        display_game(server, 0, move.c);
+
+    return 0;
+}
+
 void run_server(struct server *server, int print)
 {
     size_t turn = 1;
@@ -77,19 +98,34 @@ void run_server(struct server *server, int print)
     copy_graph = graph_copy(server->graph.graph);
     server->players[WHITE].initialize(WHITE, copy_graph, 22);
     graph_free(copy_graph);
-    
+
     struct move_t move = get_initial_move();
+
+    if (initialize_players_position(server, move, print))
+    {
+        printf("Illegal move during initialization of players positions.\n");
+        free_server(server);
+        return;
+    }
+
     do
     {
         move = server->players[get_next_player(move.c)].play(move);
-        update(server->players, move);
-        
+        if (is_move_legal(server->graph.graph, &move, server->players[0].pos, server->players[1].pos))
+            update(server->players, move);
+        else
+        {
+            printf("Illegal move by player %d\n", move.c);
+            break;
+        }
+
         //updated_display(server, turn, move.c);
         if (print)
             display_game(server, turn, move.c);
 	//display_graph_value(server->graph.graph);
         turn++;
     } while (!is_winning(server->graph.graph, move.c, server->players[move.c].pos) && turn < TURN_MAX);
+
     free_server(server);
 }
 
