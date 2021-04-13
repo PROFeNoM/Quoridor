@@ -33,8 +33,9 @@ void initialize(enum color_t id, struct graph_t* graph, size_t num_walls)
 
     player.num_walls = num_walls;
   
-    player.position[0] = graph->num_vertices;
-    player.position[1] = graph->num_vertices;
+    player.position[BLACK] = graph->num_vertices;
+    player.position[WHITE] = graph->num_vertices;
+    graph_free(graph);
   }
 
   else

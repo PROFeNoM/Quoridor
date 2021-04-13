@@ -78,13 +78,14 @@ struct move_t initialize_players_position(struct server *server, int player)
 void run_server(struct server *server, int print)
 {
     size_t turn = 1;
+
     struct graph_t *copy_graph = graph_copy(server->graph.graph);
     server->players[BLACK].initialize(BLACK, copy_graph, 22);
-    graph_free(copy_graph);
-    
+    //graph_free(copy_graph);
+
     copy_graph = graph_copy(server->graph.graph);
     server->players[WHITE].initialize(WHITE, copy_graph, 22);
-    graph_free(copy_graph);
+    //graph_free(copy_graph);
 
     struct move_t black_init = initialize_players_position(server, BLACK);
     if (is_owned(server->graph.graph, BLACK, black_init.m))
@@ -107,7 +108,6 @@ void run_server(struct server *server, int print)
     }
 
     struct move_t move = white_init;
-
     do
     {
         move = server->players[get_next_player(move.c)].play(move);
