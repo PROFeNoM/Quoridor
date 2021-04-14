@@ -51,7 +51,9 @@ int is_owned(struct graph_t *graph, enum color_t player_id, size_t position)
 
 int is_winning(struct graph_t *graph, enum color_t player_id, size_t position)
 {
-  return is_owned(graph, get_next_player(player_id), position);
+	if (!is_vertex_in_graph(graph, position))
+		return 0;
+  	return is_owned(graph, get_next_player(player_id), position);
 }
 
 int get_connection_type(struct graph_t* graph, size_t from, size_t to)
