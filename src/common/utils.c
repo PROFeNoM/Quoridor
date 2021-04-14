@@ -132,14 +132,19 @@ void add_wall(struct graph_t* graph, struct edge_t e[])
 
 int is_path_existing(struct graph_t *graph, int visited[], size_t position, enum color_t player_id)
 {
+	printf("\t\tDEBUG: Position > %zd\n", position);
     visited[position] = 1;
+    printf("\t\tDEBUG: Marked as visited\n");
     if (is_winning(graph, player_id, position))
         return 1;
-
+	printf("\t\tDEBUG: Isn't destination\n");
     for (size_t j = 0; j < graph->num_vertices; j++)
-        if (is_connected(graph, position, j) && !visited[(int)j] && is_path_existing(graph, visited, j, player_id))
-            return 1;
-
+	{
+    	printf("\t\tDEBUG: j = %zd\n", j);
+		if (is_connected(graph, position, j) && !visited[(int)j] && is_path_existing(graph, visited, j, player_id))
+			return 1;
+	}
+	printf("\t\tDEBUG: Out\n");
     return 0;
 }
 
@@ -149,7 +154,7 @@ int is_player_blocked(struct graph_t* graph, size_t position, enum color_t playe
     int visited[graph->num_vertices];
     for (size_t i = 0; i < graph->num_vertices; i++)
         visited[i] = 0;
-
+	printf("\t\tDEBUG: Visited array created of size %zd\n", graph->num_vertices);
     return !is_path_existing(graph, visited, position, player_id);
 }
 
