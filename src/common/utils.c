@@ -161,74 +161,60 @@ int is_player_blocked(struct graph_t* graph, size_t position, enum color_t playe
 // size of e is 2
 int can_add_wall(struct graph_t* graph, struct edge_t e[], size_t p1_position, size_t p2_position)
 {
-    // TODO: Check nb of walls left for the active player
-    // Vertices must be on graph
-    if (!(is_vertex_in_graph(graph, e[0].fr) && is_vertex_in_graph(graph, e[0].to)
-        && is_vertex_in_graph(graph, e[1].fr) && is_vertex_in_graph(graph, e[1].to)))
-    	return 0;
+	// TODO: Check nb of walls left for the active player
+	// Vertices must be on graph
+	if (!(is_vertex_in_graph(graph, e[0].fr) && is_vertex_in_graph(graph, e[0].to)
+			&& is_vertex_in_graph(graph, e[1].fr) && is_vertex_in_graph(graph, e[1].to)))
+		return 0;
 
 
-    // Check if vertices are connected AND if it won't overlap an other wall
-    if (!(is_connected(graph, e[0].fr, e[0].to) && is_connected(graph, e[1].fr, e[1].to)))
-    	return 0;
+	// Check if vertices are connected AND if it won't overlap an other wall
+	if (!(is_connected(graph, e[0].fr, e[0].to) && is_connected(graph, e[1].fr, e[1].to)))
+		return 0;
 
-    // Check vertices relation
-    int flag_connection = 0;
-    if (is_horizontal_connection(graph, e[0].fr, e[0].to))
-    {
-        if (is_connected(graph, e[0].fr, e[1].fr))
-        {
-            if (!is_vertical_connection(graph, e[0].fr, e[1].fr))
-                return 0;
+	// Check vertices relation
+	if (is_horizontal_connection(graph, e[0].fr, e[0].to))
+	{
+		if (is_connected(graph, e[0].fr, e[1].fr) && is_horizontal_connection(graph, e[0].fr, e[1].fr))
+			return 0;
 
-            flag_connection = 1;
-        }
+		if (is_connected(graph, e[0].fr, e[1].to) && is_horizontal_connection(graph, e[0].fr, e[1].to))
+			return 0;
 
-        if (is_connected(graph, e[0].fr, e[1].to))
-        {
-            if (flag_connection || !is_vertical_connection(graph, e[0].fr, e[1].to))
-                return 0;
+		if (is_connected(graph, e[0].to, e[1].fr) && is_horizontal_connection(graph, e[0].to, e[1].fr))
+			return 0;
 
-            flag_connection = 1;
-        }
+		if (is_connected(graph, e[0].to, e[1].to) && is_horizontal_connection(graph, e[0].to, e[1].to))
+			return 0;
+	}
+	else // North-South relation
+	{
+		if (is_connected(graph, e[0].fr, e[1].fr) && is_vertical_connection(graph, e[0].fr, e[1].fr))
+			return 0;
 
-        if (!flag_connection)
-            return 0;
-    }
-    else // North-South relation
-    {
-        if (is_connected(graph, e[0].fr, e[1].fr))
-        {
-            if (!is_horizontal_connection(graph, e[0].fr, e[1].fr))
-                return 0;
+		if (is_connected(graph, e[0].fr, e[1].to) && is_vertical_connection(graph, e[0].fr, e[1].to))
+			return 0;
 
-            flag_connection = 1;
-        }
+		if (is_connected(graph, e[0].to, e[1].fr) && is_vertical_connection(graph, e[0].to, e[1].fr))
+			return 0;
 
-        if (is_connected(graph, e[0].fr, e[1].to))
-        {
-            if (flag_connection || !is_horizontal_connection(graph, e[0].fr, e[1].to))
-                return 0;
+		if (is_connected(graph, e[0].to, e[1].to) && is_vertical_connection(graph, e[0].to, e[1].to))
+			return 0;
+	}
 
-            flag_connection = 1;
-        }
-
-        if (!flag_connection)
-            return 0;
-    }
-    // Check if players aren't blocked
-    struct graph_t* graph_with_wall = graph_copy(graph);
-    add_wall(graph_with_wall, e);
-    if (is_player_blocked(graph_with_wall, p1_position, BLACK)
-        || is_player_blocked(graph_with_wall, p2_position, WHITE))
+	// Check if players aren't blocked
+	struct graph_t* graph_with_wall = graph_copy(graph);
+	add_wall(graph_with_wall, e);
+	if (is_player_blocked(graph_with_wall, p1_position, BLACK)
+			|| is_player_blocked(graph_with_wall, p2_position, WHITE))
 	{
 		graph_free(graph_with_wall);
-    	return 0;
+		return 0;
 	}
 	graph_free(graph_with_wall);
 
-    // The wall doesn't violate any rules, hence it's a legal move
-    return 1;
+	// The wall doesn't violate any rules, hence it's a legal move
+	return 1;
 }
 
 int is_vertex_available(size_t vertex, size_t p1_position, size_t p2_position)

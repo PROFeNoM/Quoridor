@@ -172,9 +172,30 @@ int test_can_add_wall()
     assert(can_add_wall(graph3, e31, 0, 15) == 1);
     add_wall(graph3, e31);
 
+    struct graph_t* graph4 = get_graph('c', 4);
+    struct edge_t e41[2] = {
+			{ 3, 2 },
+			{ 7, 6 }
+    };
+    struct edge_t e42[2] = {
+			{ 10, 9 },
+			{ 6, 5 }
+    };
+    struct edge_t e43[2] = {
+			{ 10, 14 },
+			{ 9, 13 }
+    };
+	assert(can_add_wall(graph4, e41, 2, 13) == 1);
+    add_wall(graph4, e41);
+	assert(can_add_wall(graph4, e42, 2, 12) == 1);
+    add_wall(graph4, e42);
+	assert(can_add_wall(graph4, e43, 2, 13) == 1);
+	add_wall(graph4, e43);
+
     graph_free(graph1);
     graph_free(graph2);
     graph_free(graph3);
+    graph_free(graph4);
 
     return 1;
 }
