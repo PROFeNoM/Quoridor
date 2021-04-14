@@ -126,7 +126,11 @@ void run_server(struct server *server, int print)
     do
     {
     	if (!print)
-			printf("%s to play.\n", get_next_player(move.c) == BLACK ? "Black" : "White");
+		{
+    		printf("%s to play.\n", get_next_player(move.c) == BLACK ? "Black" : "White");
+    		printf("\tBlack position: %zd\n", server->players[BLACK].pos);
+			printf("\tWhite position: %zd\n", server->players[WHITE].pos);
+		}
 
         move = server->players[get_next_player(move.c)].play(move);
         if (is_move_legal(server->graph.graph, &move, server->players[0].pos, server->players[1].pos))
