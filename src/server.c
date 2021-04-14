@@ -115,7 +115,7 @@ void run_server(struct server *server, int print)
         free_server(server);
         return;
     }
-
+	printf("%zd %zd\n", server->players[BLACK].pos, server->players[WHITE].pos);
 	if (print)
 		display_game(server, 0, move.c);
 

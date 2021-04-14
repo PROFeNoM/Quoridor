@@ -46,6 +46,8 @@ enum color_t get_next_player(enum color_t id)
 
 int is_owned(struct graph_t *graph, enum color_t player_id, size_t position)
 {
+	if (!is_vertex_in_graph(graph, position))
+		return 0;
     return gsl_spmatrix_uint_get(graph->o, player_id, position) == 1;
 }
 
