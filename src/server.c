@@ -86,6 +86,14 @@ void run_server(struct server *server, int print)
     else
     {
         printf("Illegal move during BLACK initialization.\n");
+        if (move.t == MOVE) {
+            printf("Move type : MOVE\n");
+            printf("Move from %zu to %zu\n", server->players[move.c].pos, move.m);
+        } else {
+            printf("Move type : WALL\n");
+            printf("First edge from %zu to %zu\n", move.e[0].fr, move.e[0].to);
+            printf("Second edge from %zu to %zu\n", move.e[1].fr, move.e[1].to);
+        }
         free_server(server);
         return;
     }
@@ -96,6 +104,14 @@ void run_server(struct server *server, int print)
     else
     {
         printf("Illegal move during WHITE initialization.\n");
+        if (move.t == MOVE) {
+            printf("Move type : MOVE\n");
+            printf("Move from %zu to %zu\n", server->players[move.c].pos, move.m);
+        } else {
+            printf("Move type : WALL\n");
+            printf("First edge from %zu to %zu\n", move.e[0].fr, move.e[0].to);
+            printf("Second edge from %zu to %zu\n", move.e[1].fr, move.e[1].to);
+        }
         free_server(server);
         return;
     }
@@ -112,13 +128,19 @@ void run_server(struct server *server, int print)
         else
         {
             printf("Illegal move by player %d\n", move.c);
+            if (move.t == MOVE) {
+                printf("Move type : MOVE\n");
+                printf("Move from %zu to %zu\n", server->players[move.c].pos, move.m);
+            } else {
+                printf("Move type : WALL\n");
+                printf("First edge from %zu to %zu\n", move.e[0].fr, move.e[0].to);
+                printf("Second edge from %zu to %zu\n", move.e[1].fr, move.e[1].to);
+            }
             break;
         }
 
-        //updated_display(server, turn, move.c);
         if (print)
             display_game(server, turn, move.c);
-	//display_graph_value(server->graph.graph);
         turn++;
     } while (!is_winning(server->graph.graph, move.c, server->players[move.c].pos) && turn < TURN_MAX);
 
