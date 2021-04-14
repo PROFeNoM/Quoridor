@@ -150,7 +150,10 @@ int is_path_existing(struct graph_t *graph, int visited[], size_t position, enum
 
 int is_player_blocked(struct graph_t* graph, size_t position, enum color_t player_id)
 {
-	printf("\tDEBUG: Test path\n");
+	printf("\tDEBUG: Test path from %zd\n", position);
+	if (!is_vertex_in_graph(graph, position))
+		return 1;
+	printf("\tDEBUG: Player's initial position is legal\n");
     int visited[graph->num_vertices];
     for (size_t i = 0; i < graph->num_vertices; i++)
         visited[i] = 0;
