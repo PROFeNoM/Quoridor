@@ -240,9 +240,12 @@ int can_add_wall(struct graph_t* graph, struct edge_t e[], size_t p1_position, s
     printf("\tDEBUG: Wall added\n");
     if (is_player_blocked(graph_with_wall, p1_position, BLACK)
         || is_player_blocked(graph_with_wall, p2_position, WHITE))
-        return 0;
+	{
+		graph_free(graph_with_wall);
+    	return 0;
+	}
+	graph_free(graph_with_wall);
     printf("DEBUG: Players aren't blocked\n");
-    graph_free(graph_with_wall);
 	printf("DEBUG: Legal move\n");
     // The wall doesn't violate any rules, hence it's a legal move
     return 1;
