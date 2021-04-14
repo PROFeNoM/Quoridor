@@ -58,21 +58,13 @@ struct server *initialize_server(char *player1_lib, char *player2_lib, size_t wi
     return server;
 }
 
-struct move_t get_initial_move(int player)
+struct move_t get_initial_move()
 {
     struct move_t mv;
     mv.m = 0;
     mv.t = NO_TYPE;
-    mv.c = player;
+    mv.c = BLACK;
     return mv;
-}
-
-struct move_t initialize_players_position(struct server *server, int player)
-{
-    struct move_t move = get_initial_move(player);
-    move = server->players[move.c].play(move);
-
-    return move;
 }
 
 void run_server(struct server *server, int print)
@@ -87,19 +79,10 @@ void run_server(struct server *server, int print)
     server->players[WHITE].initialize(WHITE, copy_graph, 22);
     //graph_free(copy_graph);
 
-    struct move_t black_init = initialize_players_position(server, BLACK);
-    if (is_owned(server->graph.graph, BLACK, black_init.m))
-        update(server->players, black_init);
-    else
-    {
-        printf("Illegal move during WHITE initialization.\n");
-        free_server(server);
-        return;
-    }
-
-    struct move_t white_init = initialize_players_position(server, WHITE);
-    if (is_owned(server->graph.graph, WHITE, white_init.m))
-        update(server->players, white_init);
+    struct move_t move = get_initial_move();
+    move = server->players[BLACK].play(move);
+    if (is_owned(server->graph.graph, BLACK, move.m))
+        update(server->players, move);
     else
     {
         printf("Illegal move during BLACK initialization.\n");
@@ -107,7 +90,20 @@ void run_server(struct server *server, int print)
         return;
     }
 
-    struct move_t move = white_init;
+    move = server->players[WHITE].play(move);
+    if (is_owned(server->graph.graph, WHITE, move.m))
+        update(server->players, move);
+    else
+    {
+        printf("Illegal move during WHITE initialization.\n");
+        free_server(server);
+        return;
+    }
+
+	if (print)
+		display_game(server, 0, move.c);
+
+
     do
     {
         move = server->players[get_next_player(move.c)].play(move);
