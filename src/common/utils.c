@@ -68,6 +68,8 @@ void set_connection_type(struct graph_t *graph, size_t from, size_t to, int conn
 
 int is_connected(struct graph_t* graph, size_t from, size_t to)
 {
+	if (!(is_vertex_in_graph(graph, from) && is_vertex_in_graph(graph, to)))
+		return 0;
     int connection_type = get_connection_type(graph, from, to);
     return MAX_DIRECTION > connection_type  && connection_type > NO_DIRECTION;
 }
