@@ -12,9 +12,12 @@ void initialize_graph(size_t width, char type, struct graph_server *graph)
     graph->graph = get_graph(type, width);
 }
 
-void update(struct player_server *players, struct move_t move)
+void update(struct server* server, struct move_t move)
 {
-    players[move.c].pos = move.m;
+	if (move.t == MOVE)
+    	server->players[move.c].pos = move.m;
+	else
+		add_wall(server->graph.graph, move.e);
 }
 
 void *load_player(struct player_server *player)
@@ -94,7 +97,7 @@ void run_server(struct server *server, int print)
     struct move_t move = get_initial_move();
     move = server->players[BLACK].play(move);
     if (is_owned(server->graph.graph, BLACK, move.m))
-    	update(server->players, move);
+    	update(server, move);
     else
     {
         printf("Illegal move during BLACK initialization.\n");
@@ -105,7 +108,7 @@ void run_server(struct server *server, int print)
 
     move = server->players[WHITE].play(move);
     if (is_owned(server->graph.graph, WHITE, move.m))
-    	update(server->players, move);
+    	update(server, move);
     else
     {
         printf("Illegal move during WHITE initialization.\n");
@@ -137,7 +140,7 @@ void run_server(struct server *server, int print)
 		{
         	if (!print)
 				display_move(server, move);
-        	update(server->players, move);
+        	update(server, move);
 		}
         else
         {
