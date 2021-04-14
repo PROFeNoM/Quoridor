@@ -132,32 +132,27 @@ void add_wall(struct graph_t* graph, struct edge_t e[])
 
 int is_path_existing(struct graph_t *graph, int visited[], size_t position, enum color_t player_id)
 {
-	printf("\t\tDEBUG: Position > %zd\n", position);
     visited[position] = 1;
-    printf("\t\tDEBUG: Marked as visited\n");
+
     if (is_winning(graph, player_id, position))
         return 1;
-	printf("\t\tDEBUG: Isn't destination\n");
+
     for (size_t j = 0; j < graph->num_vertices; j++)
-	{
-    	printf("\t\tDEBUG: j = %zd\n", j);
 		if (is_connected(graph, position, j) && !visited[(int)j] && is_path_existing(graph, visited, j, player_id))
 			return 1;
-	}
-	printf("\t\tDEBUG: Out\n");
+
     return 0;
 }
 
 int is_player_blocked(struct graph_t* graph, size_t position, enum color_t player_id)
 {
-	printf("\tDEBUG: Test path from %zd\n", position);
 	if (!is_vertex_in_graph(graph, position))
 		return 1;
-	printf("\tDEBUG: Player's initial position is legal\n");
+
     int visited[graph->num_vertices];
     for (size_t i = 0; i < graph->num_vertices; i++)
         visited[i] = 0;
-	printf("\t\tDEBUG: Visited array created of size %zd\n", graph->num_vertices);
+
     return !is_path_existing(graph, visited, position, player_id);
 }
 
@@ -165,31 +160,22 @@ int is_player_blocked(struct graph_t* graph, size_t position, enum color_t playe
 int can_add_wall(struct graph_t* graph, struct edge_t e[], size_t p1_position, size_t p2_position)
 {
     // TODO: Check nb of walls left for the active player
-	printf("DEBUG: Start of can_add_wall\n");
     // Vertices must be on graph
     if (!(is_vertex_in_graph(graph, e[0].fr) && is_vertex_in_graph(graph, e[0].to)
         && is_vertex_in_graph(graph, e[1].fr) && is_vertex_in_graph(graph, e[1].to)))
-	{
     	return 0;
-	}
 
-	printf("DEBUG: Vertices are on the graph\n");
 
     // Check if vertices are connected AND if it won't overlap an other wall
     if (!(is_connected(graph, e[0].fr, e[0].to) && is_connected(graph, e[1].fr, e[1].to)))
-	{
     	return 0;
-	}
 
-	printf("DEBUG: Vertices are connected and the edge won't overlap an other wall\n");
     // Check vertices relation
     int flag_connection = 0;
     if (is_horizontal_connection(graph, e[0].fr, e[0].to))
     {
-    	printf("\tDEBUG: Horizontal connection\n");
         if (is_connected(graph, e[0].fr, e[1].fr))
         {
-        	printf("\t\tDEBUG: Type 1\n");
             if (!is_vertical_connection(graph, e[0].fr, e[1].fr))
                 return 0;
 
@@ -198,7 +184,6 @@ int can_add_wall(struct graph_t* graph, struct edge_t e[], size_t p1_position, s
 
         if (is_connected(graph, e[0].fr, e[1].to))
         {
-			printf("\t\tDEBUG: Type 2\n");
             if (flag_connection || !is_vertical_connection(graph, e[0].fr, e[1].to))
                 return 0;
 
@@ -210,10 +195,8 @@ int can_add_wall(struct graph_t* graph, struct edge_t e[], size_t p1_position, s
     }
     else // North-South relation
     {
-    	printf("DEBUG: Vertical relation\n");
         if (is_connected(graph, e[0].fr, e[1].fr))
         {
-			printf("\t\tDEBUG: Type 1\n");
             if (!is_horizontal_connection(graph, e[0].fr, e[1].fr))
                 return 0;
 
@@ -222,7 +205,6 @@ int can_add_wall(struct graph_t* graph, struct edge_t e[], size_t p1_position, s
 
         if (is_connected(graph, e[0].fr, e[1].to))
         {
-			printf("\t\tDEBUG: Type 2\n");
             if (flag_connection || !is_horizontal_connection(graph, e[0].fr, e[1].to))
                 return 0;
 
@@ -232,12 +214,9 @@ int can_add_wall(struct graph_t* graph, struct edge_t e[], size_t p1_position, s
         if (!flag_connection)
             return 0;
     }
-	printf("DEBUG: Vertices relationship is alright\n");
     // Check if players aren't blocked
     struct graph_t* graph_with_wall = graph_copy(graph);
-    printf("\tDEBUG: Graph copied\n");
     add_wall(graph_with_wall, e);
-    printf("\tDEBUG: Wall added\n");
     if (is_player_blocked(graph_with_wall, p1_position, BLACK)
         || is_player_blocked(graph_with_wall, p2_position, WHITE))
 	{
@@ -245,8 +224,7 @@ int can_add_wall(struct graph_t* graph, struct edge_t e[], size_t p1_position, s
     	return 0;
 	}
 	graph_free(graph_with_wall);
-    printf("DEBUG: Players aren't blocked\n");
-	printf("DEBUG: Legal move\n");
+
     // The wall doesn't violate any rules, hence it's a legal move
     return 1;
 }
