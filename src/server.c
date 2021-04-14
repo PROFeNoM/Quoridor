@@ -67,6 +67,18 @@ struct move_t get_initial_move()
     return mv;
 }
 
+void display_move(struct server *server, struct move_t move)
+{
+	if (move.t == MOVE) {
+		printf("Move type : MOVE\n");
+		printf("Move from %zu to %zu\n", server->players[move.c].pos, move.m);
+	} else {
+		printf("Move type : WALL\n");
+		printf("First edge from %zu to %zu\n", move.e[0].fr, move.e[0].to);
+		printf("Second edge from %zu to %zu\n", move.e[1].fr, move.e[1].to);
+	}
+}
+
 void run_server(struct server *server, int print)
 {
     size_t turn = 1;
@@ -82,60 +94,51 @@ void run_server(struct server *server, int print)
     struct move_t move = get_initial_move();
     move = server->players[BLACK].play(move);
     if (is_owned(server->graph.graph, BLACK, move.m))
-        update(server->players, move);
+    	update(server->players, move);
     else
     {
         printf("Illegal move during BLACK initialization.\n");
-        if (move.t == MOVE) {
-            printf("Move type : MOVE\n");
-            printf("Move from %zu to %zu\n", server->players[move.c].pos, move.m);
-        } else {
-            printf("Move type : WALL\n");
-            printf("First edge from %zu to %zu\n", move.e[0].fr, move.e[0].to);
-            printf("Second edge from %zu to %zu\n", move.e[1].fr, move.e[1].to);
-        }
+        display_move(server, move);
         free_server(server);
         return;
     }
 
     move = server->players[WHITE].play(move);
     if (is_owned(server->graph.graph, WHITE, move.m))
-        update(server->players, move);
+    	update(server->players, move);
     else
     {
         printf("Illegal move during WHITE initialization.\n");
-        if (move.t == MOVE) {
-            printf("Move type : MOVE\n");
-            printf("Move from %zu to %zu\n", server->players[move.c].pos, move.m);
-        } else {
-            printf("Move type : WALL\n");
-            printf("First edge from %zu to %zu\n", move.e[0].fr, move.e[0].to);
-            printf("Second edge from %zu to %zu\n", move.e[1].fr, move.e[1].to);
-        }
+        display_move(server, move);
         free_server(server);
         return;
     }
-	printf("%zd %zd\n", server->players[BLACK].pos, server->players[WHITE].pos);
+
 	if (print)
 		display_game(server, 0, move.c);
+	else
+	{
+		printf("Initial black position: %zd\n", server->players[BLACK].pos);
+		printf("Initial white position: %zd\n", server->players[WHITE].pos);
+	}
 
 
     do
     {
+    	if (!print)
+			printf("%s to play.\n", move.c == BLACK ? "Black" : "White");
+
         move = server->players[get_next_player(move.c)].play(move);
         if (is_move_legal(server->graph.graph, &move, server->players[0].pos, server->players[1].pos))
-            update(server->players, move);
+		{
+        	if (!print)
+				display_move(server, move);
+        	update(server->players, move);
+		}
         else
         {
             printf("Illegal move by player %d\n", move.c);
-            if (move.t == MOVE) {
-                printf("Move type : MOVE\n");
-                printf("Move from %zu to %zu\n", server->players[move.c].pos, move.m);
-            } else {
-                printf("Move type : WALL\n");
-                printf("First edge from %zu to %zu\n", move.e[0].fr, move.e[0].to);
-                printf("Second edge from %zu to %zu\n", move.e[1].fr, move.e[1].to);
-            }
+            display_move(server, move);
             break;
         }
 
