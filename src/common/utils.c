@@ -145,6 +145,7 @@ int is_path_existing(struct graph_t *graph, int visited[], size_t position, enum
 
 int is_player_blocked(struct graph_t* graph, size_t position, enum color_t player_id)
 {
+	printf("\tDEBUG: Test path\n");
     int visited[graph->num_vertices];
     for (size_t i = 0; i < graph->num_vertices; i++)
         visited[i] = 0;
@@ -226,7 +227,9 @@ int can_add_wall(struct graph_t* graph, struct edge_t e[], size_t p1_position, s
 	printf("DEBUG: Vertices relationship is alright\n");
     // Check if players aren't blocked
     struct graph_t* graph_with_wall = graph_copy(graph);
+    printf("\tDEBUG: Graph copied\n");
     add_wall(graph_with_wall, e);
+    printf("\tDEBUG: Wall added\n");
     if (is_player_blocked(graph_with_wall, p1_position, BLACK)
         || is_player_blocked(graph_with_wall, p2_position, WHITE))
         return 0;
