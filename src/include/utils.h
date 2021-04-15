@@ -40,6 +40,12 @@ void *load_function(void *, const char *);
  */
 enum color_t get_next_player(enum color_t id);
 
+/** 
+ * 
+ * @param id
+*/
+const char *get_name_type_player(enum color_t id);
+
 /**
  * Check of a player won given its position on the board
  * @param graph Graph structure representing the game board and its information

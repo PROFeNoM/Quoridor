@@ -30,7 +30,7 @@ struct server {
 };
 
 struct server *initialize_server(char *, char *, size_t, char);
-void run_server(struct server *, int);
+void run_server(struct server *, int print, int delay);
 void free_server(struct server *server);
 
 #endif

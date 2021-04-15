@@ -16,6 +16,7 @@ static int (*board_size_constraint[])(int) = {
 static char t = 'c';
 static int m = 2;
 static int p = 0;
+static int d = 0;
 
 
 ////////////////////////////////////////////////////////////////
@@ -54,13 +55,17 @@ void parse_opts(int argc, char* argv[]) {
   int option_index = 0;
   static struct option long_options[] = {
       {"print", no_argument, NULL, 'p'},
+      {"delay", required_argument, NULL, 'd'},
   };
 
-  while ((opt = getopt_long(argc, argv, "m:t:p", long_options, &option_index)) != -1)
+  while ((opt = getopt_long(argc, argv, "m:t:pd:", long_options, &option_index)) != -1)
   {
     switch (opt) {
     case 'p':
       p = 1;
+      break;
+    case 'd':
+      d = abs(atoi(optarg));
       break;
     case 't':
       t = *optarg;
@@ -84,7 +89,7 @@ int main(int argc , char * argv[]){
   struct server *server;
   server = initialize_server(argv[optind], argv[optind + 1], m, t);
   
-  run_server(server, p);
-  
+  run_server(server, p, d);
+  free_server(server);
   return 0;
 }

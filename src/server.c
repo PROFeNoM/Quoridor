@@ -12,12 +12,12 @@ void initialize_graph(size_t width, char type, struct graph_server *graph)
     graph->graph = get_graph(type, width);
 }
 
-void update(struct server* server, struct move_t move)
+void update(struct graph_t *graph, struct move_t move, size_t *p_position)
 {
-	if (move.t == MOVE)
-    	server->players[move.c].pos = move.m;
-	else
-		add_wall(server->graph.graph, move.e);
+    if (move.t == MOVE)
+        *p_position = move.m;
+    else
+        add_wall(graph, move.e);
 }
 
 void *load_player(struct player_server *player)
@@ -70,91 +70,78 @@ struct move_t get_initial_move()
     return mv;
 }
 
-void display_move(struct server *server, struct move_t move)
+struct move_t player_placement(struct server *server, struct move_t move, enum color_t id)
 {
-	if (move.t == MOVE) {
-		printf("Move type : MOVE\n");
-		printf("Move from %zu to %zu\n", server->players[move.c].pos, move.m);
-	} else {
-		printf("Move type : WALL\n");
-		printf("First edge from %zu to %zu\n", move.e[0].fr, move.e[0].to);
-		printf("Second edge from %zu to %zu\n", move.e[1].fr, move.e[1].to);
-	}
+    move = server->players[id].play(move);
+
+    if (is_owned(server->graph.graph, id, move.m))
+        update(server->graph.graph, move, &server->players[id].pos);
+    else {
+        display_error_move("wrong first placement", server->players[id].get_player_name(), get_name_type_player(id));
+        display_move(server, move);
+        display_winner(server, 0, get_next_player(id));
+        free_server(server);
+        exit(1);
+    }
+    return move;
 }
 
-void run_server(struct server *server, int print)
+struct move_t play_player_turn(struct server *server, struct move_t move, enum color_t id, size_t *cheat)
 {
-    size_t turn = 1;
+    move = server->players[get_next_player(move.c)].play(move);
+    if (is_move_legal(server->graph.graph, &move, server->players[BLACK].pos, server->players[WHITE].pos)) {
+    	update(server->graph.graph, move, &server->players[id].pos);
+        *cheat = 0;
+    }
+    else {
+        display_error_move(move.t == MOVE ? "wrong MOVE" : "wrong WALL move" , server->players[id].get_player_name(), get_name_type_player(id));
+        *cheat = 1;
+    }
+    return move;
+}
 
+void run_server(struct server *server, int print, int delay)
+{
+    size_t turn = 0;
+    size_t has_cheat = 0;
+
+    // Initializing players
     struct graph_t *copy_graph = graph_copy(server->graph.graph);
     server->players[BLACK].initialize(BLACK, copy_graph, 22);
-    //graph_free(copy_graph);
-
     copy_graph = graph_copy(server->graph.graph);
     server->players[WHITE].initialize(WHITE, copy_graph, 22);
-    //graph_free(copy_graph);
 
+    // Players choose their first position in the board
+    // exit if it is not a valid position for them to start
     struct move_t move = get_initial_move();
-    move = server->players[BLACK].play(move);
-    if (is_owned(server->graph.graph, BLACK, move.m))
-    	update(server, move);
-    else
-    {
-        printf("Illegal move during BLACK initialization.\n");
-        display_move(server, move);
-        free_server(server);
-        return;
-    }
+    move = player_placement(server, move, BLACK);
+    move = player_placement(server, move, WHITE);
 
-    move = server->players[WHITE].play(move);
-    if (is_owned(server->graph.graph, WHITE, move.m))
-    	update(server, move);
-    else
-    {
-        printf("Illegal move during WHITE initialization.\n");
-        display_move(server, move);
-        free_server(server);
-        return;
-    }
-
-	if (print)
-		display_game(server, 0, move.c);
-	else
-	{
-		printf("Initial black position: %zd\n", server->players[BLACK].pos);
-		printf("Initial white position: %zd\n", server->players[WHITE].pos);
-	}
-
-
+    // Play until one player has cheat
+    // or is winning
+    // or the number maximum of turn is attained
     do
     {
-    	if (!print)
-		{
-    		printf("%s to play.\n", get_next_player(move.c) == BLACK ? "Black" : "White");
-    		printf("\tBlack position: %zd\n", server->players[BLACK].pos);
-			printf("\tWhite position: %zd\n", server->players[WHITE].pos);
-		}
-
-        move = server->players[get_next_player(move.c)].play(move);
-        if (is_move_legal(server->graph.graph, &move, server->players[0].pos, server->players[1].pos))
-		{
-        	if (!print)
-				display_move(server, move);
-        	update(server, move);
-		}
-        else
-        {
-            printf("Illegal move by player %d\n", move.c);
-            display_move(server, move);
-            break;
-        }
-
-        if (print)
+        if (print) {
             display_game(server, turn, move.c);
+            if (turn > 0) {
+                display_move(server, move);
+                printf("Black position: %zd\n", server->players[BLACK].pos);
+                printf("White position: %zd\n", server->players[WHITE].pos);
+            }
+            sleep(delay);
+        }
         turn++;
-    } while (!is_winning(server->graph.graph, move.c, server->players[move.c].pos) && turn < TURN_MAX);
+        move = play_player_turn(server, move, get_next_player(move.c), &has_cheat);
+    } while (!has_cheat && turn < TURN_MAX && !is_winning(server->graph.graph, move.c, server->players[move.c].pos));
 
-    free_server(server);
+    // Display winner(s) of the game
+    if (turn == TURN_MAX)
+        display_winner(server, turn, BLACK);
+    else if (!has_cheat)
+        display_winner(server, turn, move.c);
+    else
+        display_winner(server, turn, get_next_player(move.c));
 }
 
 void free_server(struct server *server)

@@ -3,41 +3,24 @@
 // Move cursor to the (x, y) position in the console
 #define GOTO(X, Y) printf("\x1B[%d;%dH", Y, X)
 
-// Font attributs
-#define BOLD 1
-#define DIM 2
-#define UNDERLINE 4
-#define FLASH 5
-#define SURLINE 7
-
 // Color
-#define BLACK_COLOR 100
-#define RED_COLOR 1
-#define GREEN_COLOR 2
-#define YELLOW_COLOR 3
-#define BLUE_COLOR 4
-#define MAGENTA_COLOR 5
-#define CYAN_COLOR 6
+#define BLACK_COLOR 0
+#define GREY_COLOR 100
 #define WHITE_COLOR 7
 
 // Clear the console
-#define clear()                  \
-    printf("\033[%d;%dH", 1, 1); \
-    printf("\033[2J")
+#define clear() \
+    system("clear");
 
 // Set front color
 #define set_front_color(color) printf("\033[3%dm", (color))
 // Set background color
 #define set_back_color(color) printf("\e[%dm", (color))
-// Set front and background color
-#define set_color(front, back) printf("\033[3%d;4%dm", (front), (back))
-// Set attributs of the font
-#define set_attribut(attribut) printf("\033[%dm", (attribut));
 // Reset the console to default color
 #define set_default() printf("\033[m")
 // Reset the console to default color
 #define set_default_foreground() printf("\033[39m")
-#define get_default_foreground "\033[39m"
+
 
 int is_valid_graph_position(struct graph_t *graph, size_t vertex)
 {
@@ -96,13 +79,13 @@ void display_cell(size_t vertex, struct graph_t *graph, size_t player_one_pos, s
     }
     else if (vertex == player_two_pos)
     {
-        set_front_color(0);
+        set_front_color(BLACK_COLOR);
         printf("♖");
         set_default_foreground();
     }
     else if (gsl_spmatrix_uint_get(graph->o, BLACK, vertex) == 1)
     {
-        set_front_color(0);
+        set_front_color(BLACK_COLOR);
         printf("■");
         set_default_foreground();
     }
@@ -127,7 +110,7 @@ void display_board(struct graph_t *graph, size_t size_display, size_t p1_pos, si
     size_t graph_width = (size_t)sqrt(graph->num_vertices);
     size_t shift_print = ((size_display + 1) / 2) - ((3 * graph_width+1) / 2); 
 
-    set_back_color(BLACK_COLOR);
+    set_back_color(GREY_COLOR);
     print_shift(size_display);
     print_new_line();
 
@@ -174,12 +157,12 @@ void display_footer(size_t size)
     display_border(size);
 }
 
-void display_game(struct server *server, size_t turn, size_t current_player)
+void display_game(struct server *server, size_t turn, enum color_t current_player)
 {
     size_t size_display = 21 + 3 * (server->graph.width-1);
     char const *current_player_name = server->players[current_player].get_player_name();
 
-    if (turn == 1) {
+    if (turn == 0) {
         clear();
     }
 
@@ -187,8 +170,37 @@ void display_game(struct server *server, size_t turn, size_t current_player)
     display_header(size_display, turn, current_player_name);
     display_board(server->graph.graph, size_display, server->players[WHITE].pos, server->players[BLACK].pos);
     display_footer(size_display);
+}
 
-    sleep(1);
+void display_move(struct server *server, struct move_t move)
+{
+    printf("Move of player %s (%s)\n", server->players[move.c].get_player_name(), get_name_type_player(move.c));
+    if (move.t == MOVE)
+    {
+        printf("Move type : MOVE\n");
+        printf("Moved from %3zu to %3zu     \n", server->players[move.c].pos, move.m);
+        printf("                             \n");
+    }
+    else
+    {
+        printf("Move type : WALL\n");
+        printf("First edge from %3zu to %3zu\n", move.e[0].fr, move.e[0].to);
+        printf("Second edge from %3zu to %3zu\n", move.e[1].fr, move.e[1].to);
+    }
+}
+
+void display_error_move(const char *error_type, const char *p_name, const char *p_type)
+{
+    printf("Illegal move (%s) of player %s (%s)", error_type, p_name, p_type);
+}
+
+void display_winner(struct server *server, size_t turn, enum color_t winner)
+{
+    display_game(server, turn, winner);
+    if (winner == NO_COLOR)
+        printf("No winner, this time is a draw...\n");
+    else
+        printf("The winner is %s whose name is %s\n", get_name_type_player(winner), server->players[winner].get_player_name());
 }
 
 void display_graph_value(struct graph_t *graph)
