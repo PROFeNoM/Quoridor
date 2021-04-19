@@ -305,8 +305,20 @@ int test_is_move_legal()
     struct move_t m6 = { 4, { no_edge(), no_edge() }, MOVE, BLACK };
     assert(is_move_legal(graph2, &m6, 6, 5) == 0);
 
+	struct graph_t* graph3 = get_graph('c', 4);
+	struct move_t m7 = { -1, { { 0, 4 }, { 1, 5 } }, WALL, BLACK };
+	assert(is_move_legal(graph3, &m7, 3, 14) == 1);
+
+	struct graph_t* graph4 = get_graph('c', 2);
+	struct move_t m8 = { -1, { { 0, 1 }, { 2, 3 } }, WALL, BLACK };
+	assert(is_move_legal(graph4, &m8, 1, 2) == 1);
+	struct move_t m9 = { -1, { { 0, 2 }, { 1, 3 } }, WALL, BLACK };
+	assert(is_move_legal(graph4, &m9, 1, 2) == 0);
+
     graph_free(graph1);
     graph_free(graph2);
+	graph_free(graph3);
+	graph_free(graph4);
 
     return 1;
 }

@@ -89,6 +89,7 @@ struct move_t player_placement(struct server *server, struct move_t move, enum c
 struct move_t play_player_turn(struct server *server, struct move_t move, enum color_t id, size_t *cheat)
 {
     move = server->players[get_next_player(move.c)].play(move);
+	//display_move(server, move);
     if (is_move_legal(server->graph.graph, &move, server->players[BLACK].pos, server->players[WHITE].pos)) {
     	update(server->graph.graph, move, &server->players[id].pos);
         *cheat = 0;
@@ -117,15 +118,19 @@ void run_server(struct server *server, int print, int delay)
     move = player_placement(server, move, BLACK);
     move = player_placement(server, move, WHITE);
 
+	printf("Black position: %zd\n", server->players[BLACK].pos);
+	printf("White position: %zd\n", server->players[WHITE].pos);
+
     // Play until one player has cheat
     // or is winning
     // or the number maximum of turn is attained
     do
     {
+    	//printf("%s to play\n", get_next_player(move.c) == BLACK ? "Black" : "White");
         if (print) {
             display_game(server, turn, move.c);
             if (turn > 0) {
-                display_move(server, move);
+				//display_move(server, move);
                 printf("Black position: %zd\n", server->players[BLACK].pos);
                 printf("White position: %zd\n", server->players[WHITE].pos);
             }
@@ -133,7 +138,9 @@ void run_server(struct server *server, int print, int delay)
         }
         turn++;
         move = play_player_turn(server, move, get_next_player(move.c), &has_cheat);
+		//display_move(server, move);
     } while (!has_cheat && turn < TURN_MAX && !is_winning(server->graph.graph, move.c, server->players[move.c].pos));
+
 
     // Display winner(s) of the game
     if (turn == TURN_MAX)
@@ -142,6 +149,7 @@ void run_server(struct server *server, int print, int delay)
         display_winner(server, turn, move.c);
     else
         display_winner(server, turn, get_next_player(move.c));
+
 }
 
 void free_server(struct server *server)
