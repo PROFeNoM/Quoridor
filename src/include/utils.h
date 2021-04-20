@@ -130,18 +130,20 @@ void add_wall(struct graph_t* graph, struct edge_t e[]);
  * @param visited Array of visited vertices
  * @param position Position of the player on the board
  * @param player_id Color of the player
+ * @param opponent_position Position of the opponent on the board
  * @return 1 if a path exists, else 0
  */
-int is_path_existing(struct graph_t *graph, int visited[], size_t position, enum color_t player_id);
+int is_path_existing(struct graph_t *graph, int visited[], size_t position, enum color_t player_id, size_t opponent_position);
 
 /**
  * Check if a player is blocked
  * @param graph Graph structure representing the game board and its information
  * @param position Position of the player on the board
  * @param player_id Color of the player
+ * @param opponent_position Position of the opponent on the board
  * @return 1 if the player is blocked, else 0
  */
-int is_player_blocked(struct graph_t* graph, size_t position, enum color_t player_id);
+int is_player_blocked(struct graph_t* graph, size_t position, enum color_t player_id, size_t opponent_position);
 
 /**
  * Check if a wall can be added at given position at given state of the game

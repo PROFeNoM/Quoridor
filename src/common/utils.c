@@ -88,12 +88,16 @@ int is_vertex_in_graph(struct graph_t* graph, size_t vertex)
 
 int is_horizontal_connection(struct graph_t* graph, size_t from, size_t to)
 {
+	if (!(is_vertex_in_graph(graph, from) && is_vertex_in_graph(graph, to)))
+		return 0;
     int relation = get_connection_type(graph, from, to);
     return relation == EAST || relation == WEST;
 }
 
 int is_vertical_connection(struct graph_t* graph, size_t from, size_t to)
 {
+	if (!(is_vertex_in_graph(graph, from) && is_vertex_in_graph(graph, to)))
+		return 0;
     int relation = get_connection_type(graph, from, to);
     return relation == NORTH || relation == SOUTH;
 }
@@ -137,21 +141,21 @@ void add_wall(struct graph_t* graph, struct edge_t e[])
     }
 }
 
-int is_path_existing(struct graph_t *graph, int visited[], size_t position, enum color_t player_id)
+int is_path_existing(struct graph_t *graph, int visited[], size_t position, enum color_t player_id, size_t opponent_position)
 {
     visited[position] = 1;
 
-    if (is_winning(graph, player_id, position))
+    if (is_winning(graph, player_id, position) && position != opponent_position)
         return 1;
 
     for (size_t j = 0; j < graph->num_vertices; j++)
-		if (is_connected(graph, position, j) && !visited[(int)j] && is_path_existing(graph, visited, j, player_id))
+		if (is_connected(graph, position, j) && !visited[(int)j] && is_path_existing(graph, visited, j, player_id, opponent_position))
 			return 1;
 
     return 0;
 }
 
-int is_player_blocked(struct graph_t* graph, size_t position, enum color_t player_id)
+int is_player_blocked(struct graph_t* graph, size_t position, enum color_t player_id, size_t opponent_position)
 {
 	if (!is_vertex_in_graph(graph, position))
 		return 1;
@@ -160,7 +164,7 @@ int is_player_blocked(struct graph_t* graph, size_t position, enum color_t playe
     for (size_t i = 0; i < graph->num_vertices; i++)
         visited[i] = 0;
 
-    return !is_path_existing(graph, visited, position, player_id);
+    return !is_path_existing(graph, visited, position, player_id, opponent_position);
 }
 
 // size of e is 2
@@ -210,8 +214,8 @@ int can_add_wall(struct graph_t* graph, struct edge_t e[], size_t p1_position, s
 	// Check if players aren't blocked
 	struct graph_t* graph_with_wall = graph_copy(graph);
 	add_wall(graph_with_wall, e);
-	if (is_player_blocked(graph_with_wall, p1_position, BLACK)
-			|| is_player_blocked(graph_with_wall, p2_position, WHITE))
+	if (is_player_blocked(graph_with_wall, p1_position, BLACK, p2_position)
+			|| is_player_blocked(graph_with_wall, p2_position, WHITE, p1_position))
 	{
 		graph_free(graph_with_wall);
 		return 0;
@@ -272,6 +276,14 @@ int can_player_move_to(struct graph_t* graph, size_t vertex, enum color_t active
             return 1;
     }
 
+    /*
+    size_t new_position_p1 = active_player == BLACK ? vertex : p1_position;
+	size_t new_position_p2 = active_player == WHITE ? vertex : p2_position;
+	// Check if players aren't blocked
+	if (is_player_blocked(graph, new_position_p1, BLACK, new_position_p2)
+			|| is_player_blocked(graph, new_position_p2, WHITE, new_position_p1))
+		return 0;
+	*/
     // The position isn't accessible
     return 0;
 }

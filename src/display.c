@@ -191,7 +191,7 @@ void display_move(struct server *server, struct move_t move)
 
 void display_error_move(const char *error_type, const char *p_name, const char *p_type)
 {
-    printf("Illegal move (%s) of player %s (%s)", error_type, p_name, p_type);
+    printf("Illegal move (%s) of player %s (%s)\n", error_type, p_name, p_type);
 }
 
 void display_winner(struct server *server, size_t turn, enum color_t winner)
