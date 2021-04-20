@@ -128,4 +128,4 @@ install/%: build/tests/% %_copy
 
 $(TESTS_BIN): $(BUILD_DIR)
 	@echo $(COLOR)$(ITALIC)$(PURPLE)"\tCompilation AllTests BINARY"$(NOCOLOR)
-	@$(CC) $(CFLAGS) $(CPPFLAGS) $(TESTSFLAGS) $(TESTS_SRC) -o $@ $(LDFLAGS)
+	@$(CC) $(CFLAGS) -I./src/tests/ $(CPPFLAGS) $(TESTSFLAGS) $(TESTS_SRC) -o $@ $(LDFLAGS)

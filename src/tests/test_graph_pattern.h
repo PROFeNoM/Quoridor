@@ -9,7 +9,7 @@ int get_direction_square(size_t i,size_t j, size_t m);
 gsl_spmatrix_uint *fill_graph(size_t m, int (*is_not_connected)(size_t, size_t, size_t));
 int square(size_t x, size_t y, size_t m);
 gsl_spmatrix_uint *square_graph(size_t m);
-int is_in_hole(size_t x, size_t y, size_t begin_x, size_t begin_y, size_t size_x, size_t size_y);
+int is_in_rectangle(size_t x, size_t y, size_t begin_x, size_t begin_y, size_t size_x, size_t size_y);
 int toric(size_t x, size_t y, size_t m);
 gsl_spmatrix_uint *t_graph(size_t m);
 int h(size_t x, size_t y, size_t m);

@@ -1,47 +1,44 @@
-#include <assert.h>
-
+#include "test.h"
 #include "graph_pattern.h"
 #include "test_graph_pattern.h"
 
-#define TESTCASE(X, Y) printf("%s ... %s\n", X, Y() ? "PASSED" : "FAILED");
-
 int test__c_constraint()
 {
-  assert(c_constraint(-2)==0);
-  assert(c_constraint(0)==0);
-  assert(c_constraint(2)!=0);
-  assert(c_constraint(22)!=0);
+  ASSERT_TRUE(c_constraint(-2)==0);
+  ASSERT_TRUE(c_constraint(0)==0);
+  ASSERT_TRUE(c_constraint(2)!=0);
+  ASSERT_TRUE(c_constraint(22)!=0);
 
   return 1;
 }
 
 int test__t_constraint()
 {
-  assert(t_constraint(-2)==0);
-  assert(t_constraint(0)==0);
-  assert(t_constraint(2)==0);
-  assert(t_constraint(33)!=0);
+  ASSERT_TRUE(t_constraint(-2)==0);
+  ASSERT_TRUE(t_constraint(0)==0);
+  ASSERT_TRUE(t_constraint(2)==0);
+  ASSERT_TRUE(t_constraint(33)!=0);
 
   return 1;
 }
 
 int test__h_constraint()
 {
-  assert(h_constraint(-2)==0);
-  assert(h_constraint(0)==0);
-  assert(h_constraint(2)==0);
-  assert(h_constraint(33)!=0);
+  ASSERT_TRUE(h_constraint(-2)==0);
+  ASSERT_TRUE(h_constraint(0)==0);
+  ASSERT_TRUE(h_constraint(2)==0);
+  ASSERT_TRUE(h_constraint(33)!=0);
 
   return 1;
 }
 
 int test__s_constraint()
 {
-  assert(s_constraint(-2)==0);
-  assert(s_constraint(0)==0);
-  assert(s_constraint(2)==0);
-  assert(s_constraint(5)!=0);
-  assert(s_constraint(36)==0);
+  ASSERT_TRUE(s_constraint(-2)==0);
+  ASSERT_TRUE(s_constraint(0)==0);
+  ASSERT_TRUE(s_constraint(2)==0);
+  ASSERT_TRUE(s_constraint(5)!=0);
+  ASSERT_TRUE(s_constraint(36)==0);
 
   return 1;
 }
@@ -53,43 +50,43 @@ int test__get_direction_square()
   size_t j_1 = 0;
   size_t m_1 = 5;
   
-  assert(get_direction_square(i_1,j_1,m_1)==NO_DIRECTION);
+  ASSERT_TRUE(get_direction_square(i_1,j_1,m_1)==NO_DIRECTION);
 
   size_t i_2 = 0;
   size_t j_2 = 5;
   size_t m_2 = 5;
 
-  assert(get_direction_square(i_2,j_2,m_2)==SOUTH);
+  ASSERT_TRUE(get_direction_square(i_2,j_2,m_2)==SOUTH);
 
   size_t i_3 = 4;
   size_t j_3 = 3;
   size_t m_3 = 5;
 
-  assert(get_direction_square(i_3,j_3,m_3)==WEST);
+  ASSERT_TRUE(get_direction_square(i_3,j_3,m_3)==WEST);
 
   size_t i_4 = 3;
   size_t j_4 = 4;
   size_t m_4 = 5;
 
-  assert(get_direction_square(i_4,j_4,m_4)==EAST);
+  ASSERT_TRUE(get_direction_square(i_4,j_4,m_4)==EAST);
 
   size_t i_5 = 7;
   size_t j_5 = 2;
   size_t m_5 = 5;
 
-  assert(get_direction_square(i_5,j_5,m_5)==NORTH);
+  ASSERT_TRUE(get_direction_square(i_5,j_5,m_5)==NORTH);
 
   size_t i_6 = 7;
   size_t j_6 = 2;
   size_t m_6 = 6;
 
-  assert(get_direction_square(i_6,j_6,m_6)==NO_DIRECTION);
+  ASSERT_TRUE(get_direction_square(i_6,j_6,m_6)==NO_DIRECTION);
 
   size_t i_7 = 5;
   size_t j_7 = 6;
   size_t m_7 = 6;
 
-  assert(get_direction_square(i_7,j_7,m_7)==NO_DIRECTION);
+  ASSERT_TRUE(get_direction_square(i_7,j_7,m_7)==NO_DIRECTION);
 
   return 1;
 }
@@ -100,13 +97,13 @@ int test__square(){
   size_t y_1 = 18;
   size_t m_1 = 5;
 
-  assert(square(x_1,y_1,m_1)==0);
+  ASSERT_TRUE(square(x_1, y_1, m_1)==0);
 
   size_t x_2 = 22;
   size_t y_2 = 9;
   size_t m_2 = 18;
 
-  assert(square(x_2,y_2,m_2)==0);
+  ASSERT_TRUE(square(x_2,y_2,m_2)==0);
 
   return 1;
 }
@@ -196,7 +193,7 @@ int test__graph_square()
 
   gsl_spmatrix_uint *matrix_test = square_graph(m);
 
-  assert(gsl_spmatrix_uint_equal(matrix,matrix_test) == 1);
+  ASSERT_TRUE(gsl_spmatrix_uint_equal(matrix,matrix_test) == 1);
 
   gsl_spmatrix_uint_free(matrix);
   gsl_spmatrix_uint_free(matrix_test);
@@ -204,7 +201,7 @@ int test__graph_square()
   return 1;
 }
 
-int test__is_in_hole()
+int test__is_in_rectangle()
 {
   size_t x_1 = 5;
   size_t y_1 = 3;
@@ -213,7 +210,7 @@ int test__is_in_hole()
   size_t x_size_1 = 6;
   size_t y_size_1 = 3;
 
-  assert(is_in_hole(x_1,y_1,x_begin_1,y_begin_1,x_size_1,y_size_1));
+  ASSERT_TRUE(is_in_rectangle(x_1,y_1,x_begin_1,y_begin_1,x_size_1,y_size_1));
 
   size_t x_2 = 5;
   size_t y_2 = 3;
@@ -222,7 +219,7 @@ int test__is_in_hole()
   size_t x_size_2 = 2;
   size_t y_size_2 = 3;
 
-  assert(! is_in_hole(x_2,y_2,x_begin_2,y_begin_2,x_size_2,y_size_2));
+  ASSERT_TRUE(! is_in_rectangle(x_2,y_2,x_begin_2,y_begin_2,x_size_2,y_size_2));
 
   size_t x_3 = 4;
   size_t y_3 = 7;
@@ -231,7 +228,7 @@ int test__is_in_hole()
   size_t x_size_3 = 6;
   size_t y_size_3 = 1;
 
-  assert(! is_in_hole(x_3,y_3,x_begin_3,y_begin_3,x_size_3,y_size_3));
+  ASSERT_TRUE(! is_in_rectangle(x_3,y_3,x_begin_3,y_begin_3,x_size_3,y_size_3));
 
   return 1; 
 }
@@ -242,17 +239,17 @@ int test__toric()
   size_t x_1 = 1;
   size_t y_1 = 1;
   size_t m_1 = 3;
-  assert (toric(x_1,y_1,m_1)!=0);
+  ASSERT_TRUE (toric(x_1,y_1,m_1)!=0);
 
   size_t x_2 = 2;
   size_t y_2 = 2;
   size_t m_2 = 12;
-  assert (toric(x_2,y_2,m_2)==0);
+  ASSERT_TRUE (toric(x_2,y_2,m_2)==0);
 
   size_t x_3 = 6;
   size_t y_3 = 6;
   size_t m_3 = 12;
-  assert (toric(x_3,y_3,m_3)!=0);
+  ASSERT_TRUE (toric(x_3,y_3,m_3)!=0);
 
   return 1;
 }
@@ -338,7 +335,7 @@ int test__t_graph()
 
   gsl_spmatrix_uint *matrix_test = t_graph(m); 
 
-  assert(gsl_spmatrix_uint_equal(matrix,matrix_test) == 1);
+  ASSERT_TRUE(gsl_spmatrix_uint_equal(matrix,matrix_test) == 1);
   
   gsl_spmatrix_uint_free(matrix);
   gsl_spmatrix_uint_free(matrix_test);
@@ -351,17 +348,17 @@ int test__h()
   size_t x_1 = 1;
   size_t y_1 = 1;
   size_t m_1 = 3;
-  assert (h(x_1,y_1,m_1)==0);
+  ASSERT_TRUE (h(x_1,y_1,m_1)==0);
 
   size_t x_2 = 0;
   size_t y_2 = 1;
   size_t m_2 = 3;
-  assert (h(x_2,y_2,m_2)==0);
+  ASSERT_TRUE (h(x_2,y_2,m_2)==0);
 
   size_t x_3 = 11;
   size_t y_3 = 6;
   size_t m_3 = 12;
-  assert (h(x_3,y_3,m_3)==0);
+  ASSERT_TRUE (h(x_3,y_3,m_3)==0);
 
   return 1;
 }
@@ -448,7 +445,7 @@ int test__h_graph()
 
   gsl_spmatrix_uint *matrix_test = h_graph(m); 
 
-  assert(gsl_spmatrix_uint_equal(matrix,matrix_test) == 1);
+  ASSERT_TRUE(gsl_spmatrix_uint_equal(matrix,matrix_test) == 1);
   
   gsl_spmatrix_uint_free(matrix);
   gsl_spmatrix_uint_free(matrix_test);
@@ -461,18 +458,18 @@ int test__snake()
   size_t x_1 = 2;
   size_t y_1 = 0;
   size_t m_1 = 15;
-  assert (snake(x_1,y_1,m_1)==0);
+  ASSERT_TRUE (snake(x_1,y_1,m_1)==0);
 
   size_t x_2 = 7;
   size_t y_2 = 7;
   size_t m_2 = 15;
-  assert (snake(x_2,y_2,m_2)!=0);
+  ASSERT_TRUE (snake(x_2,y_2,m_2)!=0);
 
   size_t x_3 = 7;
   size_t y_3 = 14;
   size_t m_3 = 15;
 
-  assert (snake(x_3,y_3,m_3)!=0);
+  ASSERT_TRUE (snake(x_3,y_3,m_3)!=0);
 
   return 1;
 }
@@ -488,7 +485,7 @@ int test__matrix_position()
   }
 
   gsl_spmatrix_uint *matrix_test_1 = matrix_position(m_1);
-  assert(gsl_spmatrix_uint_equal(matrix_1,matrix_test_1) == 1);
+  ASSERT_TRUE(gsl_spmatrix_uint_equal(matrix_1,matrix_test_1) == 1);
 
   size_t m_2 = 9;
   gsl_spmatrix_uint *matrix_2 = gsl_spmatrix_uint_alloc(2,81);
@@ -498,7 +495,7 @@ int test__matrix_position()
   }
 
   gsl_spmatrix_uint *matrix_test_2 = matrix_position(m_2);
-  assert(gsl_spmatrix_uint_equal(matrix_2,matrix_test_2) == 1);
+  ASSERT_TRUE(gsl_spmatrix_uint_equal(matrix_2,matrix_test_2) == 1);
 
   return 1;
 }
@@ -516,7 +513,7 @@ int test__h_matrix_position()
   }
 
   gsl_spmatrix_uint *matrix_test_1 = h_matrix_position(m_1);
-  assert(gsl_spmatrix_uint_equal(matrix_1,matrix_test_1) == 1);
+  ASSERT_TRUE(gsl_spmatrix_uint_equal(matrix_1,matrix_test_1) == 1);
   
   size_t m_2 = 9;
   gsl_spmatrix_uint *matrix_2 = gsl_spmatrix_uint_alloc(2,81);
@@ -528,31 +525,28 @@ int test__h_matrix_position()
   }
 
   gsl_spmatrix_uint *matrix_test_2 = h_matrix_position(m_2);
-  assert(gsl_spmatrix_uint_equal(matrix_2,matrix_test_2) == 1);
+  ASSERT_TRUE(gsl_spmatrix_uint_equal(matrix_2,matrix_test_2) == 1);
 
   
   return 1;
 }
   
-int main(int argc, char *argv[])
+void tests__graph_pattern_functions()
 {
-    (void)argc;
-    (void)argv;
-    TESTCASE("Test of c_contraint", test__c_constraint);
-    TESTCASE("Test of t_contraint", test__t_constraint);
-    TESTCASE("Test of h_contraint", test__h_constraint);
-    TESTCASE("Test of s_contraint", test__s_constraint);
-    TESTCASE("Test of get_square_direction", test__get_direction_square);
-    TESTCASE("Test of square", test__square);
-    TESTCASE("Test of graph_square", test__graph_square);
-    TESTCASE("Test of is_in_hole", test__is_in_hole);
-    TESTCASE("Test of toric", test__toric);
-    TESTCASE("Test of t_graph", test__t_graph);
-    TESTCASE("Test of h", test__h);
-    TESTCASE("Test of h_graph", test__h_graph);
-    TESTCASE("Test of snake", test__snake);
-    TESTCASE("Test of matrix_position", test__matrix_position);
-    TESTCASE("Test of h_matrix_position", test__h_matrix_position);
-    return 0;
+    TEST_FUNCTION(test__c_constraint);
+    TEST_FUNCTION(test__t_constraint);
+    TEST_FUNCTION(test__h_constraint);
+    TEST_FUNCTION(test__s_constraint);
+    TEST_FUNCTION(test__get_direction_square);
+    TEST_FUNCTION(test__square);
+    TEST_FUNCTION(test__graph_square);
+    TEST_FUNCTION(test__is_in_rectangle);
+    TEST_FUNCTION(test__toric);
+    TEST_FUNCTION(test__t_graph);
+    TEST_FUNCTION(test__h);
+    TEST_FUNCTION(test__h_graph);
+    TEST_FUNCTION(test__snake);
+    TEST_FUNCTION(test__matrix_position);
+    TEST_FUNCTION(test__h_matrix_position);
 }
 
