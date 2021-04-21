@@ -542,11 +542,11 @@ struct move_t get_new_move()
 {
 	int best_score = -INF;
 	struct move_t best_move;
-	int depth = player.graph->num_vertices < 3*3 ? 3 : 1;
+	int depth = player.graph->num_vertices < 4*4 ? 3 : 2;
 
 	struct list* legal_moves = get_legal_moves(player.id, player.graph, player.position[player.id], player.position[get_next_player(player.id)]);
 	//printf("\tDEBUG: There are %ld legal move\n", list__size(legal_moves));
-	time_t end_time = time(NULL) + (player.graph->num_vertices < 5*5 ? 5 : 0);
+	time_t end_time = time(NULL) + (player.graph->num_vertices < 4*4 ? 10 : 0);
 	for (size_t i = 0; i < list__size(legal_moves); i++)
 	{
 		//printf("ui\n");
@@ -558,7 +558,7 @@ struct move_t get_new_move()
 		size_t opponent_player_position = get_next_player_position(move, get_next_player(player.id), player.position[get_next_player(player.id)]);
 		/*int score = alphabeta(next_graph, get_next_player(player.id), opponent_player_position, depth, 0,
 				player.id, active_player_position, -INF, INF, end_time);*/
-		int score = -negamax_alphabeta(next_graph, get_next_player(player.id), opponent_player_position, depth,
+		int score = -negamax_alphabeta(next_graph, get_next_player(player.id), opponent_player_position, depth - 1,
 				player.id, active_player_position, -INF, -best_score, end_time, -1);
 
 		//printf("\tDEBUG: Score > %d\n", score);
