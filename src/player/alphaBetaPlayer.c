@@ -197,7 +197,7 @@ int get_distance_between_positions(struct graph_t* graph, size_t initial_positio
 	while (!queue__is_empty(q))
 	{
 		int* u = (int*)queue__dequeue(q);
-		//printf(">%zd\n", u);
+
 		if (*u == (int)target_position)
 		{
 			int distance_to_target = *((int*)list__get(dist, *u));
@@ -206,6 +206,7 @@ int get_distance_between_positions(struct graph_t* graph, size_t initial_positio
 			free_int(u);
 			return distance_to_target;
 		}
+
 		for (unsigned int v = 0; v < graph->num_vertices; v++)
 			if (is_connected(graph, *u, v) && *((int*)list__get(dist, v)) == INF)
 			{
@@ -214,6 +215,7 @@ int get_distance_between_positions(struct graph_t* graph, size_t initial_positio
 				int new_distance = *((int*)list__get(dist, *u)) + 1;
 				list__change(dist, v, &new_distance);
 			}
+
 		free_int(u);
 	}
 
@@ -294,20 +296,12 @@ int get_vertex_by_connection_type(struct graph_t* graph, size_t from, int direct
 struct list* get_legal_moves(int active_player, struct graph_t* graph, size_t active_player_position, size_t opponent_player_position)
 {
 	struct list* lst = list__empty(move_copy, free_move);
-		//new_move = set_move(best_move.m, best_move.e[0], best_move.e[1], best_move.c, WALL);
+
 	size_t position_player1 = active_player == BLACK ? active_player_position : opponent_player_position;
 	size_t position_player2 = active_player == WHITE ? active_player_position : opponent_player_position;
-	////printf("\tDEBUG: Active player is %s, whose position is %zd, and opponent position is %zd\n", active_player == BLACK ? "BLACK" : "WHITE", position_player1, position_player2);
-	/*for (size_t row = 0; row < graph->num_vertices; row++)
-	{
-		for (size_t col = 0; col < graph->num_vertices; col++)
-			printf("%d ", get_connection_type(graph, row, col));
-		printf("\n");
-	}*/
+
 	for (size_t vertex = 0; vertex < graph->num_vertices; vertex++)
 	{
-		////printf("\t\tDEBUG: Move to %zd ? %d\n", vertex, can_player_move_to(graph, vertex, active_player, position_player1, position_player2));
-		// Add legal move of type MOVE
 		if (can_player_move_to(graph, vertex, active_player, position_player1, position_player2))
 		{
 			struct move_t move = set_move(vertex, no_edge(), no_edge(), active_player, MOVE);
@@ -320,15 +314,14 @@ struct list* get_legal_moves(int active_player, struct graph_t* graph, size_t ac
 		int eastern_vertex = get_vertex_by_connection_type(graph, vertex, EAST);
 		if (eastern_vertex == CONNECTION_NOT_FOUND)
 			continue;
-		////else printf("\tDEBUG: Eastern found\n");
+
 		int southern_vertex = get_vertex_by_connection_type(graph, vertex, SOUTH);
 		if (southern_vertex == CONNECTION_NOT_FOUND)
 			continue;
-		////else printf("\tDEBUG: Southern found\n");
+
 		int southeastern_vertex = get_vertex_by_connection_type(graph, southern_vertex, EAST);
 		if (southeastern_vertex == CONNECTION_NOT_FOUND)
 			continue;
-		////else printf("\tDEBUG: Southeastern found\n");
 
 		struct edge_t e1[2] = {
 				{ vertex, eastern_vertex },
@@ -342,14 +335,12 @@ struct list* get_legal_moves(int active_player, struct graph_t* graph, size_t ac
 
 		if (can_add_wall(graph, e1, position_player1, position_player2))
 		{
-			////printf("\tDEBUG: Type 1 wall added\n");
 			struct move_t move = set_move(-1, e1[0], e1[1], active_player, WALL);
 			list__add(lst, &move);
 		}
 
 		if (can_add_wall(graph, e2, position_player1, position_player2))
 		{
-			////printf("\tDEBUG: Type 2 wall added\n");
 			struct move_t move = set_move(-1, e2[0], e2[1], active_player, WALL);
 			list__add(lst, &move);
 		}
@@ -440,7 +431,6 @@ int alphabeta(struct graph_t* graph, int active_player, size_t active_player_pos
 	if (time(NULL) >= end_time || depth == 0 || is_winning(graph, active_player, active_player_position) || is_winning(graph, opponent_player, opponent_player_position))
 	{
 		int dist = heuristic_evaluation(graph, active_player, opponent_player, active_player_position, opponent_player_position);
-		//printf("\tDEBUG: >(%d) %d\n", depth, dist);
 		return dist;
 	}
 
@@ -498,13 +488,12 @@ int alphabeta(struct graph_t* graph, int active_player, size_t active_player_pos
 
 int negamax_alphabeta(struct graph_t* graph, int active_player, size_t active_player_position, int depth,
 		int opponent_player, size_t opponent_player_position,
-		double alpha, double beta, time_t end_time, int color)
+		double alpha, double beta, time_t end_time)
 {
 	if (time(NULL) >= end_time || depth == 0 || is_winning(graph, active_player, active_player_position) || is_winning(graph, opponent_player, opponent_player_position))
 	{
 		int dist = heuristic_evaluation(graph, active_player, opponent_player, active_player_position, opponent_player_position);
-		//printf("\tDEBUG: >(%d) %d\n", depth, dist);
-		return dist;// * color;
+		return dist;
 	}
 
 	int best_score = -INF;
@@ -519,7 +508,7 @@ int negamax_alphabeta(struct graph_t* graph, int active_player, size_t active_pl
 		opponent_player_position = get_next_player_position(move, opponent_player, opponent_player_position);
 
 		best_score = max(best_score, -negamax_alphabeta(next_graph, opponent_player, opponent_player_position, depth - 1,
-				active_player, active_player_position, -beta, -alpha, end_time, -color));
+				active_player, active_player_position, -beta, -alpha, end_time));
 		graph_free(next_graph);
 
 		if (best_score > alpha)
@@ -545,55 +534,29 @@ struct move_t get_new_move()
 	int depth = player.graph->num_vertices < 4*4 ? 3 : 2;
 
 	struct list* legal_moves = get_legal_moves(player.id, player.graph, player.position[player.id], player.position[get_next_player(player.id)]);
-	//printf("\tDEBUG: There are %ld legal move\n", list__size(legal_moves));
 	time_t end_time = time(NULL) + (player.graph->num_vertices < 4*4 ? 10 : 0);
 	for (size_t i = 0; i < list__size(legal_moves); i++)
 	{
-		//printf("ui\n");
-		//printf("%zd / %zd\n", i, list__size(legal_moves));
-		//printf(">%zd\n", i);
 		struct move_t* move = list__get(legal_moves, i);
 		struct graph_t* next_graph = get_next_graph(player.graph, move);
 		size_t active_player_position = get_next_player_position(move, player.id, player.position[player.id]);
 		size_t opponent_player_position = get_next_player_position(move, get_next_player(player.id), player.position[get_next_player(player.id)]);
 		/*int score = alphabeta(next_graph, get_next_player(player.id), opponent_player_position, depth, 0,
-				player.id, active_player_position, -INF, INF, end_time);*/
+				player.id, active_player_position, best_score, INF, end_time);*/
 		int score = -negamax_alphabeta(next_graph, get_next_player(player.id), opponent_player_position, depth - 1,
-				player.id, active_player_position, -INF, -best_score, end_time, -1);
+				player.id, active_player_position, -INF, -best_score, end_time);
 
-		//printf("\tDEBUG: Score > %d\n", score);
 		if (score >= best_score)
 		{
-			//printf("\tDEBUG: New move found\n");
 			best_score = score;
 			best_move = *move;
 		}
+
 		graph_free(next_graph);
 	}
 
-	//printf("%d\n", best_score);
 
-	struct move_t new_move;
-
-	//printf("\tDEBUG: Best move type > %d\n", best_move.t);
-	//move to the position
-	if (best_move.t == MOVE)
-	{
-		new_move.m = best_move.m;
-		new_move.e[0] = no_edge();
-		new_move.e[1] = no_edge();
-		new_move.t = MOVE;
-		new_move.c = best_move.c;
-	}
-
-	else if (best_move.t == WALL)
-	{
-		new_move.m = best_move.m;
-		new_move.e[0] = best_move.e[0];
-		new_move.e[1] = best_move.e[1];
-		new_move.t = WALL;
-		new_move.c = best_move.c;
-	}
+	struct move_t new_move = set_move(best_move.m, best_move.e[0], best_move.e[1], best_move.c, best_move.t);
 
 	list__free(legal_moves);
 
@@ -608,11 +571,7 @@ struct move_t get_new_move()
 void update(struct move_t previous_move)
 {
 	if (previous_move.t == MOVE)
-	{
-		//printf("\tDEBUG: player %d goes to %zd\n", previous_move.c, previous_move.m);
 		player.position[previous_move.c] = previous_move.m;
-	}
-
 	else if (previous_move.t == WALL)
 		add_wall(player.graph, previous_move.e);
 }
@@ -629,14 +588,9 @@ struct move_t play(struct move_t previous_move)
 		return get_first_move();
 	update(previous_move);
 
-	//printf(">%d\n", get_minimal_distance_to_opponent_area(player.graph, WHITE, 2));
-	//printf("\tDEBUG: Black position: %zd\n", player.position[BLACK]);
-	//printf("\tDEBUG: White position: %zd\n", player.position[WHITE]);
-	//printf("\tDEBUG: Previous move type: %d\n", previous_move.t);
-
-
 	struct move_t move = get_new_move();
 	update(move);
+
 	return move;
 }
 
