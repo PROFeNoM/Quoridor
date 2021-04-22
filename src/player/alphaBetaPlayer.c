@@ -259,7 +259,6 @@ int get_minimal_distance_to_opponent_area(struct graph_t* graph, int opponent, s
  */
 int heuristic_evaluation(struct graph_t* graph, int active_player, int opponent, size_t active_player_position, size_t opponent_position)
 {
-	//printf("\tActive %d\n", active_player);
 	if (is_winning(graph, active_player, active_player_position))
 		return 1000;
 	if (is_winning(graph, opponent, opponent_position))
@@ -424,15 +423,12 @@ size_t get_next_player_position(struct move_t* move, int player, size_t player_p
  * @param beta The smallest utility value found so far
  * @return Score of the active player given the state of the board
  */
-int alphabeta(struct graph_t* graph, int active_player, size_t active_player_position, int depth, int is_maximizing_player,
+int minimax_alphabeta(struct graph_t* graph, int active_player, size_t active_player_position, int depth, int is_maximizing_player,
 		int opponent_player, size_t opponent_player_position,
 		double alpha, double beta, time_t end_time)
 {
 	if (time(NULL) >= end_time || depth == 0 || is_winning(graph, active_player, active_player_position) || is_winning(graph, opponent_player, opponent_player_position))
-	{
-		int dist = heuristic_evaluation(graph, active_player, opponent_player, active_player_position, opponent_player_position);
-		return dist;
-	}
+		return heuristic_evaluation(graph, opponent_player, active_player, opponent_player_position, active_player_position);
 
 	struct list* legal_moves = get_legal_moves(active_player, graph, active_player_position, opponent_player_position);
 
@@ -449,7 +445,7 @@ int alphabeta(struct graph_t* graph, int active_player, size_t active_player_pos
 			active_player_position = get_next_player_position(move, active_player, active_player_position);
 			opponent_player_position = get_next_player_position(move, opponent_player, opponent_player_position);
 
-			best_score = max(best_score, alphabeta(next_graph, opponent_player, opponent_player_position, depth - 1,
+			best_score = max(best_score, minimax_alphabeta(next_graph, opponent_player, opponent_player_position, depth - 1,
 					0, active_player, active_player_position, alpha, beta, end_time));
 			alpha = max(alpha, best_score);
 			graph_free(next_graph);
@@ -471,7 +467,7 @@ int alphabeta(struct graph_t* graph, int active_player, size_t active_player_pos
 			struct graph_t* next_graph = get_next_graph(graph, move);
 			active_player_position = get_next_player_position(move, active_player, active_player_position);
 			opponent_player_position = get_next_player_position(move, opponent_player, opponent_player_position);
-			best_score = min(best_score, alphabeta(next_graph, opponent_player, opponent_player_position, depth - 1,
+			best_score = min(best_score, minimax_alphabeta(next_graph, opponent_player, opponent_player_position, depth - 1,
 					1, active_player, active_player_position, alpha, beta, end_time));
 			beta = min(beta, best_score);
 			graph_free(next_graph);
@@ -486,15 +482,24 @@ int alphabeta(struct graph_t* graph, int active_player, size_t active_player_pos
 }
 
 
+/**
+ * Negamax w/ Alpha Beta Pruning
+ * @param graph State of the board at a given node
+ * @param active_player Player of the node in the tree
+ * @param active_player_position Position of the active player on the board
+ * @param depth Depth of search according to the node
+ * @param opponent_player Opponent of the active player
+ * @param opponent_player_position Position of the opponent player on the board
+ * @param alpha The highest utility value found so far
+ * @param beta The smallest utility value found so far
+ * @return Score of the active player given the state of the board
+ */
 int negamax_alphabeta(struct graph_t* graph, int active_player, size_t active_player_position, int depth,
 		int opponent_player, size_t opponent_player_position,
 		double alpha, double beta, time_t end_time)
 {
 	if (time(NULL) >= end_time || depth == 0 || is_winning(graph, active_player, active_player_position) || is_winning(graph, opponent_player, opponent_player_position))
-	{
-		int dist = heuristic_evaluation(graph, active_player, opponent_player, active_player_position, opponent_player_position);
-		return dist;
-	}
+		return heuristic_evaluation(graph, active_player, opponent_player, active_player_position, opponent_player_position);
 
 	int best_score = -INF;
 
@@ -534,14 +539,14 @@ struct move_t get_new_move()
 	int depth = player.graph->num_vertices < 4*4 ? 3 : 2;
 
 	struct list* legal_moves = get_legal_moves(player.id, player.graph, player.position[player.id], player.position[get_next_player(player.id)]);
-	time_t end_time = time(NULL) + (player.graph->num_vertices < 4*4 ? 10 : 0);
+	time_t end_time = time(NULL) + (player.graph->num_vertices < 4*4 ? 10 : 0); // TODO: Ask how much time we have to compute a move
 	for (size_t i = 0; i < list__size(legal_moves); i++)
 	{
 		struct move_t* move = list__get(legal_moves, i);
 		struct graph_t* next_graph = get_next_graph(player.graph, move);
 		size_t active_player_position = get_next_player_position(move, player.id, player.position[player.id]);
 		size_t opponent_player_position = get_next_player_position(move, get_next_player(player.id), player.position[get_next_player(player.id)]);
-		/*int score = alphabeta(next_graph, get_next_player(player.id), opponent_player_position, depth, 0,
+		/*int score = minimax_alphabeta(next_graph, get_next_player(player.id), opponent_player_position, depth - 1, 0,
 				player.id, active_player_position, best_score, INF, end_time);*/
 		int score = -negamax_alphabeta(next_graph, get_next_player(player.id), opponent_player_position, depth - 1,
 				player.id, active_player_position, -INF, -best_score, end_time);
