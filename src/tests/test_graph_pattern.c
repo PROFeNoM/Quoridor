@@ -395,7 +395,7 @@ int test__h_graph()
       ASSERT_EQUAL(gsl_spmatrix_uint_get(matrix, i, j), gsl_spmatrix_uint_get(matrix_test, i, j));
     }
   }
-  //ASSERT_TRUE(gsl_spmatrix_uint_equal(matrix_test, matrix));
+
   gsl_spmatrix_uint_free(matrix);
   gsl_spmatrix_uint_free(matrix_test);
 
@@ -460,7 +460,7 @@ int test__snake_graph()
       ASSERT_EQUAL(gsl_spmatrix_uint_get(matrix, i, j), gsl_spmatrix_uint_get(matrix_test, i, j));
     }
   }
-  //ASSERT_TRUE(gsl_spmatrix_uint_equal(matrix_test, matrix));
+
   gsl_spmatrix_uint_free(matrix);
   gsl_spmatrix_uint_free(matrix_test);
 
@@ -489,7 +489,10 @@ int test__matrix_position()
 
   gsl_spmatrix_uint *matrix_test_2 = matrix_position(m_2);
   ASSERT_TRUE(gsl_spmatrix_uint_equal(matrix_2,matrix_test_2) == 1);
-
+  gsl_spmatrix_uint_free(matrix_test_1);
+  gsl_spmatrix_uint_free(matrix_1);
+  gsl_spmatrix_uint_free(matrix_test_2);
+  gsl_spmatrix_uint_free(matrix_2);
   return 1;
 }
 
@@ -519,8 +522,11 @@ int test__h_matrix_position()
 
   gsl_spmatrix_uint *matrix_test_2 = h_matrix_position(m_2);
   ASSERT_TRUE(gsl_spmatrix_uint_equal(matrix_2,matrix_test_2) == 1);
-
   
+  gsl_spmatrix_uint_free(matrix_test_1);
+  gsl_spmatrix_uint_free(matrix_1);
+  gsl_spmatrix_uint_free(matrix_test_2);
+  gsl_spmatrix_uint_free(matrix_2);
   return 1;
 }
   

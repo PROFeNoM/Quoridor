@@ -173,34 +173,44 @@ gsl_spmatrix_uint *s_matrix_position(size_t m)
   return matrix;
 }
 
+struct graph_functions {
+  gsl_spmatrix_uint *(*get_matrix_relation)(size_t);
+  gsl_spmatrix_uint *(*get_matrix_position)(size_t);
+};
+
+struct graph_functions get_graph_functions(char type)
+{
+  static struct graph_functions graph_functions[] = {
+      {square_graph, matrix_position},
+      {t_graph, matrix_position},
+      {h_graph, h_matrix_position},
+      {s_graph, s_matrix_position},
+      {NULL,NULL}
+  };
+  switch (type)
+  {
+  case 'c':
+    return graph_functions[0];
+  case 't':
+    return graph_functions[1];
+  case 'h':
+    return graph_functions[2];
+  case 's':
+    return graph_functions[3];
+  default:
+    return graph_functions[4];
+  }
+}
+
+
 struct graph_t *get_graph(char type, size_t width)
 {
-  gsl_spmatrix_uint *matrix = NULL;
-  gsl_spmatrix_uint *matrix_pos = NULL;
-  if (type == 'c')
-  {
-    matrix = square_graph(width);
-    matrix_pos = matrix_position(width);
-  }
-  if (type == 't')
-  {
-    matrix = t_graph(width);
-    matrix_pos = matrix_position(width);
-  }
-  if (type == 'h')
-  {
-    matrix = h_graph(width);
-    matrix_pos = h_matrix_position(width);
-  }
-  if (type == 's')
-  {
-    matrix = s_graph(width);
-    matrix_pos = s_matrix_position(width);
-  }
-
+  struct graph_functions graph_functions = get_graph_functions(type);
+  if (graph_functions.get_matrix_position == NULL || graph_functions.get_matrix_relation == NULL)
+    return NULL;
   struct graph_t *graph = malloc(sizeof(struct graph_t));
   graph->num_vertices = width * width;
-  graph->t = matrix;
-  graph->o = matrix_pos;
+  graph->t = graph_functions.get_matrix_relation(width);
+  graph->o = graph_functions.get_matrix_position(width);
   return graph;
 }
