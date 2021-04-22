@@ -1,5 +1,5 @@
 #include <string.h>
-
+#include <math.h>
 #include "utils.h"
 #include "player.h"
 
@@ -12,6 +12,7 @@ struct player
   size_t num_walls;      //number of walls in the hand of the player
   int best_direction;
   size_t max_walls ;
+  size_t col;
   enum color_t id;       //id of the player
 };
 
@@ -43,6 +44,7 @@ void initialize(enum color_t id, struct graph_t *graph, size_t num_walls)
 
         player.num_walls = num_walls;
 	player.max_walls = num_walls;
+	player.col = graph->num_vertices;
         if (id == BLACK)
             player.best_direction = SOUTH;
         else
@@ -102,10 +104,11 @@ struct move_t get_first_move()
     return first_move;
 }
 
-struct move_t get_wall(struct move_t previous_move){
+struct move_t get_wall(){
 
   size_t position_player_1;
   size_t position_player_2;
+  size_t m = sqrt(player.graph->t->size1);
 
   if (player.id == BLACK){
     position_player_1 = player.position[BLACK];
@@ -115,55 +118,100 @@ struct move_t get_wall(struct move_t previous_move){
     position_player_2 = player.position[BLACK];
     position_player_1 = player.position[WHITE];
   }
+  
 
-  if (player.num_walls != 0 && previous_move.t == MOVE){
+  if (player.num_walls != 0 && ((player.max_walls-player.num_walls) < m)){
     
-    if (player.num_walls == player.max_walls){
-
-      size_t m = player.graph->t->size1;
+    if (player.num_walls == player.max_walls || player.col != position_player_2 % m){
+    
+      
+      player.col = position_player_2 % m;
       size_t num = position_player_2 % m;
-      size_t place = (m*m)-(m-num);
       struct edge_t e;
       struct edge_t e1;
       struct edge_t e2;
-      e.fr = place;
-      e.to = place-m;
-      e1.fr = place+1;
-      e1.to = place-m+1;
-      e2.fr = place-1;
-      e2.to = place-m-1;
+      size_t place;
+      if (player.id == WHITE){
+	place = (m*m)-(m-num);
+	e.fr = place;
+	e.to = place-m;	
+	e1.fr = place+1;
+	e1.to = place-m+1;
+	e2.fr = place-1;
+	e2.to = place-m-1;
+      }
+      else {
+	place = num;
+	e.fr = place;
+	e.to = place+m;
+	e1.fr = place+1;
+	e1.to = place+m+1;
+	e2.fr = place-1;
+	e2.to = place+m-1;
+      }
+      
       struct edge_t edge1[2]={e,e1};
       struct edge_t edge2[2]={e,e2};
-      if (can_add_wall(player.graph,edge1,position_player_1,position_player_2)){
+      //printf("\n\n\n can %d = \n",can_add_wall(player.graph,edge1,position_player_1,position_player_2));
+      //printf("%ld to %ld | %ld to %ld \n",e.fr,e.to,e1.fr,e1.to);
+      if (can_add_wall(player.graph,edge1,position_player_1,position_player_2) && (e.fr/m == e1.fr/m)){
 	struct move_t new_move = set_move(player.position[player.id], e, e1, player.id, WALL);
 	player.num_walls -= 1;
+	
+	
 	return new_move;
       }
-      if (can_add_wall(player.graph,edge2,position_player_1,position_player_2)){
+      if (can_add_wall(player.graph,edge2,position_player_1,position_player_2) && (e.fr/m == e2.fr/m)){
 	struct move_t new_move = set_move(player.position[player.id], e, e2, player.id, WALL);
 	player.num_walls -= 1;
+	printf("ok\n");
 	return new_move;
       }
     }
+    /*
     else {
-      size_t m = player.graph->t->size1;
+      
       size_t num = position_player_2 % m;
       size_t diff = player.max_walls - player.num_walls;
 
       if (diff < m-2){
-	size_t place = (m*m)-(diff*m-num);
+	size_t place;
 	struct edge_t e;
 	struct edge_t e1;
 	struct edge_t e2;
 	struct edge_t e3;
-	e.fr = place;
-	e.to = place+1;
-	e1.fr = place-m;
-	e1.to = place-m+1;
-	e2.fr = place;
-	e2.to = place-1;
-	e3.fr = place-m;
-	e3.to = place-m-1;
+	if (player.id == WHITE){
+	  if (player.max_walls-player.num_walls > 1){
+	    place = (m*m)-(2*diff*m-num);
+	  }
+	  else {
+	    place = (m*m)-(m-num);
+	  }
+	  e.fr = place;
+	  e.to = place+1;
+	  e1.fr = place-m;
+	  e1.to = place-m+1;
+	  e2.fr = place;
+	  e2.to = place-1;
+	  e3.fr = place-m;
+	  e3.to = place-m-1;
+	}
+	else{
+	  if (player.max_walls-player.num_walls > 1){
+	    place = num+2*diff*m;
+	  }
+	  else {
+	    place = num+(2*diff-1)*m;
+	  }
+	  e.fr = place;
+	  e.to = place+1;
+	  e1.fr = place+m;
+	  e1.to = place+m+1;
+	  e2.fr = place;
+	  e2.to = place-1;
+	  e3.fr = place+m;
+	  e3.to = place+m-1;
+	}
 	struct edge_t edge1[2]={e,e1};
 	struct edge_t edge2[2]={e2,e3};
 	if (can_add_wall(player.graph,edge1,position_player_1,position_player_2)){
@@ -178,7 +226,9 @@ struct move_t get_wall(struct move_t previous_move){
 	}
       }
     }
+    */
   }
+    
   struct move_t new_move = set_move(player.position[player.id], no_edge(), no_edge(), player.id, NO_TYPE);
   return new_move;
 }
@@ -190,11 +240,11 @@ struct move_t get_wall(struct move_t previous_move){
  * Update the player with the move of the other player and return a move
  * - previous_move : the previous move of the other player
  */
-struct move_t get_new_move(struct move_t previous_move)
+struct move_t get_new_move()
 {
 
   
-  struct move_t possibility = get_wall(previous_move);
+  struct move_t possibility = get_wall();
   if (possibility.t != NO_TYPE){
     return possibility;
   }
@@ -268,7 +318,13 @@ struct move_t play(struct move_t previous_move)
 
     update(previous_move);
 
-    return get_new_move(previous_move);
+    struct move_t newmove = get_new_move();
+
+    
+
+    update(newmove);
+
+    return newmove;
 }
 
 /*
