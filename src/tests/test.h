@@ -23,7 +23,7 @@ extern size_t tests_passed;
 
 #define TEST_FILE_MESSAGE(testing_file, message)                                      \
     if ((message))\
-        printf("\n%s", (message));\
+        printf("\n%s", (char*)(message));\
     printf("\n\033[1;97mTESTING : %s()\n\033[0m", #testing_file);   \
     testing_file();                                                 \
     printf("\n")
@@ -34,7 +34,7 @@ extern size_t tests_passed;
 #define TEST_FUNCTION_MESSAGE(testing_function, message) \
     tests_run++;                                         \
     if ((message))                                       \
-        printf("\t%s :\n\t", (message));                       \
+        printf("\t%s :\n\t", (char*)(message));                       \
     if (testing_function())                              \
     {                                                    \
         tests_passed++;                                  \
