@@ -4,15 +4,6 @@
 
 
 // Global parameters
-static const char board_type[] = {'c', 't', 'h', 's'};
-static const int number_of_board_type = 4;
-static int (*board_size_constraint[])(int) = {
-  c_constraint,
-  t_constraint,
-  h_constraint,
-  s_constraint
-};
-
 static char t = 'c';
 static int m = 2;
 static int p = 0;
@@ -23,23 +14,9 @@ static int d = 0;
 // Function for checking the options of the program
 // exit if an error occur
 
-int check_type_board()
-{
-  for (int i = 0; i < number_of_board_type; i++)
-    if (board_type[i] == t)
-      return i;
-  return -1;
-}
-
-int check_size_board()
-{
-  int i = check_type_board();
-  return i >= 0 && i < number_of_board_type && board_size_constraint[i](m);
-}
-
 void check_opts()
 {
-  if (!check_size_board()) {
+  if (!abide_graph_constraint(t, m)) {
     fprintf(stderr, "Usage: wrong size or/and board type\n");
     exit(1);
   }

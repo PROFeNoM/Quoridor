@@ -15,7 +15,12 @@ gsl_spmatrix_uint *t_graph(size_t m);
 int h(size_t x, size_t y, size_t m);
 gsl_spmatrix_uint *h_graph(size_t m);
 int snake(size_t x, size_t y, size_t m);
+gsl_spmatrix_uint *s_graph(size_t m);
 gsl_spmatrix_uint * matrix_position(size_t m);
 gsl_spmatrix_uint * h_matrix_position(size_t m);
+int c_constraint(int size);
+int t_constraint(int size);
+int h_constraint(int size);
+int s_constraint(int size);
 
 #endif // TEST_GRAPH_PATTERN_H_
