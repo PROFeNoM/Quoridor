@@ -20,6 +20,22 @@ int s_constraint(int size)
   return size > 0 && size % 5 == 0;
 }
 
+int abide_graph_constraint(char type, int size)
+{
+  switch (type)
+  {
+  case 'c':
+    return c_constraint(size);
+  case 't':
+  case 'h':
+    return t_constraint(size);
+  case 's':
+    return s_constraint(size);
+  default:
+    return 0;
+  }
+}
+
 int get_direction_square(size_t i, size_t j, size_t m)
 {
   if (i == j + 1 && (i / m == j / m))
@@ -44,9 +60,8 @@ int get_direction_square(size_t i, size_t j, size_t m)
 gsl_spmatrix_uint *fill_graph(size_t m, int (*is_in_graph)(size_t, size_t, size_t))
 {
   gsl_spmatrix_uint *matrix = gsl_spmatrix_uint_alloc(m * m, m * m);
-  for (size_t i = 0; i < m; i++)
+  for (size_t x = 0; x < m; x++)
   {
-    size_t x = i;
     for (size_t j = 0; j < m; j++)
     {
       if (is_in_graph(j, x, m))

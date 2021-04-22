@@ -8,7 +8,7 @@ void launch_test()
 {
     TEST_FILE(tests__utils_functions);
     // test not working currently under revision
-    // TEST_FILE(tests__graph_pattern_functions);
+    TEST_FILE(tests__graph_pattern_functions);
 
 }
 
