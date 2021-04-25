@@ -211,7 +211,6 @@ int get_distance_between_positions(struct graph_t* graph, size_t initial_positio
 			if (is_connected(graph, *u, v) && *((int*)list__get(dist, v)) == INF)
 			{
 				queue__enqueue(q, &v);
-				queue__enqueue(q, &v);
 				int new_distance = *((int*)list__get(dist, *u)) + 1;
 				list__change(dist, v, &new_distance);
 			}
@@ -299,8 +298,10 @@ struct list* get_legal_moves(int active_player, struct graph_t* graph, size_t ac
 	size_t position_player1 = active_player == BLACK ? active_player_position : opponent_player_position;
 	size_t position_player2 = active_player == WHITE ? active_player_position : opponent_player_position;
 
-	for (size_t vertex = 0; vertex < graph->num_vertices; vertex++)
+	int stop = 0;
+	for (size_t vertex = graph->num_vertices - 1; stop != 1; vertex--)
 	{
+		if (vertex == 0) stop = 1;
 		if (can_player_move_to(graph, vertex, active_player, position_player1, position_player2))
 		{
 			struct move_t move = set_move(vertex, no_edge(), no_edge(), active_player, MOVE);
@@ -536,20 +537,20 @@ struct move_t get_new_move()
 {
 	int best_score = -INF;
 	struct move_t best_move;
-	int depth = player.graph->num_vertices < 4*4 ? 3 : 2;
-
+	//int depth = player.graph->num_vertices < 4*4 ? 3 : 2;
+	int depth = 1;
 	struct list* legal_moves = get_legal_moves(player.id, player.graph, player.position[player.id], player.position[get_next_player(player.id)]);
-	time_t end_time = time(NULL) + (player.graph->num_vertices < 4*4 ? 10 : 0); // TODO: Ask how much time we have to compute a move
+	time_t end_time = time(NULL) + 10; // TODO: Ask how much time we have to compute a move
 	for (size_t i = 0; i < list__size(legal_moves); i++)
 	{
 		struct move_t* move = list__get(legal_moves, i);
 		struct graph_t* next_graph = get_next_graph(player.graph, move);
 		size_t active_player_position = get_next_player_position(move, player.id, player.position[player.id]);
 		size_t opponent_player_position = get_next_player_position(move, get_next_player(player.id), player.position[get_next_player(player.id)]);
-		/*int score = minimax_alphabeta(next_graph, get_next_player(player.id), opponent_player_position, depth - 1, 0,
-				player.id, active_player_position, best_score, INF, end_time);*/
-		int score = -negamax_alphabeta(next_graph, get_next_player(player.id), opponent_player_position, depth - 1,
-				player.id, active_player_position, -INF, -best_score, end_time);
+		int score = minimax_alphabeta(next_graph, get_next_player(player.id), opponent_player_position, depth - 1, 0,
+				player.id, active_player_position, best_score, INF, end_time);
+		/*int score = -negamax_alphabeta(next_graph, get_next_player(player.id), opponent_player_position, depth - 1,
+				player.id, active_player_position, -INF, -best_score, end_time);*/
 
 		if (score >= best_score)
 		{
@@ -580,6 +581,25 @@ void update(struct move_t previous_move)
 	else if (previous_move.t == WALL)
 		add_wall(player.graph, previous_move.e);
 }
+
+
+
+/*
+struct move_t iterative_deepening_negamax_alphabeta(unsigned int seconds_allowed)
+{
+	int depth = 1;
+	struct move_t best_move;
+	time_t end_time = time(NULL) + seconds_allowed;
+
+	while (time(NULL) <= end_time)// && depth <= 3)
+	{
+		best_move = get_new_move(depth, end_time);
+		depth += 2;
+	}
+	printf("depth: %d\n", depth);
+	return best_move;
+}
+*/
 
 
 /**
