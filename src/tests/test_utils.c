@@ -189,10 +189,84 @@ int test_can_add_wall()
 	ASSERT_TRUE(can_add_wall(graph4, e43, 2, 13) == 1);
 	add_wall(graph4, e43);
 
+	struct graph_t* graph5 = get_graph('c', 5);
+	struct edge_t e51[2] = {
+            { 10, 15 },
+            { 11, 16 }
+	};
+	struct edge_t e52[2] = {
+            { 12, 17 },
+            { 13, 18 }
+	};
+	struct edge_t e53[2] = {
+            { 11, 12 },
+            { 16, 17 }
+	};
+	ASSERT_TRUE(can_add_wall(graph5, e51, 1, 20));
+	add_wall(graph5, e51);
+	ASSERT_TRUE(can_add_wall(graph5, e52, 1, 20));
+	add_wall(graph5, e52);
+    ASSERT_TRUE(can_add_wall(graph5, e53, 1, 20));
+    add_wall(graph5, e53);
+
+    struct graph_t* graph6 = get_graph('c', 5);
+    struct edge_t e61[2] = {
+            { 6, 7 },
+            { 11, 12 }
+    };
+    struct edge_t e62[2] = {
+            { 11, 16 },
+            { 12, 17 }
+    };
+    struct edge_t e63[2] = {
+            { 16, 17 },
+            { 21, 22 }
+    };
+    ASSERT_TRUE(can_add_wall(graph6, e61, 1, 20));
+    add_wall(graph6, e61);
+    ASSERT_TRUE(can_add_wall(graph6, e62, 1, 20));
+    add_wall(graph6, e62);
+    ASSERT_TRUE(can_add_wall(graph6, e63, 1, 20));
+    add_wall(graph6, e63);
+
+    struct graph_t* graph7 = get_graph('c', 4);
+    struct edge_t e71[2] = {
+            { 1, 5 },
+            { 2, 6 }
+    };
+    struct edge_t e72[2] = {
+            { 6, 10 },
+            { 7, 11 }
+    };
+    struct edge_t e73[2] = {
+            { 10, 14 },
+            { 11, 15 }
+    };
+    struct edge_t e74[2] = {
+            { 8, 9 },
+            { 12, 13 }
+    };
+    struct edge_t e75[2] = {
+            { 8, 12 },
+            { 9, 13 }
+    };
+    ASSERT_TRUE(can_add_wall(graph7, e71, 0, 15));
+    add_wall(graph7, e71);
+    ASSERT_TRUE(can_add_wall(graph7, e72, 0, 15));
+    add_wall(graph7, e72);
+    ASSERT_TRUE(can_add_wall(graph7, e73, 0, 15));
+    add_wall(graph7, e73);
+    ASSERT_TRUE(can_add_wall(graph7, e74, 0, 15));
+    add_wall(graph7, e74);
+    ASSERT_FALSE(can_add_wall(graph7, e75, 0, 15))
+
     graph_free(graph1);
     graph_free(graph2);
     graph_free(graph3);
     graph_free(graph4);
+    graph_free(graph5);
+    graph_free(graph6);
+    graph_free(graph7);
 
     return 1;
 }
@@ -266,8 +340,12 @@ int test_can_player_move_to()
     ASSERT_TRUE(can_player_move_to(graph2, 1, 0, 6, 5) == 1);
     ASSERT_TRUE(can_player_move_to(graph2, 4, 0, 6, 5) == 0);
 
+    struct graph_t* graph3 = get_graph('c', 5);
+    ASSERT_TRUE(can_player_move_to(graph3, 15, BLACK, 11, 10) == 1);
+
     graph_free(graph1);
     graph_free(graph2);
+    graph_free(graph3);
 
     return 1;
 }

@@ -115,6 +115,7 @@ struct move_t play_player_turn(struct server *server, struct move_t move, enum c
     }
     else {
         display_error_move(move.t == MOVE ? "wrong MOVE" : "wrong WALL move" , server->players[id].get_player_name(), get_name_type_player(id));
+        display_move(server, move);
         *cheat = 1;
     }
     return move;

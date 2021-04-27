@@ -103,7 +103,7 @@ struct dijsktra_t * dijsktra(struct graph_t * graph,size_t src,size_t dst){
 	  if (length < gsl_spmatrix_uint_get(dist,0,i)){
 	    gsl_spmatrix_uint_set(dist,0,i,length);
 	    gsl_spmatrix_uint_set(prec,0,i,index);
-	    //printf("\n pere = %ld | fils = %ld \n",index,i);
+	    
 	  }
       }
     }
@@ -119,15 +119,7 @@ struct dijsktra_t * dijsktra(struct graph_t * graph,size_t src,size_t dst){
     vertice = origin;
     origin = gsl_spmatrix_uint_get(prec,0,origin);
   }
-  
-  /*
-  for (size_t i = 0 ; i < num ; i++){
-    if (gsl_spmatrix_uint_get(dist,0,i) < l && is_connected(graph,i,src)){
-      l = gsl_spmatrix_uint_get(dist,0,i);
-      vertice = i;
-    }
-  }    
-  */
+ 
   l = gsl_spmatrix_uint_get(dist,0,dst);
   gsl_spmatrix_uint_free(dist);
   gsl_spmatrix_uint_free(prec);
@@ -143,8 +135,7 @@ size_t mini_dijsktra(struct graph_t * graph, size_t position, enum color_t id){
   size_t vertice;
   size_t num =graph->num_vertices; 
   size_t length = num+1;
-  //printf("\n\n");
-  size_t choose;
+  //size_t choose;
   for (size_t i = 0 ; i < num ; i++){
     
     if (is_owned(graph,get_next_player(id),i)){
@@ -154,12 +145,11 @@ size_t mini_dijsktra(struct graph_t * graph, size_t position, enum color_t id){
       if (d->dist <= length){
 	length = d->dist;
 	vertice = d->prec;
-	choose = i;
+	//choose = i;
       }
       free_dijsktra(d);
     }
   }
-  printf("\n choosen = %ld \n",choose);
   return vertice;
 }
 

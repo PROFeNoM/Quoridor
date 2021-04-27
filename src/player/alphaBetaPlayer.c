@@ -101,7 +101,7 @@ struct move_t get_first_move()
 			starting_positions[nb_pos++] = index;
 
 	//choice of an available position
-	size_t random_index = (size_t)rand() % nb_pos;
+	size_t random_index = nb_pos / 2;
 	player.position[player.id] = starting_positions[random_index];
 
 	//move to the position
@@ -309,7 +309,9 @@ struct list* get_legal_moves(int active_player, struct graph_t* graph, size_t ac
 		}
 
 		// Add legal move of type WALL
-
+        if (!(opponent_player_position - 20 <= vertex
+            && vertex <= opponent_player_position + 20))
+            continue;
 		// Determine every vertices with which 'vertex' could be involved with
 		int eastern_vertex = get_vertex_by_connection_type(graph, vertex, EAST);
 		if (eastern_vertex == CONNECTION_NOT_FOUND)
@@ -429,7 +431,10 @@ int minimax_alphabeta(struct graph_t* graph, int active_player, size_t active_pl
 		double alpha, double beta, time_t end_time)
 {
 	if (time(NULL) >= end_time || depth == 0 || is_winning(graph, active_player, active_player_position) || is_winning(graph, opponent_player, opponent_player_position))
-		return heuristic_evaluation(graph, opponent_player, active_player, opponent_player_position, active_player_position);
+    {
+        //return heuristic_evaluation(graph, active_player, opponent_player, active_player_position, opponent_player_position);
+	    return heuristic_evaluation(graph, opponent_player, active_player, opponent_player_position, active_player_position);
+    }
 
 	struct list* legal_moves = get_legal_moves(active_player, graph, active_player_position, opponent_player_position);
 
@@ -538,21 +543,30 @@ struct move_t get_new_move()
 	int best_score = -INF;
 	struct move_t best_move;
 	//int depth = player.graph->num_vertices < 4*4 ? 3 : 2;
-	int depth = 1;
 	struct list* legal_moves = get_legal_moves(player.id, player.graph, player.position[player.id], player.position[get_next_player(player.id)]);
-	time_t end_time = time(NULL) + 10; // TODO: Ask how much time we have to compute a move
+    int depth = 1;
+	//printf("\n\nNumber of legal moves: [%zd]\t\n", list__size(legal_moves));
+	//printf("Depth: %d\n", depth);
+	time_t end_time = time(NULL) + 1;
 	for (size_t i = 0; i < list__size(legal_moves); i++)
 	{
 		struct move_t* move = list__get(legal_moves, i);
 		struct graph_t* next_graph = get_next_graph(player.graph, move);
 		size_t active_player_position = get_next_player_position(move, player.id, player.position[player.id]);
 		size_t opponent_player_position = get_next_player_position(move, get_next_player(player.id), player.position[get_next_player(player.id)]);
-		int score = minimax_alphabeta(next_graph, get_next_player(player.id), opponent_player_position, depth - 1, 0,
-				player.id, active_player_position, best_score, INF, end_time);
-		/*int score = -negamax_alphabeta(next_graph, get_next_player(player.id), opponent_player_position, depth - 1,
-				player.id, active_player_position, -INF, -best_score, end_time);*/
+		if (is_winning(next_graph, player.id, active_player_position))
+        {
+            best_move = *move;
+            graph_free(next_graph);
+            break;
+        }
 
-		if (score >= best_score)
+		/*int score = minimax_alphabeta(next_graph, get_next_player(player.id), opponent_player_position, depth - 1, 0,
+				player.id, active_player_position, best_score, INF, end_time);*/
+		int score = -negamax_alphabeta(next_graph, get_next_player(player.id), opponent_player_position, depth - 1,
+				player.id, active_player_position, -INF, -best_score, end_time);
+
+		if (score > best_score)
 		{
 			best_score = score;
 			best_move = *move;
@@ -612,7 +626,8 @@ struct move_t play(struct move_t previous_move)
 	if (is_first_move())
 		return get_first_move();
 	update(previous_move);
-
+	struct edge_t e[2] = {{8,18},{7,17}};
+    printf("%d\n", can_add_wall(player.graph, e, player.position[BLACK], player.position[WHITE]));
 	struct move_t move = get_new_move();
 	update(move);
 
