@@ -308,6 +308,9 @@ int test_can_player_move_to()
     ASSERT_TRUE(can_player_move_to(graph2, 1, 0, 6, 5) == 1);
     ASSERT_TRUE(can_player_move_to(graph2, 4, 0, 6, 5) == 0);
 
+    struct graph_t* graph3 = get_graph('c', 5);
+    ASSERT_TRUE(can_player_move_to(graph3, 15, BLACK, 11, 10) == 1);
+
     graph_free(graph1);
     graph_free(graph2);
 
