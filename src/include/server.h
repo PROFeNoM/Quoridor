@@ -15,12 +15,14 @@ struct player_server {
     void (*initialize)(enum color_t, struct graph_t *, size_t);
     struct move_t (*play)(struct move_t);
     void (*finalize)(void);
+    size_t num_wall;
     size_t pos;
 };
 
 struct graph_server {
     struct graph_t *graph;
     size_t width;
+    size_t num_wall;
     char type;
 };
 

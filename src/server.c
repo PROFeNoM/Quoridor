@@ -4,20 +4,29 @@
 
 #define TURN_MAX 100
 
+size_t get_number_of_walls(size_t width, char type)
+{
+    switch (type)
+    {
+    case 'c':
+        return 2 * (width * width - width) / 15;
+    case 't':
+        return (16/9 * width * width - 8/3 * width) / 15;
+    case 'h':
+        return (14/9 * width * width - 8/3 * width) / 15;
+    case 's':
+        return (26/25 * width * width - 14/5 * width) / 15;
+    default:
+        return 0;
+    }
+}
+
 void initialize_graph(size_t width, char type, struct graph_server *graph)
 {
     graph->type = type;
     graph->width = width;
-
+    graph->num_wall = get_number_of_walls(width, type);
     graph->graph = get_graph(type, width);
-}
-
-void update(struct graph_t *graph, struct move_t move, size_t *p_position)
-{
-    if (move.t == MOVE)
-        *p_position = move.m;
-    else
-        add_wall(graph, move.e);
 }
 
 void *load_player(struct player_server *player)
@@ -54,7 +63,7 @@ void load_players(struct player_server *players, char *path_lib_player1, char *p
 struct server *initialize_server(char *player1_lib, char *player2_lib, size_t width, char type)
 {
     struct server *server = malloc(sizeof(struct server));
-    
+
     initialize_graph(width, type, &server->graph);
     load_players(server->players, player1_lib, player2_lib);
 
@@ -70,12 +79,22 @@ struct move_t get_initial_move()
     return mv;
 }
 
+void update(struct graph_t *graph, struct move_t move, size_t *p_position, size_t *p_num_wall)
+{
+    if (move.t == MOVE)
+        *p_position = move.m;
+    else {
+        *p_num_wall -= 1;
+        add_wall(graph, move.e);
+    }
+}
+
 struct move_t player_placement(struct server *server, struct move_t move, enum color_t id)
 {
     move = server->players[id].play(move);
 
     if (is_owned(server->graph.graph, id, move.m))
-        update(server->graph.graph, move, &server->players[id].pos);
+        update(server->graph.graph, move, &server->players[id].pos, &server->players[id].num_wall);
     else {
         display_error_move("wrong first placement", server->players[id].get_player_name(), get_name_type_player(id));
         display_move(server, move);
@@ -89,9 +108,9 @@ struct move_t player_placement(struct server *server, struct move_t move, enum c
 struct move_t play_player_turn(struct server *server, struct move_t move, enum color_t id, size_t *cheat)
 {
     move = server->players[get_next_player(move.c)].play(move);
-	//display_move(server, move);
+
     if (is_move_legal(server->graph.graph, &move, server->players[BLACK].pos, server->players[WHITE].pos)) {
-    	update(server->graph.graph, move, &server->players[id].pos);
+    	update(server->graph.graph, move, &server->players[id].pos, &server->players[id].num_wall);
         *cheat = 0;
     }
     else {
@@ -102,16 +121,21 @@ struct move_t play_player_turn(struct server *server, struct move_t move, enum c
     return move;
 }
 
+void initialize_player(enum color_t id, struct server *server)
+{
+    server->players[id].num_wall = server->graph.num_wall;
+    struct graph_t *copy_graph = graph_copy(server->graph.graph);
+    server->players[id].initialize(id, copy_graph, server->graph.num_wall);
+}
+
 void run_server(struct server *server, int print, int delay)
 {
     size_t turn = 0;
     size_t has_cheat = 0;
 
     // Initializing players
-    struct graph_t *copy_graph = graph_copy(server->graph.graph);
-    server->players[BLACK].initialize(BLACK, copy_graph, 22);
-    copy_graph = graph_copy(server->graph.graph);
-    server->players[WHITE].initialize(WHITE, copy_graph, 22);
+    initialize_player(BLACK, server);
+    initialize_player(WHITE, server);
 
     // Players choose their first position in the board
     // exit if it is not a valid position for them to start
@@ -139,17 +163,18 @@ void run_server(struct server *server, int print, int delay)
         }
         turn++;
         move = play_player_turn(server, move, get_next_player(move.c), &has_cheat);
-		//display_move(server, move);
     } while (!has_cheat && turn < TURN_MAX && !is_winning(server->graph.graph, move.c, server->players[move.c].pos));
 
 
     // Display winner(s) of the game
-    if (turn == TURN_MAX)
-        display_winner(server, turn, BLACK);
-    else if (!has_cheat)
-        display_winner(server, turn, move.c);
-    else
-        display_winner(server, turn, get_next_player(move.c));
+    if (print) {
+        if (turn == TURN_MAX)
+            display_winner(server, turn, BLACK);
+        else if (!has_cheat)
+            display_winner(server, turn, move.c);
+        else
+            display_winner(server, turn, get_next_player(move.c));
+    }
 
 }
 
