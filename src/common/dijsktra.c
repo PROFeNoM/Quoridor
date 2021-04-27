@@ -135,7 +135,7 @@ size_t mini_dijsktra(struct graph_t * graph, size_t position, enum color_t id){
   size_t vertice;
   size_t num =graph->num_vertices; 
   size_t length = num+1;
-  size_t choose;
+  //size_t choose;
   for (size_t i = 0 ; i < num ; i++){
     
     if (is_owned(graph,get_next_player(id),i)){
@@ -145,7 +145,7 @@ size_t mini_dijsktra(struct graph_t * graph, size_t position, enum color_t id){
       if (d->dist <= length){
 	length = d->dist;
 	vertice = d->prec;
-	choose = i;
+	//choose = i;
       }
       free_dijsktra(d);
     }
