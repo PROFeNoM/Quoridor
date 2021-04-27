@@ -172,45 +172,45 @@ int can_add_wall(struct graph_t* graph, struct edge_t e[], size_t p1_position, s
 {
 	// TODO: Check nb of walls left for the active player
 	// Vertices must be on graph
+
+  
+        //printf("\n\n\n %ld et %ld | %ld et %ld \n",e[0].fr,e[0].to,e[1].fr,e[1].to);
 	if (!(is_vertex_in_graph(graph, e[0].fr) && is_vertex_in_graph(graph, e[0].to)
 			&& is_vertex_in_graph(graph, e[1].fr) && is_vertex_in_graph(graph, e[1].to)))
 		return 0;
 
-
+	
 	// Check if vertices are connected AND if it won't overlap an other wall
 	if (!(is_connected(graph, e[0].fr, e[0].to) && is_connected(graph, e[1].fr, e[1].to)))
 		return 0;
 
 	// Check vertices relation
-	if (is_horizontal_connection(graph, e[0].fr, e[0].to))
+	if (is_horizontal_connection(graph, e[0].fr, e[0].to) && is_horizontal_connection(graph, e[1].fr, e[1].to))
 	{
-		if (is_connected(graph, e[0].fr, e[1].fr) && is_horizontal_connection(graph, e[0].fr, e[1].fr))
-			return 0;
-
-		if (is_connected(graph, e[0].fr, e[1].to) && is_horizontal_connection(graph, e[0].fr, e[1].to))
-			return 0;
-
-		if (is_connected(graph, e[0].to, e[1].fr) && is_horizontal_connection(graph, e[0].to, e[1].fr))
-			return 0;
-
-		if (is_connected(graph, e[0].to, e[1].to) && is_horizontal_connection(graph, e[0].to, e[1].to))
-			return 0;
+	  size_t max_e1 = e[0].fr > e[0].to ? e[0].fr : e[0].to;
+	  size_t min_e1 = e[0].to < e[0].fr ? e[0].to : e[0].fr;
+	  size_t max_e2 = e[1].fr > e[1].to ? e[1].fr : e[1].to;
+	  size_t min_e2 = e[1].to < e[1].fr ? e[1].to : e[1].fr;
+	  
+	  if (!(is_connected(graph, max_e1, max_e2) && is_vertical_connection(graph, max_e1, max_e2) && is_connected(graph, min_e1, min_e2) && is_vertical_connection(graph, min_e1, min_e2))){
+	    return 0;
+	    }
 	}
-	else // North-South relation
+	else if (is_vertical_connection(graph, e[0].fr, e[0].to) && is_vertical_connection(graph, e[1].fr, e[1].to)) // North-South relation
 	{
-		if (is_connected(graph, e[0].fr, e[1].fr) && is_vertical_connection(graph, e[0].fr, e[1].fr))
-			return 0;
 
-		if (is_connected(graph, e[0].fr, e[1].to) && is_vertical_connection(graph, e[0].fr, e[1].to))
-			return 0;
-
-		if (is_connected(graph, e[0].to, e[1].fr) && is_vertical_connection(graph, e[0].to, e[1].fr))
-			return 0;
-
-		if (is_connected(graph, e[0].to, e[1].to) && is_vertical_connection(graph, e[0].to, e[1].to))
-			return 0;
+	  size_t max_e1 = e[0].fr > e[0].to ? e[0].fr : e[0].to;
+	  size_t min_e1 = e[0].to < e[0].fr ? e[0].to : e[0].fr;
+	  size_t max_e2 = e[1].fr > e[1].to ? e[1].fr : e[1].to;
+	  size_t min_e2 = e[1].to < e[1].fr ? e[1].to : e[1].fr;
+	  if (!(is_connected(graph, max_e1, max_e2) && is_horizontal_connection(graph, max_e1, max_e2) && is_connected(graph, min_e1, min_e2) && is_horizontal_connection(graph, min_e1, min_e2))){
+	    return 0;
+	    }
+	  
 	}
-
+	else {
+	  return 0;
+	}
 	// Check if players aren't blocked
 	struct graph_t* graph_with_wall = graph_copy(graph);
 	add_wall(graph_with_wall, e);
@@ -297,3 +297,64 @@ int is_move_legal(struct graph_t* graph, struct move_t* move, size_t p1_position
     else
         return 0;
 }
+
+
+/*
+int can_add_wall(struct graph_t* graph, struct edge_t e[], size_t p1_position, size_t p2_position)
+{
+	// TODO: Check nb of walls left for the active player
+	// Vertices must be on graph
+	if (!(is_vertex_in_graph(graph, e[0].fr) && is_vertex_in_graph(graph, e[0].to)
+			&& is_vertex_in_graph(graph, e[1].fr) && is_vertex_in_graph(graph, e[1].to)))
+		return 0;
+
+
+	// Check if vertices are connected AND if it won't overlap an other wall
+	if (!(is_connected(graph, e[0].fr, e[0].to) && is_connected(graph, e[1].fr, e[1].to)))
+		return 0;
+
+	// Check vertices relation
+	if (is_horizontal_connection(graph, e[0].fr, e[0].to))
+	{
+	  if (is_connected(graph, e[0].fr, e[1].fr) && is_horizontal_connection(graph, e[0].fr, e[1].fr))
+	    return 0;
+
+	  if (is_connected(graph, e[0].fr, e[1].to) && is_horizontal_connection(graph, e[0].fr, e[1].to))
+	    return 0;
+
+	  if (is_connected(graph, e[0].to, e[1].fr) && is_horizontal_connection(graph, e[0].to, e[1].fr))
+	    return 0;
+
+	  if (is_connected(graph, e[0].to, e[1].to) && is_horizontal_connection(graph, e[0].to, e[1].to))
+	    return 0;
+	}
+	else // North-South relation
+	{
+	  if (is_connected(graph, e[0].fr, e[1].fr) && is_vertical_connection(graph, e[0].fr, e[1].fr))
+			return 0;
+
+	  if (is_connected(graph, e[0].fr, e[1].to) && is_vertical_connection(graph, e[0].fr, e[1].to))
+			return 0;
+
+	  if (is_connected(graph, e[0].to, e[1].fr) && is_vertical_connection(graph, e[0].to, e[1].fr))
+			return 0;
+
+	  if (is_connected(graph, e[0].to, e[1].to) && is_vertical_connection(graph, e[0].to, e[1].to))
+			return 0;
+	}
+
+	// Check if players aren't blocked
+	struct graph_t* graph_with_wall = graph_copy(graph);
+	add_wall(graph_with_wall, e);
+	if (is_player_blocked(graph_with_wall, p1_position, BLACK, p2_position)
+			|| is_player_blocked(graph_with_wall, p2_position, WHITE, p1_position))
+	{
+		graph_free(graph_with_wall);
+		return 0;
+	}
+	graph_free(graph_with_wall);
+
+	// The wall doesn't violate any rules, hence it's a legal move
+	return 1;
+}
+*/
