@@ -5,6 +5,7 @@
 #include "dijsktra.h"
 
 #define UNINITIALIZED 0
+#define MAX_POSSIBILITIES 12
 
 struct player
 {
@@ -13,6 +14,7 @@ struct player
   size_t num_walls;      //number of walls in the hand of the player
   size_t max_walls ;
   size_t col;
+  size_t pos_possibilities[MAX_POSSIBILITIES];
   enum color_t id;       //id of the player
 };
 
@@ -48,6 +50,9 @@ void initialize(enum color_t id, struct graph_t *graph, size_t num_walls)
         player.position[BLACK] = graph->num_vertices;
         player.position[WHITE] = graph->num_vertices;
         graph_free(graph);
+	for (int i = 0 ; i < MAX_POSSIBILITIES ; i++){
+	  player.pos_possibilities[i] = player.col * player.col;
+	}
     }
     else
         is_initialized = 1;
@@ -76,6 +81,27 @@ struct move_t set_move(size_t position, struct edge_t edge1, struct edge_t edge2
     return move;
 }
 
+void get_right_next_place(size_t p1,size_t p2){
+
+  size_t m = sqrt(player.graph->num_vertices);
+  int index = 0;
+  size_t possibilities[MAX_POSSIBILITIES] = {p1+1,p1-1,p1-m,p1+m,p1+2,p1-2,p1+2*m,p1-2*m,p1+1+m,p1+1-m,p1-1+m,p1-1-m};
+
+  for (int i = 0 ; i < MAX_POSSIBILITIES ; i++){
+    if (can_player_move_to(player.graph,possibilities[i],0,p1,p2)){
+      player.pos_possibilities[index] = possibilities[i];
+      index+=1;
+    }
+  }
+}
+
+void set_possibilities_to_zero(){
+
+  for (int i = 0 ; i < MAX_POSSIBILITIES ; i++){
+    player.pos_possibilities[i] = player.graph->num_vertices * player.graph->num_vertices;
+  }
+}
+      
 /*
  * Return the first move for a player : the player is put on one of his own vertices
  */
@@ -144,8 +170,7 @@ struct move_t get_wall(){
       
       struct edge_t edge1[2]={e,e1};
       struct edge_t edge2[2]={e,e2};
-      //printf("\n\n\n can %d = \n",can_add_wall(player.graph,edge1,position_player_1,position_player_2));
-      //printf("%ld to %ld | %ld to %ld \n",e.fr,e.to,e1.fr,e1.to);
+ 
       if (can_add_wall(player.graph,edge1,position_player_1,position_player_2) && (e.fr/m == e1.fr/m)){
 	struct move_t new_move = set_move(player.position[player.id], e, e1, player.id, WALL);
 	player.num_walls -= 1;
@@ -164,6 +189,33 @@ struct move_t get_wall(){
   struct move_t new_move = set_move(player.position[player.id], no_edge(), no_edge(), player.id, NO_TYPE);
   return new_move;
 }
+
+size_t get_dijsktra(){
+
+  
+  size_t vertice;
+  size_t num =player.graph->num_vertices; 
+  size_t length = num * num;
+  
+  for (size_t v = 0 ; v < MAX_POSSIBILITIES ; v++){
+    
+    if (player.pos_possibilities[v] < (num * num)){
+      for (size_t i = 0 ; i < num ; i++){
+    
+	if (is_owned(player.graph,get_next_player(player.id),i)){
+	  //printf(" %ld ",i);
+	  size_t l = dijsktra(player.graph,player.pos_possibilities[v],i);
+
+	  if (l <= length){
+	    length = l;
+	    vertice = player.pos_possibilities[v];
+	  }
+	}
+      }
+    }
+  }
+  return vertice;
+}
 	
 
   
@@ -180,9 +232,11 @@ struct move_t get_new_move()
   if (possibility.t != NO_TYPE){
     return possibility;
   }
-
+  get_right_next_place(player.position[player.id],player.position[get_next_player(player.id)]);
   
-  size_t vertice = mini_dijsktra(player.graph,player.position[player.id],player.id);
+  size_t vertice = get_dijsktra();
+  set_possibilities_to_zero();
+  //size_t vertice = mini_dijsktra(player.graph,player.position[player.id],player.id);
 
     player.position[player.id] = vertice;
 
@@ -222,9 +276,10 @@ void update(struct move_t previous_move)
  */
 struct move_t play(struct move_t previous_move)
 {
-    if (is_first_move())
+  printf(" id = %d \n",player.id);
+  if (is_first_move()){
         return get_first_move();
-
+  }
     update(previous_move);
 
     struct move_t newmove = get_new_move();

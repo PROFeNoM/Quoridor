@@ -80,7 +80,7 @@ size_t get_dist_min_not_visited(gsl_spmatrix_uint * dist,gsl_spmatrix_uint * vis
   
 
 
-struct dijsktra_t * dijsktra(struct graph_t * graph,size_t src,size_t dst){
+size_t dijsktra(struct graph_t * graph,size_t src,size_t dst){
 
   size_t num = graph->num_vertices;
   gsl_spmatrix_uint * visited = init_visited(num);
@@ -109,6 +109,7 @@ struct dijsktra_t * dijsktra(struct graph_t * graph,size_t src,size_t dst){
     }
   }
   gsl_spmatrix_uint_free(visited);
+  /*
   size_t l = num + 1;
   size_t vertice = dst;
   size_t origin = dst;
@@ -121,14 +122,18 @@ struct dijsktra_t * dijsktra(struct graph_t * graph,size_t src,size_t dst){
   }
  
   l = gsl_spmatrix_uint_get(dist,0,dst);
-  gsl_spmatrix_uint_free(dist);
-  gsl_spmatrix_uint_free(prec);
+  
   
   struct dijsktra_t * d = init_dijsktra(l,vertice);
   return d;
+  */
+  length = gsl_spmatrix_uint_get(dist,0,dst);
+  gsl_spmatrix_uint_free(dist);
+  gsl_spmatrix_uint_free(prec);
+  return length;
 }
 
-
+/*
 size_t mini_dijsktra(struct graph_t * graph, size_t position, enum color_t id){
 
   
@@ -152,7 +157,7 @@ size_t mini_dijsktra(struct graph_t * graph, size_t position, enum color_t id){
   }
   return vertice;
 }
-
+*/
 
 
 
