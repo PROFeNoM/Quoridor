@@ -4,11 +4,28 @@
 
 #define TURN_MAX 100
 
+size_t get_number_of_walls(size_t width, char type)
+{
+    switch (type)
+    {
+    case 'c':
+        return 2 * (width * width - width) / 15;
+    case 't':
+        return (16/9 * width * width - 8/3 * width) / 15;
+    case 'h':
+        return (14/9 * width * width - 8/3 * width) / 15;
+    case 's':
+        return (26/25 * width * width - 14/5 * width) / 15;
+    default:
+        return 0;
+    }
+}
+
 void initialize_graph(size_t width, char type, struct graph_server *graph)
 {
     graph->type = type;
     graph->width = width;
-    graph->num_wall = 20;
+    graph->num_wall = get_number_of_walls(width, type);
     graph->graph = get_graph(type, width);
 }
 
@@ -46,7 +63,7 @@ void load_players(struct player_server *players, char *path_lib_player1, char *p
 struct server *initialize_server(char *player1_lib, char *player2_lib, size_t width, char type)
 {
     struct server *server = malloc(sizeof(struct server));
-    
+
     initialize_graph(width, type, &server->graph);
     load_players(server->players, player1_lib, player2_lib);
 
@@ -91,7 +108,7 @@ struct move_t player_placement(struct server *server, struct move_t move, enum c
 struct move_t play_player_turn(struct server *server, struct move_t move, enum color_t id, size_t *cheat)
 {
     move = server->players[get_next_player(move.c)].play(move);
-	//display_move(server, move);
+
     if (is_move_legal(server->graph.graph, &move, server->players[BLACK].pos, server->players[WHITE].pos)) {
     	update(server->graph.graph, move, &server->players[id].pos, &server->players[id].num_wall);
         *cheat = 0;
