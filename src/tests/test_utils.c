@@ -313,6 +313,7 @@ int test_can_player_move_to()
 
     graph_free(graph1);
     graph_free(graph2);
+    graph_free(graph3);
 
     return 1;
 }
