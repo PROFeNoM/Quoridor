@@ -57,6 +57,9 @@ void initialize(enum color_t id, struct graph_t *graph, size_t num_walls)
         is_initialized = 1;
 }
 
+
+  
+
 /*
  * Initialize and set a move
  * - position : the new position of the player
@@ -119,7 +122,7 @@ struct move_t get_wall(){
     position_player_1 = player.position[WHITE];
   }
   
-
+  
   if (player.num_walls != 0 && ((player.max_walls-player.num_walls) < m)){
     
     if (player.num_walls == player.max_walls || player.col != position_player_2 % m){
@@ -164,7 +167,6 @@ struct move_t get_wall(){
       if (can_add_wall(player.graph,edge2,position_player_1,position_player_2) && (e.fr/m == e2.fr/m)){
 	struct move_t new_move = set_move(player.position[player.id], e, e2, player.id, WALL);
 	player.num_walls -= 1;
-	printf("ok\n");
 	return new_move;
       }
     }
