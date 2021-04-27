@@ -109,23 +109,16 @@ struct move_t get_wall(){
   size_t position_player_2;
   size_t m = sqrt(player.graph->t->size1);
 
-  if (player.id == BLACK){
-    position_player_1 = player.position[BLACK];
-    position_player_2 = player.position[WHITE];
-  }
-  else {
-    position_player_2 = player.position[BLACK];
-    position_player_1 = player.position[WHITE];
-  }
+  position_player_1 = player.position[BLACK];
+  position_player_2 = player.position[WHITE];
   
   
   if (player.num_walls != 0 && ((player.max_walls-player.num_walls) < m)){
     
     if (player.num_walls == player.max_walls || player.col != position_player_2 % m){
-    
-      
-      player.col = position_player_2 % m;
-      size_t num = position_player_2 % m;
+
+      player.col = player.position[get_next_player(player.id)] % m;
+      size_t num = player.position[get_next_player(player.id)] % m;
       struct edge_t e;
       struct edge_t e1;
       struct edge_t e2;

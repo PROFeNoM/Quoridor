@@ -229,12 +229,44 @@ int test_can_add_wall()
     ASSERT_TRUE(can_add_wall(graph6, e63, 1, 20));
     add_wall(graph6, e63);
 
+    struct graph_t* graph7 = get_graph('c', 4);
+    struct edge_t e71[2] = {
+            { 1, 5 },
+            { 2, 6 }
+    };
+    struct edge_t e72[2] = {
+            { 6, 10 },
+            { 7, 11 }
+    };
+    struct edge_t e73[2] = {
+            { 10, 14 },
+            { 11, 15 }
+    };
+    struct edge_t e74[2] = {
+            { 8, 9 },
+            { 12, 13 }
+    };
+    struct edge_t e75[2] = {
+            { 8, 12 },
+            { 9, 13 }
+    };
+    ASSERT_TRUE(can_add_wall(graph7, e71, 0, 15));
+    add_wall(graph7, e71);
+    ASSERT_TRUE(can_add_wall(graph7, e72, 0, 15));
+    add_wall(graph7, e72);
+    ASSERT_TRUE(can_add_wall(graph7, e73, 0, 15));
+    add_wall(graph7, e73);
+    ASSERT_TRUE(can_add_wall(graph7, e74, 0, 15));
+    add_wall(graph7, e74);
+    ASSERT_FALSE(can_add_wall(graph7, e75, 0, 15))
+
     graph_free(graph1);
     graph_free(graph2);
     graph_free(graph3);
     graph_free(graph4);
     graph_free(graph5);
     graph_free(graph6);
+    graph_free(graph7);
 
     return 1;
 }
