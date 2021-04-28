@@ -120,7 +120,172 @@ int test__is_vertex_in_graph_with_vertex_out()
     return 1;
 }
 
-int test_can_add_wall()
+int test__is_horizontal_connection_with_vertex_east_west()
+{
+	struct graph_t* graph1 = get_graph('c', 4);
+	ASSERT_TRUE(is_horizontal_connection(graph1, 0, 1));
+	graph_free(graph1);
+	return 1;
+}
+
+int test__is_horizontal_connection_with_vertex_north_south()
+{
+	struct graph_t* graph1 = get_graph('c', 4);
+	ASSERT_FALSE(is_horizontal_connection(graph1, 0, 4));
+	graph_free(graph1);
+	return 1;
+}
+
+int test__is_horizontal_connection_with_vertex_unconnected()
+{
+	struct graph_t* graph1 = get_graph('c', 4);
+	ASSERT_FALSE(is_horizontal_connection(graph1, 0, 6));
+	graph_free(graph1);
+	return 1;
+}
+
+int test__is_vertical_connection_with_vertex_east_west()
+{
+	struct graph_t* graph1 = get_graph('c', 4);
+	ASSERT_FALSE(is_vertical_connection(graph1, 0, 1));
+	graph_free(graph1);
+	return 1;
+}
+
+int test__is_vertical_connection_with_vertex_north_south()
+{
+	struct graph_t* graph1 = get_graph('c', 4);
+	ASSERT_TRUE(is_vertical_connection(graph1, 0, 4));
+	graph_free(graph1);
+	return 1;
+}
+
+int test__is_vertical_connection_with_vertex_unconnected()
+{
+	struct graph_t* graph1 = get_graph('c', 4);
+	ASSERT_FALSE(is_vertical_connection(graph1, 0, 6));
+	graph_free(graph1);
+	return 1;
+}
+
+int test__add_wall()
+{
+	struct edge_t e1[2] = {
+			{ 0, 1 },
+			{ 2, 3 }
+	};
+
+	struct graph_t *graph1 = get_graph('c', 2);
+
+	add_wall(graph1, e1);
+
+	ASSERT_TRUE(get_connection_type(graph1, 0, 1) == POINT_TO_SOUTH);
+	ASSERT_TRUE(get_connection_type(graph1, 2, 3) == POINT_TO_NORTH);
+
+	struct edge_t e2[2] = {
+			{ 1, 3 },
+			{ 0, 2 }
+	};
+
+	add_wall(graph1, e2);
+	ASSERT_TRUE(get_connection_type(graph1, 1, 3) == POINT_TO_WEST);
+	ASSERT_TRUE(get_connection_type(graph1, 0, 2) == POINT_TO_EAST);
+
+	struct edge_t e1bis[2] = {
+			{ 2, 3 },
+			{ 0, 1 },
+	};
+
+	struct graph_t *graph2 = get_graph('c', 2);
+
+	add_wall(graph2, e1bis);
+
+	ASSERT_TRUE(get_connection_type(graph2, 0, 1) == POINT_TO_SOUTH);
+	ASSERT_TRUE(get_connection_type(graph2, 2, 3) == POINT_TO_NORTH);
+
+	struct edge_t e2bis[2] = {
+			{ 0, 2 },
+			{ 1, 3 },
+	};
+
+	add_wall(graph2, e2bis);
+	ASSERT_TRUE(get_connection_type(graph2, 1, 3) == POINT_TO_WEST);
+	ASSERT_TRUE(get_connection_type(graph2, 0, 2) == POINT_TO_EAST);
+
+	graph_free(graph1);
+	graph_free(graph2);
+
+	return 1;
+}
+
+int test__is_path_existing_with_a_plain_square_board()
+{
+	struct graph_t* graph1 = get_graph('c', 4);
+	int visited1[16] = { 0 };
+	ASSERT_TRUE(is_path_existing(graph1, visited1, 0, BLACK, 5));
+	int visited2[16] = { 0 };
+	ASSERT_TRUE(is_path_existing(graph1, visited2, 5, WHITE, 1));
+	graph_free(graph1);
+	return 1;
+}
+
+int test__is_path_existing_without_a_path()
+{
+	struct graph_t* graph1 = get_graph('c', 4);
+	struct edge_t e1[2] = {
+			{ 0, 4 },
+			{ 1, 5 }
+	};
+	add_wall(graph1, e1);
+	struct edge_t e2[2] = {
+			{ 2, 6 },
+			{ 3, 7 }
+	};
+	add_wall(graph1, e2);
+
+	int visited1[16] = { 0 };
+	ASSERT_FALSE(is_path_existing(graph1, visited1, 0, BLACK, 12));
+	int visited2[16] = { 0 };
+	ASSERT_FALSE(is_path_existing(graph1, visited2, 12, WHITE, 0));
+	int visited3[16] = { 0 };
+	ASSERT_TRUE(is_path_existing(graph1, visited3, 8, BLACK, 12));
+	graph_free(graph1);
+
+	return 1;
+}
+
+int test__is_player_blocked_with_a_plain_square_board()
+{
+	struct graph_t* graph1 = get_graph('c', 4);
+	ASSERT_FALSE(is_player_blocked(graph1, 0, BLACK, 5));
+	ASSERT_FALSE(is_player_blocked(graph1, 5, WHITE, 1));
+	graph_free(graph1);
+	return 1;
+}
+
+int test__is_player_blocked_without_a_path()
+{
+	struct graph_t* graph1 = get_graph('c', 4);
+	struct edge_t e1[2] = {
+			{ 0, 4 },
+			{ 1, 5 }
+	};
+	add_wall(graph1, e1);
+	struct edge_t e2[2] = {
+			{ 2, 6 },
+			{ 3, 7 }
+	};
+	add_wall(graph1, e2);
+
+	ASSERT_TRUE(is_player_blocked(graph1, 0, BLACK, 12));
+	ASSERT_TRUE(is_player_blocked(graph1, 12, WHITE, 0));
+	ASSERT_FALSE(is_player_blocked(graph1, 8, BLACK, 12));
+	graph_free(graph1);
+
+	return 1;
+}
+
+int test__can_add_wall()
 {
     struct edge_t e1[2] = {
             { 0, 1 },
@@ -128,7 +293,7 @@ int test_can_add_wall()
     };
 
     struct graph_t *graph1 = get_graph('c', 2);
-    ASSERT_TRUE(can_add_wall(graph1, e1, 0, 1) == 1);
+    ASSERT_TRUE(can_add_wall(graph1, e1, 0, 1));
 
 
     struct edge_t e21[2] = {
@@ -137,7 +302,7 @@ int test_can_add_wall()
     };
 
     struct graph_t *graph2 = get_graph('c', 3);
-    ASSERT_TRUE(can_add_wall(graph2, e21, 1, 7) == 1);
+    ASSERT_TRUE(can_add_wall(graph2, e21, 1, 7));
 
     add_wall(graph2, e21);
 
@@ -145,20 +310,20 @@ int test_can_add_wall()
             { 2, 5 },
             { 1, 4 }
     };
-    ASSERT_TRUE(can_add_wall(graph2, e22, 1, 7) == 0);
+    ASSERT_FALSE(can_add_wall(graph2, e22, 1, 7));
 
     struct edge_t e23[2] = {
             { 3, 4 },
             { 6, 7 }
     };
-    ASSERT_TRUE(can_add_wall(graph2, e23, 1, 7) == 1);
+    ASSERT_TRUE(can_add_wall(graph2, e23, 1, 7));
     add_wall(graph2, e23);
 
     struct edge_t e24[2] = {
             { 1, 4 },
             { 2, 5 }
     };
-    ASSERT_TRUE(can_add_wall(graph2, e24, 1, 7) == 0);
+    ASSERT_FALSE(can_add_wall(graph2, e24, 1, 7));
 
     struct edge_t e31[2] = {
             { 4, 8 },
@@ -166,7 +331,7 @@ int test_can_add_wall()
     };
 
     struct graph_t *graph3 = get_graph('c', 4);
-    ASSERT_TRUE(can_add_wall(graph3, e31, 0, 15) == 1);
+    ASSERT_TRUE(can_add_wall(graph3, e31, 0, 15));
     add_wall(graph3, e31);
 
     struct graph_t* graph4 = get_graph('c', 4);
@@ -182,11 +347,11 @@ int test_can_add_wall()
 			{ 10, 14 },
 			{ 9, 13 }
     };
-	ASSERT_TRUE(can_add_wall(graph4, e41, 2, 13) == 1);
+	ASSERT_TRUE(can_add_wall(graph4, e41, 2, 13));
     add_wall(graph4, e41);
-	ASSERT_TRUE(can_add_wall(graph4, e42, 2, 12) == 1);
+	ASSERT_TRUE(can_add_wall(graph4, e42, 2, 12));
     add_wall(graph4, e42);
-	ASSERT_TRUE(can_add_wall(graph4, e43, 2, 13) == 1);
+	ASSERT_TRUE(can_add_wall(graph4, e43, 2, 13));
 	add_wall(graph4, e43);
 
 	struct graph_t* graph5 = get_graph('c', 5);
@@ -271,58 +436,6 @@ int test_can_add_wall()
     return 1;
 }
 
-
-int test_add_wall()
-{
-    struct edge_t e1[2] = {
-            { 0, 1 },
-            { 2, 3 }
-    };
-
-    struct graph_t *graph1 = get_graph('c', 2);
-
-    add_wall(graph1, e1);
-
-    ASSERT_TRUE(get_connection_type(graph1, 0, 1) == POINT_TO_SOUTH);
-    ASSERT_TRUE(get_connection_type(graph1, 2, 3) == POINT_TO_NORTH);
-
-    struct edge_t e2[2] = {
-            { 1, 3 },
-            { 0, 2 }
-    };
-
-    add_wall(graph1, e2);
-    ASSERT_TRUE(get_connection_type(graph1, 1, 3) == POINT_TO_WEST);
-    ASSERT_TRUE(get_connection_type(graph1, 0, 2) == POINT_TO_EAST);
-
-    struct edge_t e1bis[2] = {
-            { 2, 3 },
-            { 0, 1 },
-    };
-
-    struct graph_t *graph2 = get_graph('c', 2);
-
-    add_wall(graph2, e1bis);
-
-    ASSERT_TRUE(get_connection_type(graph2, 0, 1) == POINT_TO_SOUTH);
-    ASSERT_TRUE(get_connection_type(graph2, 2, 3) == POINT_TO_NORTH);
-
-    struct edge_t e2bis[2] = {
-            { 0, 2 },
-            { 1, 3 },
-    };
-
-    add_wall(graph2, e2bis);
-    ASSERT_TRUE(get_connection_type(graph2, 1, 3) == POINT_TO_WEST);
-    ASSERT_TRUE(get_connection_type(graph2, 0, 2) == POINT_TO_EAST);
-
-    graph_free(graph1);
-    graph_free(graph2);
-
-    return 1;
-}
-
-
 int test_can_player_move_to()
 {
     struct graph_t* graph1 = get_graph('c', 3);
@@ -402,9 +515,19 @@ void tests__utils_functions()
 
     // Test not working, was already commented
     // TEST_FUNCTION(test__is_vertex_in_graph_with_vertex_out);
-    
-    TEST_FUNCTION(test_can_add_wall);
-    TEST_FUNCTION(test_add_wall);
+
+	TEST_FUNCTION(test__is_horizontal_connection_with_vertex_east_west);
+	TEST_FUNCTION(test__is_horizontal_connection_with_vertex_north_south);
+	TEST_FUNCTION(test__is_horizontal_connection_with_vertex_unconnected);
+	TEST_FUNCTION(test__is_vertical_connection_with_vertex_east_west);
+	TEST_FUNCTION(test__is_vertical_connection_with_vertex_north_south);
+	TEST_FUNCTION(test__is_vertical_connection_with_vertex_unconnected);
+	TEST_FUNCTION(test__add_wall);
+	TEST_FUNCTION(test__is_path_existing_with_a_plain_square_board);
+	TEST_FUNCTION(test__is_path_existing_without_a_path);
+	TEST_FUNCTION(test__is_player_blocked_with_a_plain_square_board);
+	TEST_FUNCTION(test__is_player_blocked_without_a_path);
+    TEST_FUNCTION(test__can_add_wall);
     TEST_FUNCTION(test_can_player_move_to);
     TEST_FUNCTION(test_is_move_legal);
 }
