@@ -309,9 +309,12 @@ struct list* get_legal_moves(int active_player, struct graph_t* graph, size_t ac
 		}
 
 		// Add legal move of type WALL
-        if (!(opponent_player_position - 20 <= vertex
-            && vertex <= opponent_player_position + 20))
+		/*
+        if (!(opponent_player_position - 10 <= vertex
+            && vertex <= opponent_player_position + 10))
             continue;
+		*/
+
 		// Determine every vertices with which 'vertex' could be involved with
 		int eastern_vertex = get_vertex_by_connection_type(graph, vertex, EAST);
 		if (eastern_vertex == CONNECTION_NOT_FOUND)
@@ -323,6 +326,12 @@ struct list* get_legal_moves(int active_player, struct graph_t* graph, size_t ac
 
 		int southeastern_vertex = get_vertex_by_connection_type(graph, southern_vertex, EAST);
 		if (southeastern_vertex == CONNECTION_NOT_FOUND)
+			continue;
+
+		if (!(vertex == opponent_player_position
+			|| eastern_vertex == (int)opponent_player_position
+			|| southern_vertex == (int)opponent_player_position
+			|| southeastern_vertex == (int)opponent_player_position))
 			continue;
 
 		struct edge_t e1[2] = {
@@ -431,10 +440,7 @@ int minimax_alphabeta(struct graph_t* graph, int active_player, size_t active_pl
 		double alpha, double beta, time_t end_time)
 {
 	if (time(NULL) >= end_time || depth == 0 || is_winning(graph, active_player, active_player_position) || is_winning(graph, opponent_player, opponent_player_position))
-    {
-        //return heuristic_evaluation(graph, active_player, opponent_player, active_player_position, opponent_player_position);
-	    return heuristic_evaluation(graph, opponent_player, active_player, opponent_player_position, active_player_position);
-    }
+        return heuristic_evaluation(graph, active_player, opponent_player, active_player_position, opponent_player_position);
 
 	struct list* legal_moves = get_legal_moves(active_player, graph, active_player_position, opponent_player_position);
 
@@ -544,10 +550,10 @@ struct move_t get_new_move()
 	struct move_t best_move;
 	//int depth = player.graph->num_vertices < 4*4 ? 3 : 2;
 	struct list* legal_moves = get_legal_moves(player.id, player.graph, player.position[player.id], player.position[get_next_player(player.id)]);
-    int depth = 1;
+    int depth = 2;
 	//printf("\n\nNumber of legal moves: [%zd]\t\n", list__size(legal_moves));
 	//printf("Depth: %d\n", depth);
-	time_t end_time = time(NULL) + 1;
+	time_t end_time = time(NULL) + 3;
 	for (size_t i = 0; i < list__size(legal_moves); i++)
 	{
 		struct move_t* move = list__get(legal_moves, i);
@@ -561,10 +567,10 @@ struct move_t get_new_move()
             break;
         }
 
-		/*int score = minimax_alphabeta(next_graph, get_next_player(player.id), opponent_player_position, depth - 1, 0,
-				player.id, active_player_position, best_score, INF, end_time);*/
-		int score = -negamax_alphabeta(next_graph, get_next_player(player.id), opponent_player_position, depth - 1,
-				player.id, active_player_position, -INF, -best_score, end_time);
+		int score = minimax_alphabeta(next_graph, get_next_player(player.id), opponent_player_position, depth - 1, 0,
+				player.id, active_player_position, best_score, INF, end_time);
+		/*int score = -negamax_alphabeta(next_graph, get_next_player(player.id), opponent_player_position, depth - 1,
+				player.id, active_player_position, -INF, -best_score, end_time);*/
 
 		if (score > best_score)
 		{
@@ -605,9 +611,9 @@ struct move_t iterative_deepening_negamax_alphabeta(unsigned int seconds_allowed
 	struct move_t best_move;
 	time_t end_time = time(NULL) + seconds_allowed;
 
-	while (time(NULL) <= end_time)// && depth <= 3)
+	while (time(NULL) < end_time && depth <= 3)
 	{
-		best_move = get_new_move(depth, end_time);
+		best_move = get_new_move(depth);
 		depth += 2;
 	}
 	printf("depth: %d\n", depth);
@@ -626,9 +632,10 @@ struct move_t play(struct move_t previous_move)
 	if (is_first_move())
 		return get_first_move();
 	update(previous_move);
-	struct edge_t e[2] = {{8,18},{7,17}};
-    printf("%d\n", can_add_wall(player.graph, e, player.position[BLACK], player.position[WHITE]));
+	//struct edge_t e[2] = {{64,73},{63,72}};
+    //printf("\n\n%d\n", can_add_wall(player.graph, e, player.position[BLACK], player.position[WHITE]));
 	struct move_t move = get_new_move();
+	//struct move_t move = iterative_deepening_negamax_alphabeta(1);
 	update(move);
 
 	return move;

@@ -1,8 +1,10 @@
+#include <time.h>
+
 #include "server.h"
 #include "utils.h"
 #include "display.h"
 
-#define TURN_MAX 100
+#define TURN_MAX 200
 
 size_t get_number_of_walls(size_t width, char type)
 {
@@ -133,6 +135,8 @@ void run_server(struct server *server, int print, int delay)
     size_t turn = 0;
     size_t has_cheat = 0;
 
+    time_t start = time(NULL);
+
     // Initializing players
     initialize_player(BLACK, server);
     initialize_player(WHITE, server);
@@ -175,6 +179,8 @@ void run_server(struct server *server, int print, int delay)
         else
             display_winner(server, turn, get_next_player(move.c));
     }
+
+    printf("\nTime elapsed: %ld seconds.\n", time(NULL) - start);
 
 }
 
