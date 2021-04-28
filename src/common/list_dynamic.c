@@ -61,7 +61,7 @@ void* list__get(const struct list* lst, size_t i)
 }
 
 // Changes the ith element of lst
-void list__change(const struct list* lst, size_t i, void* c)
+void list__change(struct list* lst, size_t i, void* c)
 {
 	if (list__size(lst) > i)
 	{

@@ -24,7 +24,7 @@ void list__add(struct list* lst, void* c);
 void* list__get(const struct list* lst, size_t i);
 
 // Changes the ith element of lst
-void list__change(const struct list* lst, size_t i, void* c);
+void list__change(struct list* lst, size_t i, void* c);
 
 // Frees the memory allocated for struct list lst
 void list__free(struct list* lst);

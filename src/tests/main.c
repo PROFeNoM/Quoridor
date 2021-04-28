@@ -10,6 +10,7 @@ void launch_test()
     // test not working currently under revision
     TEST_FILE(tests__graph_pattern_functions);
 
+	TEST_FILE(tests__list_functions);
 }
 
 int main(int argc, char *argv[])
