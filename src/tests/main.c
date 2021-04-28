@@ -11,6 +11,7 @@ void launch_test()
     TEST_FILE(tests__graph_pattern_functions);
 
 	TEST_FILE(tests__list_functions);
+	TEST_FILE(tests__queue_functions);
 }
 
 int main(int argc, char *argv[])

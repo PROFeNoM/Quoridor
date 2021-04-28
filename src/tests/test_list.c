@@ -76,14 +76,16 @@ int test__list__get_after_adding()
 	return 1;
 }
 
-int test__list__change_after_adding()
+int test__list__change_after_adding_multiple_values()
 {
 	struct list* lst = list__empty(int_copy, free_int);
 	int v1 = 3;
 	list__add(lst, &v1);
 	int v2 = 1;
-	list__change(lst, 0, &v2);
-	ASSERT_EQUAL(v2, *((int*)list__get(lst, 0)));
+	list__add(lst, &v2);
+	int v3 = 2;
+	list__change(lst, 0, &v3);
+	ASSERT_EQUAL(v3, *((int*)list__get(lst, 0)));
 	list__free(lst);
 
 	return 1;
@@ -97,5 +99,5 @@ void tests__list_functions()
 	TEST_FUNCTION(test__list__size_with_an_empty_list);
 	TEST_FUNCTION(test__list__size_with_after_adding);
 	TEST_FUNCTION(test__list__get_after_adding);
-	TEST_FUNCTION(test__list__change_after_adding);
+	TEST_FUNCTION(test__list__change_after_adding_multiple_values);
 }
