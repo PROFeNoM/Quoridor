@@ -52,9 +52,11 @@ int test__queue__is_empty_after_enqueue_dequeue()
 	int v1 = 3, v2 = 6;
 	queue__enqueue(q, &v1);
 	queue__enqueue(q, &v2);
-	queue__dequeue(q);
-	queue__dequeue(q);
+	void* d1 = queue__dequeue(q);
+	void* d2 = queue__dequeue(q);
 	ASSERT_TRUE(queue__is_empty(q));
+	_free_int(d1);
+	_free_int(d2);
 	queue__free(q);
 
 	return 1;
@@ -75,9 +77,13 @@ int test__queue__dequeue_after_enqueue()
 	int v1 = 3, v2 = 6;
 	queue__enqueue(q, &v1);
 	queue__enqueue(q, &v2);
-	ASSERT_EQUAL(v1, *((int*)queue__dequeue(q)));
-	ASSERT_EQUAL(v2, *((int*)queue__dequeue(q)));
+	void* d1 = queue__dequeue(q);
+	ASSERT_EQUAL(v1, *((int*)d1));
+	void* d2 = queue__dequeue(q);
+	ASSERT_EQUAL(v2, *((int*)d2));
 	ASSERT_NULL(queue__dequeue(q));
+	_free_int(d1);
+	_free_int(d2);
 	queue__free(q);
 
 	return 1;
