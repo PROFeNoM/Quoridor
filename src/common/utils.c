@@ -170,7 +170,7 @@ int is_player_blocked(struct graph_t* graph, size_t position, enum color_t playe
 int is_overlapping_wall(struct graph_t* graph, size_t min_e1, size_t max_e1, size_t min_e2, size_t max_e2)
 {
     return (get_connection_type(graph, min_e1, min_e2) == POINT_TO_EAST && get_connection_type(graph, max_e1, max_e2) == POINT_TO_WEST)
-        || (get_connection_type(graph, min_e1, min_e2) == POINT_TO_NORTH && get_connection_type(graph, max_e1, max_e2) == POINT_TO_SOUTH);
+        || (get_connection_type(graph, min_e1, min_e2) == POINT_TO_SOUTH && get_connection_type(graph, max_e1, max_e2) == POINT_TO_NORTH);
 }
 
 // size of e is 2
@@ -190,31 +190,25 @@ int can_add_wall(struct graph_t* graph, struct edge_t e[], size_t p1_position, s
 	if (!(is_connected(graph, e[0].fr, e[0].to) && is_connected(graph, e[1].fr, e[1].to)))
 		return 0;
 
+	size_t max_e1 = e[0].fr > e[0].to ? e[0].fr : e[0].to;
+	size_t min_e1 = e[0].to < e[0].fr ? e[0].to : e[0].fr;
+	size_t max_e2 = e[1].fr > e[1].to ? e[1].fr : e[1].to;
+	size_t min_e2 = e[1].to < e[1].fr ? e[1].to : e[1].fr;
+
 	// Check vertices relation
 	if (is_horizontal_connection(graph, e[0].fr, e[0].to) && is_horizontal_connection(graph, e[1].fr, e[1].to))
 	{
-	  size_t max_e1 = e[0].fr > e[0].to ? e[0].fr : e[0].to;
-	  size_t min_e1 = e[0].to < e[0].fr ? e[0].to : e[0].fr;
-	  size_t max_e2 = e[1].fr > e[1].to ? e[1].fr : e[1].to;
-	  size_t min_e2 = e[1].to < e[1].fr ? e[1].to : e[1].fr;
-	  
-	  if (!((is_connected(graph, max_e1, max_e2) && is_vertical_connection(graph, max_e1, max_e2)) || (is_connected(graph, min_e1, min_e2) && is_vertical_connection(graph, min_e1, min_e2)))
-          && is_overlapping_wall(graph, min_e1, max_e1, min_e2, max_e2)){
-	    return 0;
-	    }
+		if (!((is_connected(graph, max_e1, max_e2) <= is_vertical_connection(graph, max_e1, max_e2))
+				|| (is_connected(graph, min_e1, min_e2) <= is_vertical_connection(graph, min_e1, min_e2)))
+				|| is_overlapping_wall(graph, min_e1, max_e1, min_e2, max_e2))
+			return 0;
 	}
 	else if (is_vertical_connection(graph, e[0].fr, e[0].to) && is_vertical_connection(graph, e[1].fr, e[1].to)) // North-South relation
 	{
-
-	  size_t max_e1 = e[0].fr > e[0].to ? e[0].fr : e[0].to;
-	  size_t min_e1 = e[0].to < e[0].fr ? e[0].to : e[0].fr;
-	  size_t max_e2 = e[1].fr > e[1].to ? e[1].fr : e[1].to;
-	  size_t min_e2 = e[1].to < e[1].fr ? e[1].to : e[1].fr;
-	  if (!((is_connected(graph, max_e1, max_e2) && is_horizontal_connection(graph, max_e1, max_e2)) || (is_connected(graph, min_e1, min_e2) && is_horizontal_connection(graph, min_e1, min_e2)))
-          && is_overlapping_wall(graph, min_e1, max_e1, min_e2, max_e2)){
-	    return 0;
-	    }
-	  
+		if (!((is_connected(graph, max_e1, max_e2) <= is_horizontal_connection(graph, max_e1, max_e2))
+				|| (is_connected(graph, min_e1, min_e2) <= is_horizontal_connection(graph, min_e1, min_e2)))
+				|| is_overlapping_wall(graph, min_e1, max_e1, min_e2, max_e2))
+			return 0;
 	}
 	else {
 	  return 0;
