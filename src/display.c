@@ -21,9 +21,17 @@
 // Reset the console to default color
 #define set_default_foreground() printf("\033[39m")
 
+/**
+ * Width of a graph
+ */
 static size_t graph_width = 0;
 
-int is_valid_graph_position(struct graph_t *graph, size_t vertex)
+/**
+ * Predicate to know if a vertex has at least one connection
+ * @param graph Graph representing the board
+ * @param vertex Vertex to consider
+ */
+int has_more_than_zero_connection(struct graph_t *graph, size_t vertex)
 {
     return (vertex < graph->num_vertices-1 && gsl_spmatrix_uint_get(graph->t, vertex, vertex + 1) != NOT_CONNECTED)
     || (vertex > 0 && gsl_spmatrix_uint_get(graph->t, vertex, vertex - 1) != NOT_CONNECTED)
@@ -31,6 +39,12 @@ int is_valid_graph_position(struct graph_t *graph, size_t vertex)
     || (vertex >= graph_width && gsl_spmatrix_uint_get(graph->t, vertex, vertex - graph_width) != NOT_CONNECTED);
 }
 
+/**
+ * Display the right link of a vertex if there is one
+ * @param from Vertex right to consider
+ * @param to Vertex left to consider
+ * @param graph Graph representing the board
+ */
 void display_right_link(size_t from, size_t to, struct graph_t *graph)
 {
     if (from < graph->num_vertices - 1 && is_connected(graph, from, to))
@@ -39,6 +53,12 @@ void display_right_link(size_t from, size_t to, struct graph_t *graph)
         printf(" ");
 }
 
+/**
+ * Display the left link of a vertex if there is one
+ * @param from Vertex left to consider
+ * @param to Vertex right to consider
+ * @param graph Graph representing the board
+ */
 void display_left_link(size_t from, size_t to, struct graph_t *graph)
 {
     if (from > 0 && is_connected(graph, from, to))
@@ -47,17 +67,31 @@ void display_left_link(size_t from, size_t to, struct graph_t *graph)
         printf(" ");
 }
 
+/**
+ * Shift display by size `spaces`
+ * @param size shift to do
+ */
 void print_shift(int size)
 {
     printf("%*s", size, "");
 }
 
+/**
+ * Display a new line
+ */
 void print_new_line()
 {
     printf("\n");
 }
 
-void display_bottom_link(struct graph_t *graph, size_t y, size_t graph_width, size_t shift, size_t size_display)
+/**
+ * Display the bottom link for all vertex at `y` line position in the graph
+ * @param graph Graph representing the board
+ * @param y Line of the graph to consider in order to look for bottom link
+ * @param shift Shift before displaying bottom link of the graph line
+ * @param size_display Size allowed to display and to fill if necessary
+ */
+void display_bottom_link(struct graph_t *graph, size_t y, size_t shift, size_t size_display)
 {
     char *bottom_link = "";
     for (size_t x = 0; x < graph_width && y < graph_width - 1; x++)
@@ -73,6 +107,17 @@ void display_bottom_link(struct graph_t *graph, size_t y, size_t graph_width, si
         print_shift(shift);
 }
 
+/**
+ * Display a cell depending on predicate:
+ * if it is a player position then display him,
+ * else if it is a vertex owned by a player then display it with the color of the player,
+ * else if it is an vertex then display it,
+ * else display `space`
+ * @param vertex Position of the cell to consider
+ * @param graph Graph representing the board
+ * @param player_one_pos Position of player one
+ * @param player_two_pos Position of player two
+ */
 void display_cell(size_t vertex, struct graph_t *graph, size_t player_one_pos, size_t player_two_pos)
 {
     if (vertex == player_one_pos)
@@ -99,7 +144,7 @@ void display_cell(size_t vertex, struct graph_t *graph, size_t player_one_pos, s
         printf("■");
         set_default_foreground();
     }
-    else if (is_valid_graph_position(graph, vertex))
+    else if (has_more_than_zero_connection(graph, vertex))
     {
         printf("⬚");
     }
@@ -109,6 +154,13 @@ void display_cell(size_t vertex, struct graph_t *graph, size_t player_one_pos, s
     }
 }
 
+/**
+ * Display the board of a game
+ * @param graph Graph representing the board
+ * @param size_display Size allowed to display and to fill if necessary
+ * @param p1_pos Position of player one
+ * @param p2_pos Position of player two
+ */
 void display_board(struct graph_t *graph, size_t size_display, size_t p1_pos, size_t p2_pos)
 {
     graph_width = (size_t)sqrt(graph->num_vertices);
@@ -133,12 +185,16 @@ void display_board(struct graph_t *graph, size_t size_display, size_t p1_pos, si
         print_new_line();
         
         print_shift(shift_print);
-        display_bottom_link(graph, y, graph_width, shift_print, size_display);
+        display_bottom_link(graph, y, shift_print, size_display);
         print_new_line();
     }
     set_default();
 }
 
+/**
+ * Display an horizontal separation
+ * @param size Size of the horizontal separation wanted
+ */
 void display_border(size_t size)
 {
     char border[size + 1];
@@ -148,6 +204,13 @@ void display_border(size_t size)
     printf("%s\n", border);
 }
 
+/**
+ * Display header informations
+ * (e.g to displaying current player's name and turn number)
+ * @param size_display Size allowed to display and to fill if necessary
+ * @param turn Current number of turn
+ * @param current_player_name Current player's name
+ */
 void display_header(size_t size_display, size_t turn, char const *current_player_name)
 {
     printf("\n%*s-- Turn %3zu --\n", (int)(size_display)/ 2 - 7, "", turn);
@@ -156,6 +219,11 @@ void display_header(size_t size_display, size_t turn, char const *current_player
     display_border(size_display);
 }
 
+/**
+ * Display footer informations
+ * (e.g to displaying a separation of size size)
+ * @param size 
+ */
 void display_footer(size_t size)
 {
     display_border(size);
@@ -207,6 +275,9 @@ void display_winner(struct server *server, size_t turn, enum color_t winner)
         printf("The winner is %s whose name is %s\n", get_name_type_player(winner), server->players[winner].get_player_name());
 }
 
+/**
+ *  @todo : Remove
+ */
 void display_graph_value(struct graph_t *graph)
 {
     printf("      ");
