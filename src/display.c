@@ -21,10 +21,14 @@
 // Reset the console to default color
 #define set_default_foreground() printf("\033[39m")
 
+static size_t graph_width = 0;
 
 int is_valid_graph_position(struct graph_t *graph, size_t vertex)
 {
-    return gsl_spmatrix_uint_get(graph->t, vertex, 0) != NOT_CONNECTED;
+    return (vertex < graph->num_vertices-1 && gsl_spmatrix_uint_get(graph->t, vertex, vertex + 1) != NOT_CONNECTED)
+    || (vertex > 0 && gsl_spmatrix_uint_get(graph->t, vertex, vertex - 1) != NOT_CONNECTED)
+    || (vertex < graph->num_vertices - graph_width && gsl_spmatrix_uint_get(graph->t, vertex, vertex + graph_width) != NOT_CONNECTED)
+    || (vertex >= graph_width && gsl_spmatrix_uint_get(graph->t, vertex, vertex - graph_width) != NOT_CONNECTED);
 }
 
 void display_right_link(size_t from, size_t to, struct graph_t *graph)
@@ -107,7 +111,7 @@ void display_cell(size_t vertex, struct graph_t *graph, size_t player_one_pos, s
 
 void display_board(struct graph_t *graph, size_t size_display, size_t p1_pos, size_t p2_pos)
 {
-    size_t graph_width = (size_t)sqrt(graph->num_vertices);
+    graph_width = (size_t)sqrt(graph->num_vertices);
     size_t shift_print = ((size_display + 1) / 2) - ((3 * graph_width+1) / 2); 
 
     set_back_color(GREY_COLOR);

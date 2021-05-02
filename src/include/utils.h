@@ -11,7 +11,7 @@ enum wall_orientation_t {
     POINT_TO_SOUTH,
     POINT_TO_WEST,
     POINT_TO_EAST,
-    NOT_CONNECTED
+    NOT_CONNECTED = 0
 };
 
 /**
