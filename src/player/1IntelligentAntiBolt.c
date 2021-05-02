@@ -196,24 +196,18 @@ size_t get_dijsktra(){
   size_t vertice;
   size_t num =player.graph->num_vertices; 
   size_t length = num * num;
-  
-  for (size_t v = 0 ; v < MAX_POSSIBILITIES ; v++){
-    
-    if (player.pos_possibilities[v] < (num * num)){
-      for (size_t i = 0 ; i < num ; i++){
-    
-	if (is_owned(player.graph,get_next_player(player.id),i)){
-	  //printf(" %ld ",i);
-	  size_t l = dijsktra(player.graph,player.pos_possibilities[v],i);
 
-	  if (l <= length){
-	    length = l;
-	    vertice = player.pos_possibilities[v];
-	  }
+  size_t dst[length];
+  size_t index=0;
+  for (size_t i = 0 ; i < num ; i++){
+	if (is_owned(player.graph,get_next_player(player.id),i)){
+	  dst[index] = i;
+	  index += 1;
 	}
-      }
-    }
   }
+  
+  vertice = dijsktra(player.graph,player.position[player.id],player.position[get_next_player(player.id)],dst,index);
+
   return vertice;
 }
 	
@@ -234,9 +228,9 @@ struct move_t get_new_move()
   }
   get_right_next_place(player.position[player.id],player.position[get_next_player(player.id)]);
   
+  
   size_t vertice = get_dijsktra();
   set_possibilities_to_zero();
-  //size_t vertice = mini_dijsktra(player.graph,player.position[player.id],player.id);
 
     player.position[player.id] = vertice;
 
@@ -276,7 +270,7 @@ void update(struct move_t previous_move)
  */
 struct move_t play(struct move_t previous_move)
 {
-  printf(" id = %d \n",player.id);
+  
   if (is_first_move()){
         return get_first_move();
   }
