@@ -150,8 +150,7 @@ struct move_t get_wall(){
       
       struct edge_t edge1[2]={e,e1};
       struct edge_t edge2[2]={e,e2};
-      //printf("\n\n\n can %d = \n",can_add_wall(player.graph,edge1,position_player_1,position_player_2));
-      //printf("%ld to %ld | %ld to %ld \n",e.fr,e.to,e1.fr,e1.to);
+      
       if (can_add_wall(player.graph,edge1,position_player_1,position_player_2) && (e.fr/m == e1.fr/m)){
 	struct move_t new_move = set_move(player.position[player.id], e, e1, player.id, WALL);
 	player.num_walls -= 1;
