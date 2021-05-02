@@ -147,15 +147,16 @@ void run_server(struct server *server, int print, int delay)
     move = player_placement(server, move, BLACK);
     move = player_placement(server, move, WHITE);
 
-	printf("Black position: %zd\n", server->players[BLACK].pos);
-	printf("White position: %zd\n", server->players[WHITE].pos);
+    if (print) {
+        printf("Black position: %zd\n", server->players[BLACK].pos);
+        printf("White position: %zd\n", server->players[WHITE].pos);
+    }
 
     // Play until one player has cheat
     // or is winning
     // or the number maximum of turn is attained
     do
     {
-    	//printf("%s to play\n", get_next_player(move.c) == BLACK ? "Black" : "White");
         if (print) {
             display_game(server, turn, move.c);
             if (turn > 0) {
@@ -163,8 +164,9 @@ void run_server(struct server *server, int print, int delay)
                 printf("Black position: %zd\n", server->players[BLACK].pos);
                 printf("White position: %zd\n", server->players[WHITE].pos);
             }
-            sleep(delay);
         }
+        if (delay)
+            sleep(delay);
         turn++;
         move = play_player_turn(server, move, get_next_player(move.c), &has_cheat);
     } while (!has_cheat && turn < TURN_MAX && !is_winning(server->graph.graph, move.c, server->players[move.c].pos));
@@ -180,7 +182,7 @@ void run_server(struct server *server, int print, int delay)
             display_winner(server, turn, get_next_player(move.c));
     }
 
-    printf("\nTime elapsed: %ld seconds.\n", time(NULL) - start);
+    printf("\nTime elapsed: %ld seconds.\n\n", time(NULL) - start);
 
 }
 
