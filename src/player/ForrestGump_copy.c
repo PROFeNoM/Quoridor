@@ -167,6 +167,9 @@ struct move_t get_new_move()
     struct move_t new_move = set_move(pos[ind], no_edge(), no_edge(), player.id, MOVE);
     return new_move;
   }
+
+  struct move_t no_move = set_move(player.position[player.id], no_edge(), no_edge(), player.id, NO_TYPE);
+  return no_move;
 }
 
 
