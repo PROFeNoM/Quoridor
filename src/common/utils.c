@@ -83,7 +83,7 @@ int is_connected(struct graph_t* graph, size_t from, size_t to)
 
 int is_vertex_in_graph(struct graph_t* graph, size_t vertex)
 {
-    return vertex < graph->num_vertices;
+    return vertex < graph->num_vertices && vertex > 0;
 }
 
 int is_horizontal_connection(struct graph_t* graph, size_t from, size_t to)
