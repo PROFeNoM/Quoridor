@@ -3,6 +3,14 @@
 
 #include "graph.h"
 
-size_t dijsktra(struct graph_t * graph,size_t src,size_t other_player, size_t dst[],size_t);
+/**
+ * Apply dijsktra algorithm to a graph in order to obtain the vertex belonging to the shortest path to one of the dst vertices
+ * @param graph Graph representing the board to consider
+ * @param dst Array containing the possible destination vertices
+ * @param dst_size Number of possible destination (need to be > 0)
+ * @param player Vertex where dijkstra algorithm start (the player position)
+ * @param other_player Position of the other player
+ */
+size_t dijsktra(struct graph_t *graph, size_t dst[], size_t dst_size, size_t player, size_t other_player);
 
 #endif // _DIJSKTRA_H_
