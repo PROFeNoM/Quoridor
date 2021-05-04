@@ -481,13 +481,13 @@ int test_is_move_legal()
     struct graph_t* graph1 = get_graph('c', 3);
 
     struct move_t m1 = { 1, { no_edge(), no_edge() }, MOVE, BLACK };
-    ASSERT_TRUE(is_move_legal(graph1, &m1, 4, 2) == 1);
+    ASSERT_TRUE(is_move_legal(graph1, &m1, 4, 2, 1) == 1);
 
     struct move_t m2 = { 0, { no_edge(), no_edge() }, MOVE, WHITE };
-    ASSERT_TRUE(is_move_legal(graph1, &m2, 1, 6) == 0);
+    ASSERT_TRUE(is_move_legal(graph1, &m2, 1, 6, 1) == 0);
 
     struct move_t m3 = { 2, { no_edge(), no_edge() }, MOVE, BLACK };
-    ASSERT_TRUE(is_move_legal(graph1, &m3, 0, 1) == 1);
+    ASSERT_TRUE(is_move_legal(graph1, &m3, 0, 1, 1) == 1);
 
 
     struct graph_t* graph2 = get_graph('c', 4);
@@ -498,13 +498,16 @@ int test_is_move_legal()
     add_wall(graph2, e1);
 
     struct move_t m4 = { 9, { no_edge(), no_edge() }, MOVE, BLACK };
-    ASSERT_TRUE(is_move_legal(graph2, &m4, 6, 5) == 1);
+    ASSERT_TRUE(is_move_legal(graph2, &m4, 6, 5, 1) == 1);
 
     struct move_t m5 = { 1, { no_edge(), no_edge() }, MOVE, BLACK };
-    ASSERT_TRUE(is_move_legal(graph2, &m5, 6, 5) == 1);
+    ASSERT_TRUE(is_move_legal(graph2, &m5, 6, 5, 1) == 1);
 
     struct move_t m6 = { 4, { no_edge(), no_edge() }, MOVE, BLACK };
-    ASSERT_TRUE(is_move_legal(graph2, &m6, 6, 5) == 0);
+    ASSERT_TRUE(is_move_legal(graph2, &m6, 6, 5, 1) == 0);
+
+    struct move_t m7 = { 4, { no_edge(), no_edge() }, WALL, BLACK };
+    ASSERT_TRUE(is_move_legal(graph2, &m7, 6, 5, 0) == 0);
 
     graph_free(graph1);
     graph_free(graph2);

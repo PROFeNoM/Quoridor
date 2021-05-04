@@ -172,9 +172,10 @@ int can_player_move_to(struct graph_t* graph, size_t vertex, enum color_t active
  * @param move Move structure to check for legality
  * @param p1_position Position of the first player on the board
  * @param p2_position Position of the second player on the board
+ * @param num_walls Number of walls left for the player
  * @return 1 if the move is legal, else 0
  */
-int is_move_legal(struct graph_t* graph, struct move_t* move, size_t p1_position, size_t p2_position);
+int is_move_legal(struct graph_t* graph, struct move_t* move, size_t p1_position, size_t p2_position, size_t num_walls);
 
 /**
  * Release allocated memory for a graph

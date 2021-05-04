@@ -165,7 +165,7 @@ struct move_t play_player_turn(struct server *server, struct move_t move, enum c
 {
     move = server->players[get_next_player(move.c)].play(move);
 
-    if (is_move_legal(server->graph.graph, &move, server->players[BLACK].pos, server->players[WHITE].pos)) {
+    if (is_move_legal(server->graph.graph, &move, server->players[BLACK].pos, server->players[WHITE].pos, server->players[id].num_wall)) {
       update(server, move);//server->graph.graph, move, &server->players[id].pos, &server->players[id].num_wall);
         *cheat = 0;
     }
