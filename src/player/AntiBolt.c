@@ -2,12 +2,14 @@
 #include <math.h>
 #include "utils.h"
 #include "player.h"
+#include "correlation_graph.h"
 
 #define UNINITIALIZED 0
 
 struct player
 {
   struct graph_t *graph; //graph of the player
+  struct near_neighbours *neighbours_graph;
   size_t position[2];    //position of the two players on the board
   size_t num_walls;      //number of walls in the hand of the player
   int best_direction;
@@ -51,6 +53,7 @@ void initialize(enum color_t id, struct graph_t *graph, size_t num_walls)
             player.best_direction = NORTH;
         player.position[BLACK] = graph->num_vertices;
         player.position[WHITE] = graph->num_vertices;
+	player.neighbours_graph = get_correlated_graph(player.graph);
         graph_free(graph);
     }
     else
@@ -107,128 +110,128 @@ struct move_t get_first_move()
     return first_move;
 }
 
+int have_righ_line_between_player_win(struct graph_t * graph, size_t position, enum color_t id)
+{
+  size_t vertex = position;
+  if (is_owned(graph,get_next_player(id),vertex)){
+      return 1;
+  }
+
+  if (id == 0){
+    vertex = player.neighbours_graph[vertex].south;
+    while (is_vertex_in_graph(graph,vertex)){
+      if (is_owned(graph,get_next_player(id),vertex)){
+	return 1;
+      }
+      vertex = player.neighbours_graph[vertex].south;
+    }
+  }
+  else {
+    vertex = player.neighbours_graph[vertex].north;
+    while (is_vertex_in_graph(graph,vertex)){
+      if (is_owned(graph,get_next_player(id),vertex)){
+	return 1;
+      }
+      vertex = player.neighbours_graph[vertex].north;
+    }
+  }
+  return 0;
+}
+      
 struct move_t get_wall(){
 
   size_t position_player_1;
   size_t position_player_2;
   size_t m = sqrt(player.graph->t->size1);
 
-  position_player_1 = player.position[BLACK];
-  position_player_2 = player.position[WHITE];
+  position_player_1 = player.position[player.id];
+  position_player_2 = player.position[get_next_player(player.id)];
 
+  //printf("right line = %d \n",have_righ_line_between_player_win(player.graph, position_player_2,get_next_player(player.id)));
   
-  
-  if (player.num_walls != 0 && ((player.max_walls-player.num_walls) < m)){
+  if (player.num_walls > 0 && have_righ_line_between_player_win(player.graph, position_player_2, get_next_player(player.id))){
     
-    if (player.num_walls == player.max_walls || player.col != position_player_2 % m){
-    
-      
-      player.col = player.position[get_next_player(player.id)] % m;
-      size_t num = player.position[get_next_player(player.id)] % m;
-      struct edge_t e;
-      struct edge_t e1;
-      struct edge_t e2;
-      size_t place;
-      if (player.id == WHITE){
-	place = (m*m)-(m-num);
-	e.fr = place;
-	e.to = place-m;	
-	e1.fr = place+1;
-	e1.to = place-m+1;
-	e2.fr = place-1;
-	e2.to = place-m-1;
+    struct edge_t e;
+    struct edge_t e1;
+    struct edge_t e2;
+    size_t place = position_player_2;
+    if (player.id == WHITE){
+
+      while ((! is_owned(player.graph,player.id,place)) && is_vertex_in_graph(player.graph,place)){
+	place = player.neighbours_graph[place].south;
       }
-      else {
-	place = num;
-	e.fr = place;
-	e.to = place+m;
-	e1.fr = place+1;
-	e1.to = place+m+1;
-	e2.fr = place-1;
-	e2.to = place+m-1;
-      }
-      
-      struct edge_t edge1[2]={e,e1};
-      struct edge_t edge2[2]={e,e2};
-      
-      if (can_add_wall(player.graph,edge1,position_player_1,position_player_2) && (e.fr/m == e1.fr/m)){
-	struct move_t new_move = set_move(player.position[player.id], e, e1, player.id, WALL);
-	player.num_walls -= 1;
-	
-	
-	return new_move;
-      }
-      if (can_add_wall(player.graph,edge2,position_player_1,position_player_2) && (e.fr/m == e2.fr/m)){
-	struct move_t new_move = set_move(player.position[player.id], e, e2, player.id, WALL);
-	player.num_walls -= 1;
-	return new_move;
-      }
+      e.fr = place;
+      e.to = player.neighbours_graph[place].north;	
+      e1.fr = player.neighbours_graph[place].east;
+      e1.to = player.neighbours_graph[player.neighbours_graph[place].north].east;
+      e2.fr = player.neighbours_graph[place].west;
+      e2.to = player.neighbours_graph[player.neighbours_graph[place].north].west;
     }
-    /*
     else {
-      
-      size_t num = position_player_2 % m;
-      size_t diff = player.max_walls - player.num_walls;
-
-      if (diff < m-2){
-	size_t place;
-	struct edge_t e;
-	struct edge_t e1;
-	struct edge_t e2;
-	struct edge_t e3;
-	if (player.id == WHITE){
-	  if (player.max_walls-player.num_walls > 1){
-	    place = (m*m)-(2*diff*m-num);
-	  }
-	  else {
-	    place = (m*m)-(m-num);
-	  }
-	  e.fr = place;
-	  e.to = place+1;
-	  e1.fr = place-m;
-	  e1.to = place-m+1;
-	  e2.fr = place;
-	  e2.to = place-1;
-	  e3.fr = place-m;
-	  e3.to = place-m-1;
-	}
-	else{
-	  if (player.max_walls-player.num_walls > 1){
-	    place = num+2*diff*m;
-	  }
-	  else {
-	    place = num+(2*diff-1)*m;
-	  }
-	  e.fr = place;
-	  e.to = place+1;
-	  e1.fr = place+m;
-	  e1.to = place+m+1;
-	  e2.fr = place;
-	  e2.to = place-1;
-	  e3.fr = place+m;
-	  e3.to = place+m-1;
-	}
-	struct edge_t edge1[2]={e,e1};
-	struct edge_t edge2[2]={e2,e3};
-	if (can_add_wall(player.graph,edge1,position_player_1,position_player_2)){
-	  struct move_t new_move = set_move(player.position[player.id], e, e1, player.id, WALL);
-	  player.num_walls -= 1;
-	  return new_move;
-	}
-	if (can_add_wall(player.graph,edge2,position_player_1,position_player_2)){
-	  struct move_t new_move = set_move(player.position[player.id], e, e2, player.id, WALL);
-	  player.num_walls -= 1;
-	  return new_move;
-	}
+      while (! is_owned(player.graph,player.id,place) && is_vertex_in_graph(player.graph,place)){
+	place = player.neighbours_graph[place].north;
       }
+      e.fr = place;
+      e.to = player.neighbours_graph[place].south;	
+      e1.fr = player.neighbours_graph[place].east;
+      e1.to = player.neighbours_graph[player.neighbours_graph[place].south].east;
+      e2.fr = player.neighbours_graph[place].west;
+      e2.to = player.neighbours_graph[player.neighbours_graph[place].south].west;      
     }
-    */
+      
+    struct edge_t edge1[2]={e,e1};
+    struct edge_t edge2[2]={e,e2};
+      
+    if (can_add_wall(player.graph,edge1,position_player_1,position_player_2) && (e.fr/m == e1.fr/m)){
+      struct move_t new_move = set_move(player.position[player.id], e, e1, player.id, WALL);
+      player.num_walls -= 1;
+	
+	
+      return new_move;
+    }
+    if (can_add_wall(player.graph,edge2,position_player_1,position_player_2) && (e.fr/m == e2.fr/m)){
+      struct move_t new_move = set_move(player.position[player.id], e, e2, player.id, WALL);
+      player.num_walls -= 1;
+      return new_move;
+    }
   }
     
   struct move_t new_move = set_move(player.position[player.id], no_edge(), no_edge(), player.id, NO_TYPE);
   return new_move;
 }
 	
+void get_vertices_to_test(size_t vertices_to_test[], size_t position)
+{
+  if (player.best_direction == NORTH) {
+    vertices_to_test[0] = player.neighbours_graph[player.neighbours_graph[position].north].north;
+    vertices_to_test[1] = player.neighbours_graph[position].north;
+    vertices_to_test[2] = player.neighbours_graph[player.neighbours_graph[position].north].west; 
+    vertices_to_test[3] = player.neighbours_graph[player.neighbours_graph[position].north].east;
+    vertices_to_test[4] = player.neighbours_graph[position].west;
+    vertices_to_test[5] = player.neighbours_graph[position].east;
+    vertices_to_test[6] = player.neighbours_graph[player.neighbours_graph[position].west].west;
+    vertices_to_test[7] = player.neighbours_graph[player.neighbours_graph[position].east].east;
+    vertices_to_test[8] = player.neighbours_graph[position].south;
+    vertices_to_test[9] = player.neighbours_graph[player.neighbours_graph[position].south].west;
+    vertices_to_test[10] = player.neighbours_graph[player.neighbours_graph[position].south].east;
+    vertices_to_test[11] = player.neighbours_graph[player.neighbours_graph[position].south].south;			
+  }
+
+  else {
+    vertices_to_test[0] = player.neighbours_graph[player.neighbours_graph[position].south].south;
+    vertices_to_test[1] = player.neighbours_graph[position].south;
+    vertices_to_test[2] = player.neighbours_graph[player.neighbours_graph[position].south].east; 
+    vertices_to_test[3] = player.neighbours_graph[player.neighbours_graph[position].south].west;
+    vertices_to_test[4] = player.neighbours_graph[position].east;
+    vertices_to_test[5] = player.neighbours_graph[position].east;
+    vertices_to_test[6] = player.neighbours_graph[player.neighbours_graph[position].east].west;
+    vertices_to_test[7] = player.neighbours_graph[player.neighbours_graph[position].west].west;
+    vertices_to_test[8] = player.neighbours_graph[position].north;
+    vertices_to_test[9] = player.neighbours_graph[player.neighbours_graph[position].north].west;
+    vertices_to_test[10] = player.neighbours_graph[player.neighbours_graph[position].north].west;
+    vertices_to_test[11] = player.neighbours_graph[player.neighbours_graph[position].north].north;
+  }
+}
 
   
 
@@ -245,39 +248,22 @@ struct move_t get_new_move()
     return possibility;
   }
   
-    size_t nb_pos = 0;
-    size_t pos[player.graph->num_vertices];
-    size_t best_move = player.graph->num_vertices;
+  size_t position = player.position[player.id];
 
-    size_t position_player1 = player.position[BLACK];
-    size_t position_player2 = player.position[WHITE];
+  size_t position_player1 = player.position[BLACK];
+  size_t position_player2 = player.position[WHITE];
 
-    //research of available positions
-    for (size_t j = 0; j < player.graph->num_vertices; j++)
-    {
-        if (can_player_move_to(player.graph, j, player.id, position_player1, position_player2)){
-            pos[nb_pos] = j;
-            if (get_connection_type(player.graph, player.position[player.id], j) == player.best_direction) {
-                best_move = nb_pos;
-                break;
-            }
-            nb_pos++;
-        }
+  size_t vertices_to_test[12];
+  get_vertices_to_test(vertices_to_test, position);
+
+  for (size_t i = 0; i < 12; i++) {
+    if (can_player_move_to(player.graph, vertices_to_test[i], player.id, position_player1, position_player2)) {
+      return set_move(vertices_to_test[i], no_edge(), no_edge(), player.id, MOVE);
     }
-
-    //choice of an available position
-    size_t ind;
-    if (best_move == player.graph->num_vertices)
-        ind = (size_t)rand() % nb_pos;
-    else
-        ind = best_move;
-    player.position[player.id] = pos[ind];
-
-    //move to the position
-    struct move_t new_move = set_move(player.position[player.id], no_edge(), no_edge(), player.id, MOVE);
-
-    return new_move;
+  }
+  return set_move(0, no_edge(), no_edge(), player.id, NO_TYPE);
 }
+
 
 /*
  * Return true if the player is not placed yet.
@@ -328,5 +314,6 @@ struct move_t play(struct move_t previous_move)
  */
 void finalize()
 {
+  free_correlation_graph(player.neighbours_graph);
     graph_free(player.graph);
 }
