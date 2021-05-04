@@ -33,15 +33,23 @@ void initialize_neighbours(size_t index, struct near_neighbours neighbours_graph
   neighbours_graph[index].east = no_neighbour;
 }
 
-void get_correlated_graph(struct graph_t *graph, struct near_neighbours neighbours_graph[])
+struct near_neighbours *get_correlated_graph(struct graph_t *graph)
 {
+  size_t size = graph->t->size1*graph->t->size2;
+  struct near_neighbours *neighbours_graph = malloc(size * sizeof(struct near_neighbours));
   for (size_t i = 0; i < graph->t->size1; i++) {
-    initialize_neighbours(i, neighbours_graph, graph->num_vertices);
+    initialize_neighbours(i, neighbours_graph, size);
     
     for (size_t j = 0; j < graph->t->size2; j++) {  
       enum direction_t direction = get_connection_type(graph, i, j);
       
-      set_neighbour(i, j, direction, neighbours_graph, size);
+      set_neighbour(i, j, direction, neighbours_graph);
     }
   }
+  return neighbours_graph;
+}
+
+void free_correlation_graph(struct near_neighbours *neighbours_graph)
+{
+  free(neighbours_graph);
 }
