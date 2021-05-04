@@ -1,7 +1,5 @@
 #include "utils.h"
 #include "dijsktra.h"
-#include <string.h>
-#include  <math.h>
 
 /**
  * Fill `size` cells of `array` with `value`
@@ -28,33 +26,43 @@ void init_array_with_index(size_t array[], size_t size)
 
 /**
  * Look if the player is adjacent of the other player
- * If it is, look for possible particular position case
+ * If it is, look for possible particular move
  * and set distances and predecessors to the right value
  * @param graph Graph representing the board
+ * @param neighbours_graph Array of neighbour's index for each vertex
  * @param distance Array indicating distances from player position
  * @param predecessor Array indicating the predecessor of a vertex when using Dijkstra
  * @param player Position of the player
  * @param other_player Position of the other player
  * @return 1 if the player is adjacent to the other player, 0 else
  */
-size_t look_for_jump(struct graph_t *graph, size_t distance[], size_t predecessor[], size_t player, size_t other_player)
+size_t look_for_jump(struct graph_t *graph, struct near_neighbours neighbours_graph[], size_t distance[], size_t predecessor[], size_t player, size_t other_player)
 {
     if (!is_connected(graph, player, other_player))
         return 0;
 
-    size_t m = sqrt(graph->num_vertices);
     size_t possibilities[8] = {
-        player + 2,     // jump to the right
-        player - 2,     // jump to the left
-        player + 2 * m, // jump below
-        player - 2 * m, // jump up
-        player + 1 + m, // jump right diagonal below
-        player + 1 - m, // jump right diagonal up
-        player - 1 + m, // jump left diagonal below
-        player - 1 - m  // jump left diagonal up
+        neighbours_graph[neighbours_graph[player].east].east,   // jump to the right
+        neighbours_graph[neighbours_graph[player].west].west,   // jump to the left
+        neighbours_graph[neighbours_graph[player].south].south, // jump below
+        neighbours_graph[neighbours_graph[player].north].north, // jump up
+        neighbours_graph[neighbours_graph[player].south].east,  // jump right diagonal below
+        neighbours_graph[neighbours_graph[player].south].west,  // jump left diagonal below
+        neighbours_graph[neighbours_graph[player].north].east,  // jump right diagonal up
+        neighbours_graph[neighbours_graph[player].north].west,  // jump left diagonal up
     };
 
-    for (int i = 0; i < 8; i++)
+    for (size_t i = 0; i < 4; i++)
+    {
+        if (can_player_move_to(graph, possibilities[i], 0, player, other_player))
+        {
+            //printf("possibility : %ld\n", possibilities[i]);
+            distance[possibilities[i]] = 1;
+            predecessor[possibilities[i]] = player;
+            return 1;
+        }
+    }
+    for (size_t i = 4; i < 8; i++)
     {
         if (can_player_move_to(graph, possibilities[i], 0, player, other_player))
         {
@@ -63,7 +71,6 @@ size_t look_for_jump(struct graph_t *graph, size_t distance[], size_t predecesso
             predecessor[possibilities[i]] = player;
         }
     }
-
     return 1;
 }
 
@@ -111,6 +118,29 @@ size_t get_dist_min_not_visited(size_t distance[], size_t visited[], size_t size
 }
 
 /**
+ * Update distance and predecessor of a `neighbour` of a vertex `from`
+ * if they are always connected
+ * @param graph Graph representing the board
+ * @param neighbours_graph Array of neighbour's index for each vertex
+ * @param distance Array indicating distances from player position
+ * @param predecessor Array indicating the predecessor of a vertex
+ * @param from Index of the actual vertex
+ * @param neighbour From's neighbour index in the graph
+ */
+void update_distance_and_predecessor(struct graph_t *graph, size_t distance[], size_t predecessor[], size_t from, size_t neighbour)
+{
+    if (is_connected(graph, from, neighbour))
+    {
+        if (distance[from] + 1 < distance[neighbour])
+        {
+            //printf(" -> Index : %ld, i : %ld, distance from %ld to %ld\n", index, i, distance[i], length);
+            distance[neighbour] = distance[from] + 1;
+            predecessor[neighbour] = from;
+        }
+    }
+}
+
+/**
  * Return the nearest possible destination vertex
  * @param distance Array containing the distance from the player position related to the vertices i
  * @param dst Array of possible destination
@@ -150,7 +180,7 @@ size_t get_first_step_from_shortest_path(size_t predecessor[], size_t src, size_
     return previous;
 }
 
-size_t dijsktra(struct graph_t *graph, size_t dst[], size_t dst_size, size_t player, size_t other_player)
+size_t dijsktra(struct graph_t *graph, struct near_neighbours neighbours_graph[], size_t dst[], size_t dst_size, size_t player, size_t other_player)
 {
     size_t num = graph->num_vertices;
     size_t visited[num];
@@ -164,28 +194,21 @@ size_t dijsktra(struct graph_t *graph, size_t dst[], size_t dst_size, size_t pla
     // Player position is the source,so it has 0 distance
     distance[player] = 0;
     // If there is a jump possible, then other player position is not attainable
-    visited[other_player] = look_for_jump(graph, distance, predecessor, player, other_player);
+    visited[other_player] = look_for_jump(graph, neighbours_graph, distance, predecessor, player, other_player);
 
-    size_t index = 0;
+    size_t vertex = 0;
     size_t number_visited = visited[other_player];
     while (!is_all_visited(number_visited, num))
     {
-        index = get_dist_min_not_visited(distance, visited, num);
+        vertex = get_dist_min_not_visited(distance, visited, num);
         //printf("Before\nIndex : %ld, distance %ld\nChangement ?\n", index, distance[index]);
-        visited[index] = 1;
+        visited[vertex] = 1;
         number_visited++;
-        for (size_t i = 0; i < num; i++)
-        {
-            if (is_connected(graph, index, i))
-            {
-                if (distance[index] + 1 < distance[i])
-                {
-                    //printf(" -> Index : %ld, i : %ld, distance from %ld to %ld\n", index, i, distance[i], length);
-                    distance[i] = distance[index] + 1;
-                    predecessor[i] = index;
-                }
-            }
-        }
+
+        update_distance_and_predecessor(graph, distance, predecessor, vertex, neighbours_graph[vertex].north);
+        update_distance_and_predecessor(graph, distance, predecessor, vertex, neighbours_graph[vertex].south);
+        update_distance_and_predecessor(graph, distance, predecessor, vertex, neighbours_graph[vertex].west);
+        update_distance_and_predecessor(graph, distance, predecessor, vertex, neighbours_graph[vertex].east);
         //printf("\n");
     }
 
