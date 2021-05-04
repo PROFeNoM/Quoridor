@@ -109,42 +109,6 @@ struct move_t get_first_move()
 }
 
 /**
- * Return an int symbolizingthe direction of the player
- * @param best_direction The direction of the player to win the game
- * @return 1 if the direction is SOUTH, -1 otherwise
- */
-int sign_direction(enum direction_t best_direction)
-{
-  return (1 ? best_direction == SOUTH : -1);
-}
-
-/**
- * Return if available positions exists in the indexes tabular given in parameter
- * @param nb_ind The size of the indexes tabular
- * @param indexes The tabular with position to be tested
- * @param pos The tabular to be update with available positions
- * @param nb_pos The number of available positions in pos to be update
- */
-int exist_available_indexes(int nb_ind, size_t indexes[], size_t pos[], size_t *nb_pos)
-{
-  size_t position_player1 = player.position[BLACK];
-  size_t position_player2 = player.position[WHITE];
-
-  for (int i = 0; i < nb_ind; i++) {
-    if (can_player_move_to(player.graph, indexes[i], player.id, position_player1, position_player2)) {
-      pos[*nb_pos] = indexes[i];
-      *nb_pos += 1;
-    }
-  }
-
-  if (*nb_pos > 0)
-    return 1;
-
-  else
-    return 0;
-}
-
-/**
  * Complete the vertices to test around the position of the player
  * @param vertices_to_test Array of vertices to be tested
  * @param position Player's position
@@ -250,5 +214,6 @@ struct move_t play(struct move_t previous_move)
  */
 void finalize()
 {
-    graph_free(player.graph);
+  free_correlation_graph(player.neighbours_graph);
+  graph_free(player.graph);
 }
