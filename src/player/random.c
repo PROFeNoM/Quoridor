@@ -16,8 +16,9 @@ struct player {
 struct player player = {.name= NULL, .graph = NULL, .position = {UNINITIALIZED, UNINITIALIZED},
 			.id = -1, .num_walls = UNINITIALIZED};
 
-/* 
+/**
  * Return the name of the player strategy
+ * @return the player name 
  */
 char const* get_player_name()
 {
@@ -25,11 +26,11 @@ char const* get_player_name()
   return player.name;
 }
 
-/*
+/**
  * Initialize the player with informations given by the server if he is not already initialize :
- * - id : the id of the player : WHITE or BLACK
- * - graph : the graph to play with
- * - num_walls : the number of walls in the hand of the player
+ * @param id : the id of the player : WHITE or BLACK
+ * @param graph : the graph to play with
+ * @param num_walls : the number of walls in the hand of the player
  */
 void initialize(enum color_t id, struct graph_t* graph, size_t num_walls)
 {
@@ -50,13 +51,14 @@ void initialize(enum color_t id, struct graph_t* graph, size_t num_walls)
     is_initialized = 1;
 }
 
-/*
+/**
  * Initialize and set a move
- * - position : the new position of the player
- * - edge1 : the first edge of the placed wall if a wall has been placed
- * - edge2 : the second edge of the wall
- * - id : the id of the player
- * - movetype : type of the move
+ * @param position : the new position of the player
+ * @param edge1 : the first edge of the placed wall if a wall has been placed
+ * @param edge2 : the second edge of the wall
+ * @param id : the id of the player
+ * @param movetype : type of the move
+ * @return the move set
  */
 struct move_t set_move(size_t position, struct edge_t edge1, struct edge_t edge2, size_t id, enum movetype_t movetype)
 {
@@ -70,8 +72,9 @@ struct move_t set_move(size_t position, struct edge_t edge1, struct edge_t edge2
   return move;
 }
 
-/*
+/**
  * Return the first move for a player : the player is put on one of his own vertices
+ * @return the first move for a player
  */
 struct move_t get_first_move()
 {
@@ -95,9 +98,10 @@ struct move_t get_first_move()
   return first_move;
 }
 
-/*
+/**
  * Update the player with the move of the other player and return a move
- * - previous_move : the previous move of the other player
+ * @param previous_move : the previous move of the other player
+ * @return the player move 
  */
 struct move_t get_new_move()
 {
@@ -123,15 +127,16 @@ struct move_t get_new_move()
   return new_move;
 }
 
-/*
+/**
  * Return true if the player is not placed yet.
+ * @return true if the player is not placed yet.
  */
 int is_first_move()
 {
   return player.position[player.id] == player.graph->num_vertices;
 }
 
-/*
+/**
  * Update the graph of the player with the move of the other player
  */
 void update(struct move_t previous_move)
@@ -145,9 +150,10 @@ void update(struct move_t previous_move)
   }
 }
 
-/*
+/**
  * Return the move of the active player
- * - previous_move : previous move of the other player
+ * @param previous_move : previous move of the other player
+ * @return the player move
  */
 struct move_t play(struct move_t previous_move)
 {
@@ -159,7 +165,7 @@ struct move_t play(struct move_t previous_move)
   return get_new_move();
 }
 
-/*
+/**
  * Free the player
  */
 void finalize()

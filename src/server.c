@@ -6,6 +6,12 @@
 
 #define TURN_MAX 200
 
+/**
+ * Calculate the wall number from edge number of the graph :
+ * @param width : graph width
+ * @param type : graph type
+ * @return the number of walls authorized
+ */
 size_t get_number_of_walls(size_t width, char type)
 {
     switch (type)
@@ -23,6 +29,12 @@ size_t get_number_of_walls(size_t width, char type)
     }
 }
 
+/**
+ * Initializes the server graph :
+ * @param width : graph width
+ * @param type : graph type
+ * @param graph : the server graph unitialized
+ */
 void initialize_graph(size_t width, char type, struct graph_server *graph)
 {
     graph->type = type;
@@ -31,6 +43,10 @@ void initialize_graph(size_t width, char type, struct graph_server *graph)
     graph->graph = get_graph(type, width);
 }
 
+/**
+ * Load protocol player functions of one player  :
+ * @param player : server player uninitialized
+ */
 void *load_player(struct player_server *player)
 {
     static const char *function_name[] = {
@@ -47,6 +63,12 @@ void *load_player(struct player_server *player)
     return player;
 }
 
+/**
+ * Load protocol player functions of the two players of the game  :
+ * @param players : server players unititialized
+ * @param path_lib_player1 : path to the first player librairy function
+ * @param path_lib_player2 : path to the second player librairy function
+ */
 void load_players(struct player_server *players, char *path_lib_player1, char *path_lib_player2)
 {
     if (!(players[BLACK].lib = load_library(path_lib_player1)) || !(players[WHITE].lib = load_library(path_lib_player2)))
@@ -62,6 +84,14 @@ void load_players(struct player_server *players, char *path_lib_player1, char *p
     }
 }
 
+/**
+ * Initializes the server structure  :
+ * @param path_lib_player1 : path to the first player librairy function
+ * @param path_lib_player2 : path to the second player librairy function
+ * @param width : graph width
+ * @param type : graph type
+ * @return the server structure initialized
+ */
 struct server *initialize_server(char *player1_lib, char *player2_lib, size_t width, char type)
 {
     struct server *server = malloc(sizeof(struct server));
@@ -72,6 +102,10 @@ struct server *initialize_server(char *player1_lib, char *player2_lib, size_t wi
     return server;
 }
 
+/**
+ * Create a initial move for the fisrt turn, its type is NO_TYPE  :
+ * @return the initial move
+ */
 struct move_t get_initial_move()
 {
     struct move_t mv;
@@ -81,22 +115,34 @@ struct move_t get_initial_move()
     return mv;
 }
 
-void update(struct graph_t *graph, struct move_t move, size_t *p_position, size_t *p_num_wall)
+/**
+ * Updates the server graph after a player move :
+ * @param server : the server structure
+ * @param move : the player move
+ */
+void update(struct server * server, struct move_t move)//struct graph_t *graph, struct move_t move, size_t *p_position, size_t *p_num_wall
 {
     if (move.t == MOVE)
-        *p_position = move.m;
+        server->players[move.c].pos = move.m;
     else {
-        *p_num_wall -= 1;
-        add_wall(graph, move.e);
+        server->players[move.c].num_wall -= 1;
+        add_wall(server->graph.graph, move.e);
     }
 }
 
+/**
+ * Verifies if the first placement is right for a player, if is right the function updates the server graph :
+ * @param server : the server structure
+ * @param move : the initial move of server or the placement of the other player
+ * @param id : the player id
+ * @return the player placement
+ */
 struct move_t player_placement(struct server *server, struct move_t move, enum color_t id)
 {
     move = server->players[id].play(move);
 
     if (is_owned(server->graph.graph, id, move.m))
-        update(server->graph.graph, move, &server->players[id].pos, &server->players[id].num_wall);
+      update(server, move);//server->graph.graph, move, &server->players[id].pos, &server->players[id].num_wall);
     else {
         display_error_move("wrong first placement", server->players[id].get_player_name(), get_name_type_player(id));
         display_move(server, move);
@@ -107,12 +153,20 @@ struct move_t player_placement(struct server *server, struct move_t move, enum c
     return move;
 }
 
+/**
+ * Verifies if the player move is right, if is right the function updates the server graph :
+ * @param server : the server structure
+ * @param move : the initial move of server or the placement of the other player
+ * @param id : the player id
+ * @param cheat : the cheat variable
+ * @return the new move
+ */
 struct move_t play_player_turn(struct server *server, struct move_t move, enum color_t id, size_t *cheat)
 {
     move = server->players[get_next_player(move.c)].play(move);
 
-    if (is_move_legal(server->graph.graph, &move, server->players[BLACK].pos, server->players[WHITE].pos)) {
-    	update(server->graph.graph, move, &server->players[id].pos, &server->players[id].num_wall);
+    if (is_move_legal(server->graph.graph, &move, server->players[BLACK].pos, server->players[WHITE].pos, server->players[id].num_wall)) {
+      update(server, move);//server->graph.graph, move, &server->players[id].pos, &server->players[id].num_wall);
         *cheat = 0;
     }
     else {
@@ -123,6 +177,11 @@ struct move_t play_player_turn(struct server *server, struct move_t move, enum c
     return move;
 }
 
+/**
+ * Give the wall number authorized, a game graph copy and an id for initialize a player  :
+ * @param id : player id
+ * @param server : the server structure
+ */
 void initialize_player(enum color_t id, struct server *server)
 {
     server->players[id].num_wall = server->graph.num_wall;
@@ -130,6 +189,12 @@ void initialize_player(enum color_t id, struct server *server)
     server->players[id].initialize(id, copy_graph, server->graph.num_wall);
 }
 
+/**
+ * Runs the game loop :
+ * @param server : the server structure
+ * @param print : indicates wether the boardgame should be displayed
+ * @param delay : the delay between two displays
+ */
 void run_server(struct server *server, int print, int delay)
 {
     size_t turn = 0;
@@ -184,6 +249,10 @@ void run_server(struct server *server, int print, int delay)
 
 }
 
+/**
+ * free the server structure  :
+ * @param server : the server structure
+ */
 void free_server(struct server *server)
 {
     server->players[BLACK].finalize();
