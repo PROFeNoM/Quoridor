@@ -6,8 +6,7 @@
 #include "player.h"
 #include "list_dynamic.h"
 #include "queue.h"
-
-#include "display.h"
+#include "correlation_graph.h"
 
 
 #define UNINITIALIZED 0
@@ -20,6 +19,7 @@ const int INF = 1000000;
 struct player
 {
 	struct graph_t *graph; //graph of the player
+	struct near_neighbours* neighbours_graph; // Set the neighbour's index of the vertex from in a direction
 	size_t position[2];    //position of the two players on the board
 	size_t num_walls;      //number of walls in the hand of the player
 	enum color_t id;       //id of the player
@@ -60,6 +60,8 @@ void initialize(enum color_t id, struct graph_t *graph, size_t num_walls)
 
 		player.position[BLACK] = graph->num_vertices;
 		player.position[WHITE] = graph->num_vertices;
+
+		player.neighbours_graph = get_correlated_graph(graph);
 
 		graph_free(graph);
 	}
@@ -125,6 +127,7 @@ int is_first_move()
  */
 void finalize()
 {
+	free_correlation_graph(player.neighbours_graph);
 	graph_free(player.graph);
 }
 
@@ -284,6 +287,28 @@ int get_vertex_by_connection_type(struct graph_t* graph, size_t from, int direct
 
 
 /**
+ * Complete the vertices to test around the position of the player
+ * @param vertices_to_test Array of vertices to be tested
+ * @param position Player's position
+ */
+void get_vertices_to_test(size_t vertices_to_test[], size_t position)
+{
+	vertices_to_test[0] = player.neighbours_graph[player.neighbours_graph[position].north].north;
+	vertices_to_test[1] = player.neighbours_graph[position].north;
+	vertices_to_test[2] = player.neighbours_graph[player.neighbours_graph[position].north].west;
+	vertices_to_test[3] = player.neighbours_graph[player.neighbours_graph[position].north].east;
+	vertices_to_test[4] = player.neighbours_graph[position].west;
+	vertices_to_test[5] = player.neighbours_graph[position].east;
+	vertices_to_test[6] = player.neighbours_graph[player.neighbours_graph[position].west].west;
+	vertices_to_test[7] = player.neighbours_graph[player.neighbours_graph[position].east].east;
+	vertices_to_test[8] = player.neighbours_graph[position].south;
+	vertices_to_test[9] = player.neighbours_graph[player.neighbours_graph[position].south].west;
+	vertices_to_test[10] = player.neighbours_graph[player.neighbours_graph[position].south].east;
+	vertices_to_test[11] = player.neighbours_graph[player.neighbours_graph[position].south].south;
+}
+
+
+/**
  * Get an array of legal moves for a player
  * @param active_player Player for whom we want to know the possible legal moves
  * @param graph Board used during the AlphaBeta/Minimax algorithm.
@@ -299,46 +324,55 @@ struct list* get_legal_moves(int active_player, struct graph_t* graph, size_t ac
 	size_t position_player1 = active_player == BLACK ? active_player_position : opponent_player_position;
 	size_t position_player2 = active_player == WHITE ? active_player_position : opponent_player_position;
     size_t distance_opponent_to_win = get_minimal_distance_to_opponent_area(graph, active_player, opponent_player_position);
-	int stop = 0;
-	for (size_t vertex = graph->num_vertices - 1; stop != 1; vertex--)
+
+    size_t vertices_to_test_move[12] = {0};
+	get_vertices_to_test(vertices_to_test_move, active_player_position);
+	size_t vertices_to_test_wall[12] = {0};
+	get_vertices_to_test(vertices_to_test_wall, opponent_player_position);
+	vertices_to_test_wall[0] = opponent_player_position;
+
+	for (size_t i = 0; i < 12; i++)
 	{
-		if (vertex == 0) stop = 1;
-		if (can_player_move_to(graph, vertex, active_player, position_player1, position_player2))
+		if (can_player_move_to(graph, vertices_to_test_move[i], active_player, position_player1, position_player2))
 		{
-			struct move_t move = set_move(vertex, no_edge(), no_edge(), active_player, MOVE);
+			struct move_t move = set_move(vertices_to_test_move[i], no_edge(), no_edge(), active_player, MOVE);
 			list__add(lst, &move);
 		}
 
 		// Add legal move of type WALL
-        if (num_walls == 0 || distance_opponent_to_win > 5)
-            continue;
+		if (num_walls == 0 || distance_opponent_to_win > 5)
+			continue;
 
 		// Determine every vertices with which 'vertex' could be involved with
-		int eastern_vertex = get_vertex_by_connection_type(graph, vertex, EAST);
-		if (eastern_vertex == CONNECTION_NOT_FOUND)
+		if (!is_vertex_in_graph(graph, vertices_to_test_wall[i]))
 			continue;
 
-		int southern_vertex = get_vertex_by_connection_type(graph, vertex, SOUTH);
-		if (southern_vertex == CONNECTION_NOT_FOUND)
+		int eastern_vertex = player.neighbours_graph[vertices_to_test_wall[i]].east;
+		if (!is_connected(graph, vertices_to_test_wall[i], eastern_vertex))
 			continue;
 
-		int southeastern_vertex = get_vertex_by_connection_type(graph, southern_vertex, EAST);
-		if (southeastern_vertex == CONNECTION_NOT_FOUND)
+		int southern_vertex = player.neighbours_graph[vertices_to_test_wall[i]].south;
+		if (!is_connected(graph, vertices_to_test_wall[i], southern_vertex))
 			continue;
 
-		if (!(vertex == opponent_player_position
-			|| eastern_vertex == (int)opponent_player_position
-			|| southern_vertex == (int)opponent_player_position
-			|| southeastern_vertex == (int)opponent_player_position))
+		int southeastern_vertex = player.neighbours_graph[southern_vertex].east;
+		if (!is_connected(graph, southern_vertex, southeastern_vertex))
+			continue;
+
+
+		if (!(vertices_to_test_wall[i] == opponent_player_position
+				|| eastern_vertex == (int)opponent_player_position
+				|| southern_vertex == (int)opponent_player_position
+				|| southeastern_vertex == (int)opponent_player_position))
 			continue;
 
 		struct edge_t e1[2] = {
-				{ vertex, eastern_vertex },
+				{ vertices_to_test_wall[i], eastern_vertex },
 				{ southern_vertex, southeastern_vertex }
 		};
 
 		struct edge_t e2[2] = {
-				{ vertex, southern_vertex },
+				{ vertices_to_test_wall[i], southern_vertex },
 				{ eastern_vertex, southeastern_vertex }
 		};
 
@@ -353,8 +387,8 @@ struct list* get_legal_moves(int active_player, struct graph_t* graph, size_t ac
 			struct move_t move = set_move(-1, e2[0], e2[1], active_player, WALL);
 			list__add(lst, &move);
 		}
-
 	}
+
 
 	return lst;
 }
@@ -554,11 +588,10 @@ struct move_t get_new_move()
 {
 	int best_score = -INF;
 	struct move_t best_move;
-
 	struct list* legal_moves = get_legal_moves(player.id, player.graph, player.position[player.id], player.position[get_next_player(player.id)], player.num_walls);
-    int depth = 2 + (player.graph->num_vertices <= 9*9) + (player.graph->num_vertices <= 6*6) + (player.graph->num_vertices <= 4*4);
-	printf("\n\nNumber of legal moves: [%zd]\t\n", list__size(legal_moves));
-	printf("Depth: %d\n", depth);
+    int depth = 3;
+	//printf("\n\nNumber of legal moves: [%zd]\t\n", list__size(legal_moves));
+	//printf("Depth: %d\n", depth);
 
 	time_t end_time = time(NULL) + 3;
 	for (size_t i = 0; i < list__size(legal_moves); i++)
@@ -592,7 +625,6 @@ struct move_t get_new_move()
 
 		graph_free(next_graph);
 	}
-
 
 	struct move_t new_move = set_move(best_move.m, best_move.e[0], best_move.e[1], best_move.c, best_move.t);
 
