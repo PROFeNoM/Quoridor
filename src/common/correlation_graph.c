@@ -36,7 +36,7 @@ void initialize_neighbours(size_t index, struct near_neighbours neighbours_graph
 struct near_neighbours *get_correlated_graph(struct graph_t *graph)
 {
   size_t size = graph->t->size1*graph->t->size2;
-  struct near_neighbours *neighbours_graph = malloc(size * sizeof(struct near_neighbours));
+  struct near_neighbours *neighbours_graph = malloc((size+1) * sizeof(struct near_neighbours));
   for (size_t i = 0; i < graph->t->size1; i++) {
     initialize_neighbours(i, neighbours_graph, size);
     
@@ -46,6 +46,7 @@ struct near_neighbours *get_correlated_graph(struct graph_t *graph)
       set_neighbour(i, j, direction, neighbours_graph);
     }
   }
+	initialize_neighbours(size, neighbours_graph, size);
   return neighbours_graph;
 }
 
