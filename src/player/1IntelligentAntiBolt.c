@@ -3,9 +3,9 @@
 #include "utils.h"
 #include "player.h"
 #include "dijsktra.h"
+#include "correlation_graph.h"
 
 #define UNINITIALIZED 0
-#define MAX_POSSIBILITIES 12
 
 struct player
 {
@@ -14,7 +14,10 @@ struct player
     size_t num_walls;      //number of walls in the hand of the player
     size_t max_walls;
     size_t col;
-    size_t pos_possibilities[MAX_POSSIBILITIES];
+    size_t *destination;
+    size_t number_of_destination;
+    struct near_neighbours *neighbours_graph;
+
     enum color_t id; //id of the player
 };
 
@@ -43,17 +46,18 @@ void initialize(enum color_t id, struct graph_t *graph, size_t num_walls)
         player.graph = graph_copy(graph);
 
         player.id = id;
+        player.number_of_destination = 0;
+        player.destination = NULL;
 
         player.num_walls = num_walls;
         player.max_walls = num_walls;
         player.col = graph->num_vertices;
-        player.position[BLACK] = graph->num_vertices;
-        player.position[WHITE] = graph->num_vertices;
+        
+        player.position[BLACK] = graph->t->size1;
+        player.position[WHITE] = graph->t->size1;
+        
+        player.neighbours_graph = get_correlated_graph(player.graph);
         graph_free(graph);
-        for (int i = 0; i < MAX_POSSIBILITIES; i++)
-        {
-            player.pos_possibilities[i] = player.col * player.col;
-        }
         is_initialized = 1;
     }
 }
@@ -78,31 +82,6 @@ struct move_t set_move(size_t position, struct edge_t edge1, struct edge_t edge2
     return move;
 }
 
-void get_right_next_place(size_t p1, size_t p2)
-{
-
-    size_t m = sqrt(player.graph->num_vertices);
-    int index = 0;
-    size_t possibilities[MAX_POSSIBILITIES] = {p1 + 1, p1 - 1, p1 - m, p1 + m, p1 + 2, p1 - 2, p1 + 2 * m, p1 - 2 * m, p1 + 1 + m, p1 + 1 - m, p1 - 1 + m, p1 - 1 - m};
-
-    for (int i = 0; i < MAX_POSSIBILITIES; i++)
-    {
-        if (can_player_move_to(player.graph, possibilities[i], 0, p1, p2))
-        {
-            player.pos_possibilities[index] = possibilities[i];
-            index += 1;
-        }
-    }
-}
-
-void set_possibilities_to_zero()
-{
-
-    for (int i = 0; i < MAX_POSSIBILITIES; i++)
-    {
-        player.pos_possibilities[i] = player.graph->num_vertices * player.graph->num_vertices;
-    }
-}
 
 /*
  * Return the first move for a player : the player is put on one of his own vertices
@@ -122,9 +101,7 @@ struct move_t get_first_move()
     player.position[player.id] = starting_positions[random_index];
 
     //move to the position
-    struct move_t first_move = set_move(player.position[player.id], no_edge(), no_edge(), player.id, MOVE);
-
-    return first_move;
+    return set_move(player.position[player.id], no_edge(), no_edge(), player.id, MOVE);
 }
 
 struct move_t get_wall()
@@ -194,25 +171,15 @@ struct move_t get_wall()
 
 size_t get_dijsktra()
 {
-
-    size_t vertice;
-    size_t num = player.graph->num_vertices;
-    size_t length = num * num;
-
-    size_t dst[length];
-    size_t index = 0;
-    for (size_t i = 0; i < num; i++)
+    if (player.destination == NULL)
     {
-        if (is_owned(player.graph, get_next_player(player.id), i))
-        {
-            dst[index] = i;
-            index += 1;
-        }
+        player.destination = malloc(player.graph->num_vertices * sizeof(size_t));
+        for (size_t i = 0; i < player.graph->num_vertices; i++)
+            if (is_owned(player.graph, get_next_player(player.id), i))
+                player.destination[player.number_of_destination++] = i;
     }
 
-    vertice = dijsktra(player.graph, dst, index, player.position[player.id], player.position[get_next_player(player.id)]);
-
-    return vertice;
+    return dijsktra(player.graph, player.neighbours_graph, player.destination, player.number_of_destination, player.position[player.id], player.position[get_next_player(player.id)]);
 }
 
 /*
@@ -221,22 +188,15 @@ size_t get_dijsktra()
  */
 struct move_t get_new_move()
 {
+    // Verify if a wall have to be placed
     struct move_t possibility = get_wall();
     if (possibility.t != NO_TYPE)
-    {
         return possibility;
-    }
-    //get_right_next_place(player.position[player.id], player.position[get_next_player(player.id)]);
 
+    // else, go to the nearest destination
     size_t vertice = get_dijsktra();
-    //set_possibilities_to_zero();
-
     player.position[player.id] = vertice;
-
-    //move to the position
-    struct move_t new_move = set_move(player.position[player.id], no_edge(), no_edge(), player.id, MOVE);
-
-    return new_move;
+    return set_move(player.position[player.id], no_edge(), no_edge(), player.id, MOVE);
 }
 
 /*
@@ -244,7 +204,7 @@ struct move_t get_new_move()
  */
 int is_first_move()
 {
-    return player.position[player.id] == player.graph->num_vertices;
+    return player.position[player.id] == player.graph->t->size1;
 }
 
 /*
@@ -253,13 +213,9 @@ int is_first_move()
 void update(struct move_t previous_move)
 {
     if (previous_move.t == MOVE)
-    {
         player.position[previous_move.c] = previous_move.m;
-    }
     else if (previous_move.t == WALL)
-    {
         add_wall(player.graph, previous_move.e);
-    }
 }
 
 /*
@@ -268,18 +224,16 @@ void update(struct move_t previous_move)
  */
 struct move_t play(struct move_t previous_move)
 {
-
-    if (is_first_move())
-    {
-        return get_first_move();
-    }
     update(previous_move);
-
-    struct move_t newmove = get_new_move();
-
-    update(newmove);
-
-    return newmove;
+    
+    struct move_t move_to_do;
+    if (is_first_move())
+        move_to_do = get_first_move();
+    else
+        move_to_do = get_new_move();
+    
+    update(move_to_do);
+    return move_to_do;
 }
 
 /*
@@ -287,5 +241,8 @@ struct move_t play(struct move_t previous_move)
  */
 void finalize()
 {
+    if (player.destination != NULL)
+        free(player.destination);
+    free_correlation_graph(player.neighbours_graph);
     graph_free(player.graph);
 }
