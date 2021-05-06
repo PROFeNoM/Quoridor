@@ -104,69 +104,94 @@ struct move_t get_first_move()
     return set_move(player.position[player.id], no_edge(), no_edge(), player.id, MOVE);
 }
 
-struct move_t get_wall()
+int have_righ_line_between_player_win(struct graph_t * graph, size_t position, enum color_t id)
 {
-    size_t position_player_1;
-    size_t position_player_2;
-    size_t m = sqrt(player.graph->t->size1);
+  size_t vertex = position;
+  if (is_owned(graph,get_next_player(id),vertex)){
+      return 1;
+  }
 
-    position_player_1 = player.position[BLACK];
-    position_player_2 = player.position[WHITE];
-
-    if (player.num_walls != 0 && ((player.max_walls - player.num_walls) < m))
-    {
-
-        if (player.num_walls == player.max_walls || player.col != position_player_2 % m)
-        {
-
-            player.col = player.position[get_next_player(player.id)] % m;
-            size_t num = player.position[get_next_player(player.id)] % m;
-            struct edge_t e;
-            struct edge_t e1;
-            struct edge_t e2;
-            size_t place;
-            if (player.id == WHITE)
-            {
-                place = (m * m) - (m - num);
-                e.fr = place;
-                e.to = place - m;
-                e1.fr = place + 1;
-                e1.to = place - m + 1;
-                e2.fr = place - 1;
-                e2.to = place - m - 1;
-            }
-            else
-            {
-                place = num;
-                e.fr = place;
-                e.to = place + m;
-                e1.fr = place + 1;
-                e1.to = place + m + 1;
-                e2.fr = place - 1;
-                e2.to = place + m - 1;
-            }
-
-            struct edge_t edge1[2] = {e, e1};
-            struct edge_t edge2[2] = {e, e2};
-
-            if (can_add_wall(player.graph, edge1, position_player_1, position_player_2) && (e.fr / m == e1.fr / m))
-            {
-                struct move_t new_move = set_move(player.position[player.id], e, e1, player.id, WALL);
-                player.num_walls -= 1;
-
-                return new_move;
-            }
-            if (can_add_wall(player.graph, edge2, position_player_1, position_player_2) && (e.fr / m == e2.fr / m))
-            {
-                struct move_t new_move = set_move(player.position[player.id], e, e2, player.id, WALL);
-                player.num_walls -= 1;
-                return new_move;
-            }
-        }
+  if (id == BLACK){
+    vertex = player.neighbours_graph[vertex].south;
+    while (is_vertex_in_graph(graph,vertex)){
+      if (is_owned(graph,get_next_player(id),vertex)){
+	return 1;
+      }
+      vertex = player.neighbours_graph[vertex].south;
     }
+  }
+  else {
+    vertex = player.neighbours_graph[vertex].north;
+    while (is_vertex_in_graph(graph,vertex)){
+      if (is_owned(graph,get_next_player(id),vertex)){
+	return 1;
+      }
+      vertex = player.neighbours_graph[vertex].north;
+    }
+  }
+  return 0;
+}
 
-    struct move_t new_move = set_move(player.position[player.id], no_edge(), no_edge(), player.id, NO_TYPE);
-    return new_move;
+struct move_t get_wall(){
+
+  size_t position_player_1;
+  size_t position_player_2;
+  size_t m = sqrt(player.graph->t->size1);
+
+  position_player_1 = player.position[player.id];
+  position_player_2 = player.position[get_next_player(player.id)];
+
+  //printf("right line = %d \n",have_righ_line_between_player_win(player.graph, position_player_2,get_next_player(player.id)));
+  
+  if (player.num_walls > 0 && have_righ_line_between_player_win(player.graph, position_player_2, get_next_player(player.id))){
+    
+    struct edge_t e;
+    struct edge_t e1;
+    struct edge_t e2;
+    size_t place = position_player_2;
+    if (player.id == WHITE){
+
+      while ((! is_owned(player.graph,player.id,place)) && is_vertex_in_graph(player.graph,place)){
+	place = player.neighbours_graph[place].south;
+      }
+      e.fr = place;
+      e.to = player.neighbours_graph[place].north;	
+      e1.fr = player.neighbours_graph[place].east;
+      e1.to = player.neighbours_graph[player.neighbours_graph[place].north].east;
+      e2.fr = player.neighbours_graph[place].west;
+      e2.to = player.neighbours_graph[player.neighbours_graph[place].north].west;
+    }
+    else {
+      while (! is_owned(player.graph,player.id,place) && is_vertex_in_graph(player.graph,place)){
+	place = player.neighbours_graph[place].north;
+      }
+      e.fr = place;
+      e.to = player.neighbours_graph[place].south;	
+      e1.fr = player.neighbours_graph[place].east;
+      e1.to = player.neighbours_graph[player.neighbours_graph[place].south].east;
+      e2.fr = player.neighbours_graph[place].west;
+      e2.to = player.neighbours_graph[player.neighbours_graph[place].south].west;      
+    }
+      
+    struct edge_t edge1[2]={e,e1};
+    struct edge_t edge2[2]={e,e2};
+      
+    if (can_add_wall(player.graph,edge1,position_player_1,position_player_2) && (e.fr/m == e1.fr/m)){
+      struct move_t new_move = set_move(player.position[player.id], e, e1, player.id, WALL);
+      player.num_walls -= 1;
+	
+	
+      return new_move;
+    }
+    if (can_add_wall(player.graph,edge2,position_player_1,position_player_2) && (e.fr/m == e2.fr/m)){
+      struct move_t new_move = set_move(player.position[player.id], e, e2, player.id, WALL);
+      player.num_walls -= 1;
+      return new_move;
+    }
+  }
+    
+  struct move_t new_move = set_move(player.position[player.id], no_edge(), no_edge(), player.id, NO_TYPE);
+  return new_move;
 }
 
 size_t get_dijsktra()
