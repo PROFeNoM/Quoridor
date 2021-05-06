@@ -6,7 +6,10 @@
 #endif // INITIAL_CAPACITY
 
 
-// Double a dynamic list array size
+/**
+ * Double a dynamic list array capacity
+ * @param lst List to double in capacity
+ */
 void double_capacity(struct list* lst)
 {
 	lst->l = realloc(lst->l, 2 * lst->capacity * sizeof(void*));
@@ -14,7 +17,6 @@ void double_capacity(struct list* lst)
 }
 
 
-// Return a struct list representing the empty list
 struct list* list__empty(Copy copy, Release free_element)
 {
 	struct list* lst = malloc(sizeof(struct list));
