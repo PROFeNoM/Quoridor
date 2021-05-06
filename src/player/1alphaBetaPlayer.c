@@ -274,7 +274,7 @@ int heuristic_evaluation(struct graph_t* graph, int active_player, int opponent,
  * @param graph Graph structure representing the game board and its information
  * @param from First vertex (Origin)
  * @param direction Direction to search
- * @return A vertex in the
+ * @return A vertex in the searched direction
  */
 int get_vertex_by_connection_type(struct graph_t* graph, size_t from, int direction)
 {
