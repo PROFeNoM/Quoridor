@@ -12,18 +12,16 @@ struct player
     struct graph_t *graph; //graph of the player
     size_t position[2];    //position of the two players on the board
     size_t num_walls;      //number of walls in the hand of the player
-    size_t max_walls;
-    size_t col;
-    size_t *destination;
-    size_t number_of_destination;
-    struct near_neighbours *neighbours_graph;
+    size_t *destination;   // win position of the other player
+    size_t number_of_destination; // number of win position
+    struct near_neighbours *neighbours_graph; // neighbours vertices
 
     enum color_t id; //id of the player
 };
 
 struct player player = {.graph = NULL, .position = {UNINITIALIZED, UNINITIALIZED}, .id = -1, .num_walls = UNINITIALIZED};
 
-/* 
+/**
  * Return the name of the player strategy
  */
 char const *get_player_name()
@@ -31,11 +29,11 @@ char const *get_player_name()
     return "IntelligentAntiBolt";
 }
 
-/*
+/**
  * Initialize the player with informations given by the server if he is not already initialize :
- * - id : the id of the player : WHITE or BLACK
- * - graph : the graph to play with
- * - num_walls : the number of walls in the hand of the player
+ * @param id : the id of the player : WHITE or BLACK
+ * @param graph : the graph to play with
+ * @param num_walls : the number of walls in the hand of the player
  */
 void initialize(enum color_t id, struct graph_t *graph, size_t num_walls)
 {
@@ -50,8 +48,6 @@ void initialize(enum color_t id, struct graph_t *graph, size_t num_walls)
         player.destination = NULL;
 
         player.num_walls = num_walls;
-        player.max_walls = num_walls;
-        player.col = graph->num_vertices;
         
         player.position[BLACK] = graph->t->size1;
         player.position[WHITE] = graph->t->size1;
@@ -62,13 +58,14 @@ void initialize(enum color_t id, struct graph_t *graph, size_t num_walls)
     }
 }
 
-/*
+/**
  * Initialize and set a move
- * - position : the new position of the player
- * - edge1 : the first edge of the placed wall if a wall has been placed
- * - edge2 : the second edge of the wall
- * - id : the id of the player
- * - movetype : type of the move
+ * @param position : the new position of the player
+ * @param edge1 : the first edge of the placed wall if a wall has been placed
+ * @param edge2 : the second edge of the wall
+ * @param id : the id of the player
+ * @param movetype : type of the move
+ * @return the move
  */
 struct move_t set_move(size_t position, struct edge_t edge1, struct edge_t edge2, size_t id, enum movetype_t movetype)
 {
@@ -83,7 +80,7 @@ struct move_t set_move(size_t position, struct edge_t edge1, struct edge_t edge2
 }
 
 
-/*
+/**
  * Return the first move for a player : the player is put on one of his own vertices
  */
 struct move_t get_first_move()
