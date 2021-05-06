@@ -182,7 +182,7 @@ size_t get_first_step_from_shortest_path(size_t predecessor[], size_t src, size_
 
 size_t dijsktra(struct graph_t *graph, struct near_neighbours neighbours_graph[], size_t dst[], size_t dst_size, size_t player, size_t other_player)
 {
-    size_t num = graph->num_vertices;
+    size_t num = graph->t->size1;
     size_t visited[num];
     size_t distance[num];
     size_t predecessor[num];

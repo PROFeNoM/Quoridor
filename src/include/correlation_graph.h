@@ -4,6 +4,9 @@
 #include "graph.h"
 #include "graph_pattern.h"
 
+/**
+ * Stock the cardinals neighbours of a vertex
+ */
 struct near_neighbours {
   size_t north;
   size_t south;
@@ -23,4 +26,5 @@ struct near_neighbours *get_correlated_graph(struct graph_t *graph);
  * @param neighbours_graph Neighbours' graph to be freed
  */
 void free_correlation_graph(struct near_neighbours *neighbours_graph);
+
 #endif

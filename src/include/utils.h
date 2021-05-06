@@ -6,6 +6,9 @@
 #include "graph.h"
 #include "server.h"
 
+/**
+ * Represent the orientation of a part of a wall
+ */
 enum wall_orientation_t {
     POINT_TO_NORTH = 5,
     POINT_TO_SOUTH,
@@ -23,14 +26,19 @@ struct graph_t* graph_copy(struct graph_t* graph);
 
 
 /**
- * 
+ * Load a dynamic library
+ * @param path Path to the dynamic library to load
+ * @return pointer to the library handler or NULL if error
  **/
-void *load_library(char *);
+void *load_library(char *path);
 
 /**
- * 
+ * Load a function from a dynamic library
+ * @param lib Dynamic library containing the function to load
+ * @param name Name of the function to load
+ * @return function loaded or NULL if error
  **/
-void *load_function(void *, const char *);
+void *load_function(void *lib, const char *name);
 
 
 /**
@@ -40,9 +48,9 @@ void *load_function(void *, const char *);
  */
 enum color_t get_next_player(enum color_t id);
 
-/** 
- * 
- * @param id
+/**
+ * Get the type in string format of a player id
+ * @param id ID of a player
 */
 const char *get_name_type_player(enum color_t id);
 
@@ -184,6 +192,7 @@ int is_move_legal(struct graph_t* graph, struct move_t* move, size_t p1_position
 void graph_free(struct graph_t *graph);
 
 /**
+ * @todo REMOVE (only servers have the right to display so not in utils)
  * Display the t graph values of a graph_t
  * @param graph Graph structure representing the game board and its information
  */

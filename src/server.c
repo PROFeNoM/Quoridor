@@ -85,24 +85,6 @@ void load_players(struct player_server *players, char *path_lib_player1, char *p
 }
 
 /**
- * Initializes the server structure  :
- * @param path_lib_player1 : path to the first player librairy function
- * @param path_lib_player2 : path to the second player librairy function
- * @param width : graph width
- * @param type : graph type
- * @return the server structure initialized
- */
-struct server *initialize_server(char *player1_lib, char *player2_lib, size_t width, char type)
-{
-    struct server *server = malloc(sizeof(struct server));
-
-    initialize_graph(width, type, &server->graph);
-    load_players(server->players, player1_lib, player2_lib);
-
-    return server;
-}
-
-/**
  * Create a initial move for the fisrt turn, its type is NO_TYPE  :
  * @return the initial move
  */
@@ -189,12 +171,17 @@ void initialize_player(enum color_t id, struct server *server)
     server->players[id].initialize(id, copy_graph, server->graph.num_wall);
 }
 
-/**
- * Runs the game loop :
- * @param server : the server structure
- * @param print : indicates wether the boardgame should be displayed
- * @param delay : the delay between two displays
- */
+
+struct server *initialize_server(char *player1_lib, char *player2_lib, size_t width, char type)
+{
+    struct server *server = malloc(sizeof(struct server));
+
+    initialize_graph(width, type, &server->graph);
+    load_players(server->players, player1_lib, player2_lib);
+
+    return server;
+}
+
 void run_server(struct server *server, int print, int delay)
 {
     size_t turn = 0;
@@ -251,10 +238,6 @@ void run_server(struct server *server, int print, int delay)
 
 }
 
-/**
- * free the server structure  :
- * @param server : the server structure
- */
 void free_server(struct server *server)
 {
     server->players[BLACK].finalize();

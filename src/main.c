@@ -3,17 +3,20 @@
 #include "server.h"
 
 
-// Global parameters
-static char t = 'c';
-static int m = 2;
-static int p = 0;
-static int d = 0;
+/**
+ * Global parameters
+ */
+static char t = 'c';    // Type of board
+static int m = 2;       // Size of board
+static int p = 0;       // Boolean print
+static int d = 0;       // Delay between turns
 
 
-////////////////////////////////////////////////////////////////
-// Function for checking the options of the program
-// exit if an error occur
 
+/**
+ * Function for checking the options of the program
+ * exit if an error occurs
+ */
 void check_opts()
 {
   if (!abide_graph_constraint(t, m)) {
@@ -22,11 +25,14 @@ void check_opts()
   }
 }
 
-////////////////////////////////////////////////////////////////
-// Function for parsing the options of the program
-// Currently available options are :
-// -t : type of board
-// -m : size of board
+/**
+ * Function for parsing the options of the program
+ * Currently available options are :
+ * -t : type of board
+ * -m : size of board
+ * -p : if server can display
+ * -d : delay between turns
+ */
 void parse_opts(int argc, char* argv[]) {
   int opt;
   int option_index = 0;
@@ -58,8 +64,8 @@ void parse_opts(int argc, char* argv[]) {
   }
 }
 
-int main(int argc , char * argv[]){
-
+int main(int argc , char * argv[])
+{
   parse_opts(argc, argv);
   check_opts();
 
