@@ -589,7 +589,7 @@ struct move_t get_new_move()
 	int best_score = -INF;
 	struct move_t best_move;
 	struct list* legal_moves = get_legal_moves(player.id, player.graph, player.position[player.id], player.position[get_next_player(player.id)], player.num_walls);
-    int depth = 3;
+    int depth = 2;
 	//printf("\n\nNumber of legal moves: [%zd]\t\n", list__size(legal_moves));
 	//printf("Depth: %d\n", depth);
 
