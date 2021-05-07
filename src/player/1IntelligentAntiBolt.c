@@ -15,11 +15,18 @@ struct player
     size_t *destination;   // win position of the other player
     size_t number_of_destination; // number of win position
     struct near_neighbours *neighbours_graph; // neighbours vertices
-
     enum color_t id; //id of the player
 };
 
-struct player player = {.graph = NULL, .position = {UNINITIALIZED, UNINITIALIZED}, .id = -1, .num_walls = UNINITIALIZED};
+struct player player = {
+    .graph = NULL,
+    .position = {UNINITIALIZED, UNINITIALIZED},
+    .num_walls = UNINITIALIZED,
+    .destination = NULL,
+    .number_of_destination = UNINITIALIZED,
+    .neighbours_graph = NULL,
+    .id = -1
+};
 
 /**
  * Return the name of the player strategy
@@ -82,20 +89,19 @@ struct move_t set_move(size_t position, struct edge_t edge1, struct edge_t edge2
  */
 struct move_t get_first_move()
 {
-    size_t starting_positions[player.graph->t->size1];
+    size_t starting_positions[player.graph->o->size2];
     size_t nb_pos = 0;
 
     //searching for available positions
-    for (size_t index = 0; index < player.graph->t->size1; index++)
+    for (size_t index = 0; index < player.graph->o->size2; index++)
         if (is_owned(player.graph, player.id, index))
             starting_positions[nb_pos++] = index;
 
     //choice of an available position
     size_t random_index = (size_t)rand() % nb_pos;
-    player.position[player.id] = starting_positions[random_index];
 
     //move to the position
-    return set_move(player.position[player.id], no_edge(), no_edge(), player.id, MOVE);
+    return set_move(starting_positions[random_index], no_edge(), no_edge(), player.id, MOVE);
 }
 
 /**
@@ -197,14 +203,12 @@ size_t get_dijsktra()
 struct move_t get_new_move()
 {
     // Verify if a wall have to be placed
-    struct move_t possibility = get_wall();
-    if (possibility.t != NO_TYPE)
-        return possibility;
+    struct move_t wall = get_wall();
+    if (wall.t != NO_TYPE)
+        return wall;
 
     // else, go to the nearest destination
-    size_t vertice = get_dijsktra();
-    player.position[player.id] = vertice;
-    return set_move(player.position[player.id], no_edge(), no_edge(), player.id, MOVE);
+    return set_move(get_dijsktra(), no_edge(), no_edge(), player.id, MOVE);
 }
 
 /**
