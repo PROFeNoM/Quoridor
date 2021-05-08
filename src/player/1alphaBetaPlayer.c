@@ -340,7 +340,7 @@ struct list* get_legal_moves(int active_player, struct graph_t* graph, size_t ac
 		}
 
 		// Add legal move of type WALL
-		if (num_walls == 0 || distance_opponent_to_win > 5)
+		if (num_walls == 0 || distance_opponent_to_win > 6)
 			continue;
 
 		// Determine every vertices with which 'vertex' could be involved with
