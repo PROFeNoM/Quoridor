@@ -18,6 +18,10 @@ The objective of the project is to implement a set of functions allowing two pla
 - Standard C libraries and headers
 - GSL - GNU Scientific Library
 
+In case you want to have some documentation, these libraries are needed:
+- Doxygen 
+- Graphiz
+
 # How to compile
 
 Go to the root of the repository and run
@@ -36,10 +40,11 @@ $ ./install/server -m [M] -t [T] -d [D] -p PATH_CLIENT_1 PATH_CLIENT_2
 
 - The ```-m``` option allows to specify the width of the game board (e.g. ```-m 10```).
 - The ```-t``` option allows to specify the shape of the game board (square grid ```c```, toric grid ```t```, chopped grid ```h``` or snake grid ```s```) (e.g. ```-t h```).
-- The ```-d``` option allows to add a delay (in seconds) between the players move (e.g. ```-d 1```).
-- The ```-p``` option allows to have a visual representation of the ongoing game. When using this option, please make sure to have a terminal window size large enough.
-- The clients are passed as parameters in the order 1st player / 2nd player (e.g. ```./install/ForrestGump_1.so```). Please make sure not to use twice the same client.
-- The optional parameters can be placed in any order on the command line.
+- The ```-d``` (or ```--delay```) option allows to add a delay (in seconds) between the players move (e.g. ```-d 1```).
+- The ```-p``` (or ```--print```) option allows to have a visual representation of the ongoing game. When using this option, please make sure to have a terminal window size large enough.
+- The clients' path are passed as parameters in the order 1st player / 2nd player (e.g. ```./install/ForrestGump_1.so```). Please make sure not to use twice the same client.
+
+The optional parameters can be placed in any order on the command line.
 
 # Players implemented
 
@@ -50,12 +55,12 @@ $ ./install/server -m [M] -t [T] -d [D] -p PATH_CLIENT_1 PATH_CLIENT_2
 
 ## Intelligent Anti Bolt Player
 
-- Explication: Prevent the opponent to go in a straight line by placing walls, and moving is based on a Dijkstra Algorithm
+- Explication: Prevent the opponent to go in a straight line by placing walls, and move based on a Dijkstra Algorithm
 - Path from root: ```./install/1IntelligentAntiBolt_1.so``` or ```./install/1IntelligentAntiBolt_2.so```
 
 ## Anti Bolt Player
 
-- Explication: Prevent the opponent to go in a straight-line by placing walls.
+- Explication: Prevent the opponent to go in a straight-line by placing walls and move in a straight line.
 - Path from root: ```./install/AntiBolt_1.so``` or ```./install/AntiBolt_2.so```
 
 ## Forrest Gump Player
@@ -70,10 +75,16 @@ $ ./install/server -m [M] -t [T] -d [D] -p PATH_CLIENT_1 PATH_CLIENT_2
 
 # Usage example
 
-Using the previously defined syntax, a game could be run as follows
+- Using the previously defined syntax, a game could be run as follows:
 
 ```shell
 $ ./install/server ./install/1alphaBetaPlayer_1.so ./install/1IntelligentAntiBolt_1.so -p -t c -m 10 
+```
+
+- When using twice the same player implementation, a game could be run as follows: 
+
+```shell
+$ ./install/server install/1IntelligentAntiBolt_1.so install/1IntelligentAntiBolt_2.so -m 4
 ```
 
 # How to run tests
@@ -106,7 +117,7 @@ $ make docs
 $ make mrproper
 ```
 
-- To keep the project documentation and remove everything else, run
+- To keep the project documentation and remove everything which was compiled, run
 
 ```shell
 $ make clean
