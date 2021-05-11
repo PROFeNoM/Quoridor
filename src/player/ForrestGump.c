@@ -167,7 +167,7 @@ int is_first_move()
     return player.position[player.id] == player.graph->t->size1;
 }
 
-/*
+/**
  * Update the graph of the player with the move of the other player
  */
 void update(struct move_t previous_move)
@@ -179,9 +179,9 @@ void update(struct move_t previous_move)
         add_wall(player.graph, previous_move.e);
 }
 
-/*
+/**
  * Return the move of the active player
- * - previous_move : previous move of the other player
+ * @param previous_move previous move of the other player
  */
 struct move_t play(struct move_t previous_move)
 {
