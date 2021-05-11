@@ -149,7 +149,7 @@ void update_distance_and_predecessor(struct graph_t *graph, size_t distance[], s
 size_t get_nearest_destination(size_t distance[], size_t dst[], size_t dst_size)
 {
     size_t nearest_destination = dst[0];
-    size_t longer = distance[0];
+    size_t longer = distance[dst[0]];
     for (size_t i = 1; i < dst_size; i++)
     {
         if (distance[dst[i]] < longer)
@@ -201,7 +201,6 @@ size_t dijsktra(struct graph_t *graph, struct near_neighbours neighbours_graph[]
     while (!is_all_visited(number_visited, num))
     {
         vertex = get_dist_min_not_visited(distance, visited, num);
-        //printf("Before\nIndex : %ld, distance %ld\nChangement ?\n", index, distance[index]);
         visited[vertex] = 1;
         number_visited++;
 
@@ -209,7 +208,6 @@ size_t dijsktra(struct graph_t *graph, struct near_neighbours neighbours_graph[]
         update_distance_and_predecessor(graph, distance, predecessor, vertex, neighbours_graph[vertex].south);
         update_distance_and_predecessor(graph, distance, predecessor, vertex, neighbours_graph[vertex].west);
         update_distance_and_predecessor(graph, distance, predecessor, vertex, neighbours_graph[vertex].east);
-        //printf("\n");
     }
 
     return get_first_step_from_shortest_path(predecessor, player, get_nearest_destination(distance, dst, dst_size));
