@@ -2,6 +2,7 @@ INCLUDE_DIR			=	./src/include
 BUILD_DIR			=	./build/server ./build/player ./build/tests
 INSTALL_DIR 		= 	./install
 TESTS_DIR			=	./src/test/
+DOCS_DIR			=	./docs/
 
 SERVER_SRC			= 	$(wildcard ./src/*.c)
 PLAYER_SRC 			= 	$(wildcard ./src/player/*.c)
@@ -60,10 +61,15 @@ test:	TESTS_start $(TESTS_BIN) TESTS_end
 clean:
 	rm -rf ./build $(INSTALL_BIN) $(INSTALL_LIB) *.gcno *.gcda
 
+mrproper: clean
+	rm -rf $(DOCS_DIR)
+
+docs: ./doxyfile
+	@doxygen ./doxyfile
 
 ############################## HELPERS RULES ##############################
 
-.PHONY: all build test install clean %_start %_end
+.PHONY: all build test install clean docs %_start %_end
 
 .SECONDARY: $(SERVER_OBJ) $(SERVER_COMMON_OBJ) $(PLAYER_OBJ) $(PLAYER_COMMON_OBJ) $(PLAYER_LIB) $(SERVER_BIN)
 

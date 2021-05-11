@@ -16,6 +16,9 @@
 
 const int INF = 1000000;
 
+/**
+ * Alpha Beta Player S
+ */
 struct player
 {
 	struct graph_t *graph; //graph of the player
