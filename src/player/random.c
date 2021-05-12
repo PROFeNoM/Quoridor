@@ -96,6 +96,22 @@ struct move_t get_first_move()
 }
 
 /**
+ * Complete the available positions to move for a player
+ * @param nb_pos Number of available positions
+ * @param pos Array of available positions
+ * @param position_player1 Position of the player BLACK
+ * @param position_player2 Position of the player WHITE
+ */
+void get_available_positions(size_t *nb_pos, size_t pos[], size_t position_player1, size_t position_player2)
+{
+  for (size_t j = 0; j < player.graph->t->size1; j++)
+    if (can_player_move_to(player.graph, j, player.id, position_player1, position_player2)) {
+      pos[*nb_pos] = j;
+      *nb_pos += 1;
+    }
+}
+
+/**
  * Update the player with the move of the other player and return a move
  * @param previous_move : the previous move of the other player
  * @return the player move 
@@ -109,9 +125,7 @@ struct move_t get_new_move()
     size_t position_player2 = player.position[WHITE];
 
     //research of available positions
-    for (size_t j = 0; j < player.graph->t->size1; j++)
-        if (can_player_move_to(player.graph, j, player.id, position_player1, position_player2))
-            pos[nb_pos++] = j;
+    get_available_positions(&nb_pos, pos, position_player1, position_player2);
 
     //choice of an available position
     size_t ind = (size_t)rand() % nb_pos;

@@ -60,6 +60,7 @@ void* load_player_alphaBeta_functions(struct player_functions* player)
 
 	return player;
 }
+
 void load_player_alphaBeta(struct player_functions* player, char* path_lib_player)
 {
 	if (!(player->lib = load_library(path_lib_player)))

@@ -32,7 +32,7 @@ struct player player = {
 		.num_walls = UNINITIALIZED
 };
 
-/*
+/**
  * Return the name of the player strategy
  */
 char const *get_player_name()
@@ -40,11 +40,11 @@ char const *get_player_name()
 	return "DansLaLegende";
 }
 
-/*
- * Initialize the player with informations given by the server if he is not already initialize :
- * - id : the id of the player : WHITE or BLACK
- * - graph : the graph to play with
- * - num_walls : the number of walls in the hand of the player
+/**
+ * Initialize the player with informations given by the server if he is not already initialize
+ * @param id The id of the player : WHITE or BLACK
+ * @param graph The graph to play with
+ * @param num_walls The number of walls in the hand of the player
  */
 void initialize(enum color_t id, struct graph_t *graph, size_t num_walls)
 {
@@ -69,13 +69,13 @@ void initialize(enum color_t id, struct graph_t *graph, size_t num_walls)
 		is_initialized = 1;
 }
 
-/*
+/**
  * Initialize and set a move
- * - position : the new position of the player
- * - edge1 : the first edge of the placed wall if a wall has been placed
- * - edge2 : the second edge of the wall
- * - id : the id of the player
- * - movetype : type of the move
+ * @param position The new position of the player
+ * @param edge1 The first edge of the placed wall if a wall has been placed
+ * @param edge2 The second edge of the wall
+ * @param id  The id of the player
+ * @param movetype  Type of the move
  */
 struct move_t set_move(size_t position, struct edge_t edge1, struct edge_t edge2, size_t id, enum movetype_t movetype)
 {
@@ -89,7 +89,7 @@ struct move_t set_move(size_t position, struct edge_t edge1, struct edge_t edge2
 	return move;
 }
 
-/*
+/**
  * Return the first move for a player : the player is put on one of his own vertices
  */
 struct move_t get_first_move()
@@ -113,7 +113,7 @@ struct move_t get_first_move()
 }
 
 
-/*
+/**
  * Return true if the player is not placed yet.
  */
 int is_first_move()
@@ -122,7 +122,7 @@ int is_first_move()
 }
 
 
-/*
+/**
  * Free the player
  */
 void finalize()
@@ -590,8 +590,6 @@ struct move_t get_new_move()
 	struct move_t best_move;
 	struct list* legal_moves = get_legal_moves(player.id, player.graph, player.position[player.id], player.position[get_next_player(player.id)], player.num_walls);
     int depth = 2;
-	//printf("\n\nNumber of legal moves: [%zd]\t\n", list__size(legal_moves));
-	//printf("Depth: %d\n", depth);
 
 	time_t end_time = time(NULL) + 3;
 	for (size_t i = 0; i < list__size(legal_moves); i++)

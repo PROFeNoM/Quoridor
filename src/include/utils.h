@@ -67,7 +67,7 @@ int is_winning(struct graph_t *graph, enum color_t player_id, size_t position);
  * Check a player ownership on a vertex
  * @param graph Graph structure representing the game board and its information
  * @param player Color of the player
- * @param pos Index of the vertex to check the ownership for
+ * @param position Index of the vertex to check the ownership for
  * @return 1 if position is owned by the given player
  */
 int is_owned(struct graph_t *graph, enum color_t player_id, size_t position);

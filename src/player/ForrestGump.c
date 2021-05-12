@@ -130,12 +130,12 @@ void get_vertices_to_test(size_t vertices_to_test[], size_t position)
     vertices_to_test[2] = player.neighbours_graph[player.neighbours_graph[position].south].east; 
     vertices_to_test[3] = player.neighbours_graph[player.neighbours_graph[position].south].west;
     vertices_to_test[4] = player.neighbours_graph[position].east;
-    vertices_to_test[5] = player.neighbours_graph[position].east;
-    vertices_to_test[6] = player.neighbours_graph[player.neighbours_graph[position].east].west;
-    vertices_to_test[7] = player.neighbours_graph[player.neighbours_graph[position].west].west;
+    vertices_to_test[5] = player.neighbours_graph[position].west;
+    vertices_to_test[6] = player.neighbours_graph[player.neighbours_graph[position].west].west;
+    vertices_to_test[7] = player.neighbours_graph[player.neighbours_graph[position].east].east;
     vertices_to_test[8] = player.neighbours_graph[position].north;
     vertices_to_test[9] = player.neighbours_graph[player.neighbours_graph[position].north].west;
-    vertices_to_test[10] = player.neighbours_graph[player.neighbours_graph[position].north].west;
+    vertices_to_test[10] = player.neighbours_graph[player.neighbours_graph[position].north].east;
     vertices_to_test[11] = player.neighbours_graph[player.neighbours_graph[position].north].north;
   }
 }
@@ -155,7 +155,7 @@ struct move_t get_new_move()
     if (can_player_move_to(player.graph, vertices_to_test[i], player.id, position_player1, position_player2))
       return set_move(vertices_to_test[i], no_edge(), no_edge(), player.id, MOVE);
 
-  return set_move(0, no_edge(), no_edge(), player.id, NO_TYPE);
+  return set_move(player.position[player.id], no_edge(), no_edge(), player.id, NO_TYPE);
 }
 
 
@@ -168,7 +168,8 @@ int is_first_move()
 }
 
 /**
- * Update the graph of the player with the move of the other player
+ * Update the graph of the player with a move
+ * @param previous_move Move to update the graph of the player
  */
 void update(struct move_t previous_move)
 {
@@ -197,7 +198,7 @@ struct move_t play(struct move_t previous_move)
   return move_to_do;
 }
 
-/*
+/**
  * Free the player
  */
 void finalize()

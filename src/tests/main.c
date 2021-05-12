@@ -13,6 +13,8 @@ void launch_test()
 	TEST_FILE(tests__list_functions);
 	TEST_FILE(tests__queue_functions);
 	TEST_FILE(tests__alphaBetaPlayer_functions);
+	TEST_FILE(tests__forrestGump_functions);
+	TEST_FILE(tests__random_functions);
 }
 
 int main(int argc, char *argv[])
