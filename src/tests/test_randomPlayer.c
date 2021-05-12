@@ -16,11 +16,12 @@ struct player_functions {
   struct move_t (*play)(struct move_t previous_move);
   void (*initialize)(enum color_t id, struct graph_t *graph, size_t num_walls);
   void (*get_available_positions)(size_t *nb_pos, size_t pos[], size_t position_player1, size_t position_player2);
+  void (*finalize)();
 };
 
 void* load_player_random_functions(struct player_functions* player)
 {
-  static const char* function_name[] = {"set_move", "get_first_move", "get_new_move", "update", "play", "initialize","get_available_positions"};
+  static const char* function_name[] = {"set_move", "get_first_move", "get_new_move", "update", "play", "initialize","get_available_positions", "finalize"};
 
   if (!(player->set_move = load_function(player->lib, function_name[0])))
     return NULL;
@@ -35,6 +36,8 @@ void* load_player_random_functions(struct player_functions* player)
   if(!(player->initialize = load_function(player->lib, function_name[5])))
     return NULL;
   if(!(player->get_available_positions = load_function(player->lib, function_name[6])))
+    return NULL;
+  if(!(player->finalize = load_function(player->lib, function_name[7])))
     return NULL;
 
   return player;
@@ -91,7 +94,8 @@ int test__get_available_positions()
   size_t expected[4] = {6,8,11,13};
   ASSERT_EQUAL(4, nb_pos);
   ASSERT_ARRAY_EQUAL(expected, pos, 4);
-  
+
+  player_functions->finalize();
   dlclose(player_functions->lib);
   free(player_functions);
   graph_free(graph);
@@ -114,6 +118,7 @@ int test__play_in_a_corner()
   struct move_t new_move = player_functions->play(other_player_move);
   ASSERT_TRUE(can_player_move_to(graph, new_move.m, BLACK, 4, 16));
 
+  player_functions->finalize();
   dlclose(player_functions->lib);
   free(player_functions);
   graph_free(graph);
@@ -159,6 +164,7 @@ int test__play_around_walls()
   struct move_t new_move = player_functions->play(other_player_move);
   ASSERT_EQUAL(11, new_move.m);
 
+  player_functions->finalize();
   dlclose(player_functions->lib);
   free(player_functions);
   graph_free(graph);
@@ -199,6 +205,7 @@ int test__play_around_walls_with_jump()
   struct move_t new_move = player_functions->play(other_player_move);
   ASSERT_EQUAL(10, new_move.m);
 
+  player_functions->finalize();
   dlclose(player_functions->lib);
   free(player_functions);
   graph_free(graph);

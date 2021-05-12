@@ -90,6 +90,7 @@ int test__is_first_move_true()
 
   ASSERT_TRUE(player_functions->is_first_move());
 
+  player_functions->finalize();
   dlclose(player_functions->lib);
   free(player_functions);
   graph_free(graph);
@@ -109,6 +110,7 @@ int test__is_first_move_false()
 
   ASSERT_FALSE(player_functions->is_first_move());
 
+  player_functions->finalize();
   dlclose(player_functions->lib);
   free(player_functions);
   graph_free(graph);
@@ -127,6 +129,7 @@ int test__get_first_move()
   
   ASSERT_TRUE(is_owned(graph, first_move.c, first_move.m));
 
+  player_functions->finalize();
   dlclose(player_functions->lib);
   free(player_functions);
   graph_free(graph);
@@ -150,7 +153,8 @@ int test__get_vertices_to_test_BLACK_player()
   size_t expected[] = {22,17,18,16,13,11,10,14,7,6,8,2};
 
   ASSERT_ARRAY_EQUAL(expected, vertices_to_test, 12);
-  
+
+  player_functions->finalize();
   dlclose(player_functions->lib);
   free(player_functions);
   graph_free(graph);
@@ -174,7 +178,8 @@ int test__get_vertices_to_test_WHITE_player()
   size_t expected[] = {2,7,6,8,11,13,10,14,17,16,18,22};
 
   ASSERT_ARRAY_EQUAL(expected, vertices_to_test, 12);
-  
+
+  player_functions->finalize();
   dlclose(player_functions->lib);
   free(player_functions);
   graph_free(graph);
@@ -200,6 +205,7 @@ int test__get_new_move_without_other_player()
   ASSERT_EQUAL(7, next_move.m);
   ASSERT_EQUAL(MOVE, next_move.t);
 
+  player_functions->finalize();
   dlclose(player_functions->lib);
   free(player_functions);
   graph_free(graph);
@@ -227,6 +233,7 @@ int test__get_new_move_with_jump()
   ASSERT_EQUAL(12, next_move.m);
   ASSERT_EQUAL(MOVE, next_move.t);
 
+  player_functions->finalize();
   dlclose(player_functions->lib);
   free(player_functions);
   graph_free(graph);
@@ -258,6 +265,7 @@ int test__get_new_move_diagonal()
   ASSERT_EQUAL(8, next_move.m);
   ASSERT_EQUAL(MOVE, next_move.t);
 
+  player_functions->finalize();
   dlclose(player_functions->lib);
   free(player_functions);
   graph_free(graph);
@@ -307,6 +315,7 @@ int test__get_new_move_on_impossible_move()
   ASSERT_EQUAL(12, next_move.m);
   ASSERT_EQUAL(NO_TYPE, next_move.t);
 
+  player_functions->finalize();
   dlclose(player_functions->lib);
   free(player_functions);
   graph_free(graph);
