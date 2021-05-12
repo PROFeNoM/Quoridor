@@ -198,12 +198,25 @@ int can_add_wall(struct graph_t* graph, struct edge_t e[], size_t p1_position, s
 				|| (is_connected(graph, min_e1, min_e2) <= is_vertical_connection(graph, min_e1, min_e2)))
 				|| is_overlapping_wall(graph, min_e1, max_e1, min_e2, max_e2))
 			return 0;
+
+		if (!is_connected(graph, max_e1, max_e2) && get_connection_type(graph, max_e1, max_e2) < POINT_TO_NORTH)
+			return 0;
+
+		if (!is_connected(graph, min_e1, min_e2) && get_connection_type(graph, min_e1, min_e2) < POINT_TO_NORTH)
+			return 0;
+
 	}
 	else if (is_vertical_connection(graph, e[0].fr, e[0].to) && is_vertical_connection(graph, e[1].fr, e[1].to)) // North-South relation
 	{
 		if (!((is_connected(graph, max_e1, max_e2) <= is_horizontal_connection(graph, max_e1, max_e2))
 				|| (is_connected(graph, min_e1, min_e2) <= is_horizontal_connection(graph, min_e1, min_e2)))
 				|| is_overlapping_wall(graph, min_e1, max_e1, min_e2, max_e2))
+			return 0;
+
+		if (!is_connected(graph, max_e1, max_e2) && get_connection_type(graph, max_e1, max_e2) < POINT_TO_NORTH)
+			return 0;
+
+		if (!is_connected(graph, min_e1, min_e2) && get_connection_type(graph, min_e1, min_e2) < POINT_TO_NORTH)
 			return 0;
 	}
 	else {

@@ -8,5 +8,6 @@ void tests__queue_functions();
 void tests__alphaBetaPlayer_functions();
 void tests__forrestGump_functions();
 void tests__random_functions();
+void tests__IntelligentAntiBolt_functions();
 
 #endif

@@ -2,11 +2,23 @@
 
 #include <stdlib.h>
 
+/**
+ * Node data structure
+ * @param Data of the node
+ * @param next Node following this one
+ */
 struct node {
 	void* data;
 	struct node* next;
 };
 
+/**
+ * Queue structure
+ * @param head Top of the queue
+ * @param tail of the queue
+ * @param cp Copy function
+ * @param del Release function
+ */
 struct queue {
 	struct node* head;
 	struct node* tail;

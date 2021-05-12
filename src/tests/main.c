@@ -10,11 +10,12 @@ void launch_test()
     // test not working currently under revision
     TEST_FILE(tests__graph_pattern_functions);
 
-	TEST_FILE(tests__list_functions);
-	TEST_FILE(tests__queue_functions);
-	TEST_FILE(tests__alphaBetaPlayer_functions);
-	TEST_FILE(tests__forrestGump_functions);
-	TEST_FILE(tests__random_functions);
+    TEST_FILE(tests__list_functions);
+    TEST_FILE(tests__queue_functions);
+    TEST_FILE(tests__alphaBetaPlayer_functions);
+    TEST_FILE(tests__forrestGump_functions);
+    TEST_FILE(tests__random_functions);
+    TEST_FILE(tests__IntelligentAntiBolt_functions);
 }
 
 int main(int argc, char *argv[])
