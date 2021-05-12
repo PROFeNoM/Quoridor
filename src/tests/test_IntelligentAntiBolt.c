@@ -179,7 +179,7 @@ int test__strategy()
 	struct player_functions* player_functions = malloc(sizeof(struct player_functions));
 	load_player_IntelligentAntiBolt(player_functions, PATH_LIB);
 
-	size_t size = 18;
+	size_t size = 10;
 	struct graph_t* graph1 = get_graph('c', size);
 	player_functions->initialize(BLACK,graph_copy(graph1),2);
 	struct move_t first_move = player_functions->set_move(0,no_edge(),no_edge(),WHITE,NO_TYPE);
@@ -226,7 +226,7 @@ int test__strategy()
 	struct move_t move_9 = player_functions->set_move(size*size-3,e1_1,e2_1,WHITE,WALL);
 	struct move_t player_move_9 = player_functions->play(move_9);
 	ASSERT_EQUAL(MOVE,player_move_9.t);
-	ASSERT_EQUAL(player_move_8.m+1+size,player_move_9.m);
+	ASSERT_EQUAL(player_move_8.m-1+size,player_move_9.m);
 	
 
 	
