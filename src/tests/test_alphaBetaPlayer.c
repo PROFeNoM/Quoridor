@@ -418,7 +418,7 @@ void tests__alphaBetaPlayer_functions()
 	TEST_FUNCTION(test__get_distance_between_positions_with_wall);
 	TEST_FUNCTION(test__get_distance_between_positions_toric_board);
 	TEST_FUNCTION(test__get_minimal_distance_to_opponent_area_without_obstacle);
-	TEST_FUNCTION(test__get_distance_between_positions_with_wall);
+	TEST_FUNCTION(test__get_minimal_distance_to_opponent_area_with_wall);
 	TEST_FUNCTION(test__heuristic_evaluation_winning_situation);
 	TEST_FUNCTION(test__heuristic_evaluation_losing_situation);
 	TEST_FUNCTION(test__heuristic_evaluation_distance_situation);
