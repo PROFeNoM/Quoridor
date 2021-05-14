@@ -182,51 +182,70 @@ int test__strategy()
 	size_t size = 10;
 	struct graph_t* graph1 = get_graph('c', size);
 	player_functions->initialize(BLACK,graph_copy(graph1),2);
-	struct move_t first_move = player_functions->set_move(0,no_edge(),no_edge(),WHITE,NO_TYPE);
-	struct move_t initial_player_move = player_functions->play(first_move);
-	struct move_t second_move = player_functions->set_move(size*size-1,no_edge(),no_edge(),WHITE,MOVE);
-	struct move_t second_player_move = player_functions->play(second_move);
+
+	struct move_t first_challenger_move = player_functions->set_move(size*size-1,no_edge(),no_edge(),WHITE,MOVE);
+	player_functions->play(first_challenger_move);
 	
-	ASSERT_EQUAL(WALL,second_player_move.t);
-	ASSERT_EQUAL(size-1,second_player_move.e[0].fr);
-	ASSERT_EQUAL(2*size-1,second_player_move.e[0].to);
-	ASSERT_EQUAL(size-2,second_player_move.e[1].fr);
-	ASSERT_EQUAL(2*size-2,second_player_move.e[1].to);
-	struct move_t third_move = player_functions->set_move(size*size-2,no_edge(),no_edge(),WHITE,MOVE);
-	struct move_t third_player_move = player_functions->play(third_move);
-	ASSERT_EQUAL(MOVE,third_player_move.t);
-	ASSERT_EQUAL(initial_player_move.m+size,third_player_move.m);
-	struct move_t move_4 = player_functions->set_move(size*size-3,no_edge(),no_edge(),WHITE,MOVE);
-	struct move_t player_move_4 = player_functions->play(move_4);
-	ASSERT_EQUAL(WALL,player_move_4.t);
-      	ASSERT_EQUAL(size-3,player_move_4.e[0].fr);
-	ASSERT_EQUAL(2*size-3,player_move_4.e[0].to);
-	ASSERT_EQUAL(size-4,player_move_4.e[1].fr);
-	ASSERT_EQUAL(2*size-4,player_move_4.e[1].to);
-	struct move_t move_5 = player_functions->set_move(size*size-4,no_edge(),no_edge(),WHITE,MOVE);
-	struct move_t player_move_5 = player_functions->play(move_5);
-	ASSERT_EQUAL(MOVE,player_move_5.t);
-	ASSERT_EQUAL(player_move_4.m+size,player_move_5.m);
-	struct move_t move_6 = player_functions->set_move(size*size-5,no_edge(),no_edge(),WHITE,MOVE);
-	struct move_t player_move_6 = player_functions->play(move_6);
-	ASSERT_EQUAL(MOVE,player_move_6.t);
-	ASSERT_EQUAL(player_move_5.m+size,player_move_6.m);
-	struct edge_t e1 = {.fr=player_move_6.m , .to=player_move_6.m+size};
-	struct edge_t e2 = {.fr=player_move_6.m+1 , .to=player_move_6.m+size+1};
-	struct move_t move_7 = player_functions->set_move(size*size-3,e1,e2,WHITE,WALL);
-	struct move_t player_move_7 = player_functions->play(move_7);
-	ASSERT_EQUAL(MOVE,player_move_7.t);
-	ASSERT_EQUAL(player_move_6.m-1,player_move_7.m);
-	struct move_t move_8 = player_functions->set_move(player_move_7.m+2*size,no_edge(),no_edge(),WHITE,MOVE);
-	struct move_t player_move_8 = player_functions->play(move_8);
-	ASSERT_EQUAL(MOVE,player_move_8.t);
-	ASSERT_EQUAL(player_move_7.m+size,player_move_8.m);
-	struct edge_t e1_1 = {.fr=move_8.m , .to=move_8.m+size};
-	struct edge_t e2_1 = {.fr=move_8.m+1 , .to=move_8.m+size+1};
-	struct move_t move_9 = player_functions->set_move(size*size-3,e1_1,e2_1,WHITE,WALL);
-	struct move_t player_move_9 = player_functions->play(move_9);
-	ASSERT_EQUAL(MOVE,player_move_9.t);
-	ASSERT_EQUAL(player_move_8.m-1+size,player_move_9.m);
+	
+	struct move_t reset_IntelligentAntiBolt_placement = player_functions->set_move(4,no_edge(),no_edge(),BLACK,MOVE);
+	struct move_t second_IntelligentAntiBolt_move = player_functions->play(reset_IntelligentAntiBolt_placement);
+
+	
+	ASSERT_EQUAL(WALL,second_IntelligentAntiBolt_move.t);
+	ASSERT_EQUAL(size-1,second_IntelligentAntiBolt_move.e[0].fr);
+	ASSERT_EQUAL(2*size-1,second_IntelligentAntiBolt_move.e[0].to);
+	ASSERT_EQUAL(size-2,second_IntelligentAntiBolt_move.e[1].fr);
+	ASSERT_EQUAL(2*size-2,second_IntelligentAntiBolt_move.e[1].to);
+	
+	struct move_t third_challenger_move = player_functions->set_move(size*size-2,no_edge(),no_edge(),WHITE,MOVE);
+	struct move_t third_IntelligentAntiBolt_move = player_functions->play(third_challenger_move);
+	
+	ASSERT_EQUAL(MOVE,third_IntelligentAntiBolt_move.t);
+	ASSERT_EQUAL(reset_IntelligentAntiBolt_placement.m+size,third_IntelligentAntiBolt_move.m);
+	
+	struct move_t challenger_move_4 = player_functions->set_move(size*size-3,no_edge(),no_edge(),WHITE,MOVE);
+	struct move_t IntelligentAntiBolt_move_4 = player_functions->play(challenger_move_4);
+
+	ASSERT_EQUAL(WALL,IntelligentAntiBolt_move_4.t);
+      	ASSERT_EQUAL(size-3,IntelligentAntiBolt_move_4.e[0].fr);
+	ASSERT_EQUAL(2*size-3,IntelligentAntiBolt_move_4.e[0].to);
+	ASSERT_EQUAL(size-4,IntelligentAntiBolt_move_4.e[1].fr);
+	ASSERT_EQUAL(2*size-4,IntelligentAntiBolt_move_4.e[1].to);
+	
+	struct move_t challenger_move_5 = player_functions->set_move(size*size-4,no_edge(),no_edge(),WHITE,MOVE);
+	struct move_t IntelligentAntiBolt_move_5 = player_functions->play(challenger_move_5);
+	
+	ASSERT_EQUAL(MOVE,IntelligentAntiBolt_move_5.t);
+	ASSERT_EQUAL(IntelligentAntiBolt_move_4.m+size,IntelligentAntiBolt_move_5.m);
+	
+	struct move_t challenger_move_6 = player_functions->set_move(size*size-5,no_edge(),no_edge(),WHITE,MOVE);
+	struct move_t IntelligentAntiBolt_move_6 = player_functions->play(challenger_move_6);
+	
+	ASSERT_EQUAL(MOVE,IntelligentAntiBolt_move_6.t);
+	ASSERT_EQUAL(IntelligentAntiBolt_move_5.m+size,IntelligentAntiBolt_move_6.m);
+	
+	struct edge_t e1 = {.fr=IntelligentAntiBolt_move_6.m , .to=IntelligentAntiBolt_move_6.m+size};
+	struct edge_t e2 = {.fr=IntelligentAntiBolt_move_6.m+1 , .to=IntelligentAntiBolt_move_6.m+size+1};
+	
+	struct move_t challenger_move_7 = player_functions->set_move(size*size-3,e1,e2,WHITE,WALL);
+	struct move_t IntelligentAntiBolt_move_7 = player_functions->play(challenger_move_7);
+	
+	ASSERT_EQUAL(MOVE,IntelligentAntiBolt_move_7.t);
+	ASSERT_EQUAL(IntelligentAntiBolt_move_6.m-1,IntelligentAntiBolt_move_7.m);
+	
+	struct move_t challenger_move_8 = player_functions->set_move(IntelligentAntiBolt_move_7.m+2*size,no_edge(),no_edge(),WHITE,MOVE);
+	struct move_t IntelligentAntiBolt_move_8 = player_functions->play(challenger_move_8);
+	
+	ASSERT_EQUAL(MOVE,IntelligentAntiBolt_move_8.t);
+	ASSERT_EQUAL(IntelligentAntiBolt_move_7.m+size,IntelligentAntiBolt_move_8.m);
+	
+	struct edge_t e1_1 = {.fr=challenger_move_8.m , .to=challenger_move_8.m+size};
+	struct edge_t e2_1 = {.fr=challenger_move_8.m+1 , .to=challenger_move_8.m+size+1};
+	struct move_t challenger_move_9 = player_functions->set_move(size*size-3,e1_1,e2_1,WHITE,WALL);
+	struct move_t IntelligentAntiBolt_move_9 = player_functions->play(challenger_move_9);
+	
+	ASSERT_EQUAL(MOVE,IntelligentAntiBolt_move_9.t);
+	ASSERT_EQUAL(IntelligentAntiBolt_move_8.m-1+size,IntelligentAntiBolt_move_9.m);
 	
 
 	
