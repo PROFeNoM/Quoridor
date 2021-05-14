@@ -7,7 +7,7 @@
 #define TURN_MAX 200
 
 /**
- * Calculate the wall number from edge number of the graph :
+ * Calculate the wall number from edge number of the graph
  * @param width : graph width
  * @param type : graph type
  * @return the number of walls authorized
@@ -19,18 +19,18 @@ size_t get_number_of_walls(size_t width, char type)
     case 'c':
         return 2 * (width * width - width) / 15;
     case 't':
-        return (16/9 * width * width - 8/3 * width) / 15;
+        return ((16 * width * width) - (24 * width)) / 135;
     case 'h':
-        return (14/9 * width * width - 8/3 * width) / 15;
+        return (14 * width * width - 24 * width) / 135;
     case 's':
-        return (26/25 * width * width - 14/5 * width) / 15;
+        return (26 * width * width - 70 * width) / 375;
     default:
         return 0;
     }
 }
 
 /**
- * Initializes the server graph :
+ * Initializes the server graph
  * @param width : graph width
  * @param type : graph type
  * @param graph : the server graph unitialized
@@ -44,7 +44,7 @@ void initialize_graph(size_t width, char type, struct graph_server *graph)
 }
 
 /**
- * Load protocol player functions of one player  :
+ * Load protocol player functions of one player
  * @param player : server player uninitialized
  */
 void *load_player(struct player_server *player)
@@ -64,7 +64,7 @@ void *load_player(struct player_server *player)
 }
 
 /**
- * Load protocol player functions of the two players of the game  :
+ * Load protocol player functions of the two players of the game
  * @param players : server players unititialized
  * @param path_lib_player1 : path to the first player librairy function
  * @param path_lib_player2 : path to the second player librairy function
@@ -82,10 +82,12 @@ void load_players(struct player_server *players, char *path_lib_player1, char *p
         fprintf(stderr, "Error when loading player's functions : %s\n", dlerror());
         exit(1);
     }
+    players[BLACK].is_initialized = 0;
+    players[WHITE].is_initialized = 0;
 }
 
 /**
- * Create a initial move for the fisrt turn, its type is NO_TYPE  :
+ * Create a initial move for the fisrt turn, its type is NO_TYPE
  * @return the initial move
  */
 struct move_t get_initial_move()
@@ -98,11 +100,11 @@ struct move_t get_initial_move()
 }
 
 /**
- * Updates the server graph after a player move :
+ * Updates the server graph after a player move
  * @param server : the server structure
  * @param move : the player move
  */
-void update(struct server * server, struct move_t move)//struct graph_t *graph, struct move_t move, size_t *p_position, size_t *p_num_wall
+void update(struct server * server, struct move_t move)
 {
     if (move.t == MOVE)
         server->players[move.c].pos = move.m;
@@ -113,7 +115,7 @@ void update(struct server * server, struct move_t move)//struct graph_t *graph, 
 }
 
 /**
- * Verifies if the first placement is right for a player, if is right the function updates the server graph :
+ * Verifies if the first placement is right for a player, if it is, the function updates the server graph
  * @param server : the server structure
  * @param move : the initial move of server or the placement of the other player
  * @param id : the player id
@@ -124,7 +126,7 @@ struct move_t player_placement(struct server *server, struct move_t move, enum c
     move = server->players[id].play(move);
 
     if (is_owned(server->graph.graph, id, move.m))
-      update(server, move);//server->graph.graph, move, &server->players[id].pos, &server->players[id].num_wall);
+      update(server, move);
     else {
         display_error_move("wrong first placement", server->players[id].get_player_name(), get_name_type_player(id));
         display_move(server, move);
@@ -148,7 +150,7 @@ struct move_t play_player_turn(struct server *server, struct move_t move, enum c
     move = server->players[get_next_player(move.c)].play(move);
 
     if (is_move_legal(server->graph.graph, &move, server->players[BLACK].pos, server->players[WHITE].pos, server->players[id].num_wall)) {
-      update(server, move);//server->graph.graph, move, &server->players[id].pos, &server->players[id].num_wall);
+      update(server, move);
         *cheat = 0;
     }
     else {
@@ -160,7 +162,7 @@ struct move_t play_player_turn(struct server *server, struct move_t move, enum c
 }
 
 /**
- * Give the wall number authorized, a game graph copy and an id for initialize a player  :
+ * Give the wall number authorized, a game graph copy and an id in order to initialize a player
  * @param id : player id
  * @param server : the server structure
  */
@@ -169,6 +171,7 @@ void initialize_player(enum color_t id, struct server *server)
     server->players[id].num_wall = server->graph.num_wall;
     struct graph_t *copy_graph = graph_copy(server->graph.graph);
     server->players[id].initialize(id, copy_graph, server->graph.num_wall);
+    server->players[id].is_initialized = 1;
 }
 
 
@@ -212,7 +215,6 @@ void run_server(struct server *server, int print, int delay)
         if (print) {
             display_game(server, turn, move.c);
             if (turn > 0) {
-				//display_move(server, move);
                 printf("Black position: %zd\n", server->players[BLACK].pos);
                 printf("White position: %zd\n", server->players[WHITE].pos);
             }
@@ -232,16 +234,16 @@ void run_server(struct server *server, int print, int delay)
             display_winner(server, turn, move.c);
         else
             display_winner(server, turn, get_next_player(move.c));
+        printf("\nTime elapsed: %ld seconds.\n\n", time(NULL) - start);
     }
-
-    printf("\nTime elapsed: %ld seconds.\n\n", time(NULL) - start);
-
 }
 
 void free_server(struct server *server)
 {
-    server->players[BLACK].finalize();
-    server->players[WHITE].finalize();
+    if (server->players[BLACK].is_initialized)
+        server->players[BLACK].finalize();
+    if (server->players[WHITE].is_initialized)
+        server->players[WHITE].finalize();
 
     dlclose(server->players[BLACK].lib);
     dlclose(server->players[WHITE].lib);

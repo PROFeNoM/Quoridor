@@ -3,8 +3,8 @@
 
 #include "graph_pattern.h"
 
+// Functions in graph_pattern.c to test
 
-// get the index of direction of j according to i
 int get_direction_square(size_t i,size_t j, size_t m);
 gsl_spmatrix_uint *fill_graph(size_t m, int (*is_not_connected)(size_t, size_t, size_t));
 int square(size_t x, size_t y, size_t m);

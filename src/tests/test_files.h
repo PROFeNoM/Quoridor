@@ -9,5 +9,6 @@ void tests__alphaBetaPlayer_functions();
 void tests__forrestGump_functions();
 void tests__random_functions();
 void tests__IntelligentAntiBolt_functions();
+void tests__server_functions();
 
 #endif

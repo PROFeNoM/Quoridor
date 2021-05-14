@@ -17,6 +17,7 @@ struct player_server {
     void (*finalize)(void);
     size_t num_wall;
     size_t pos;
+    size_t is_initialized;
 };
 
 /**
