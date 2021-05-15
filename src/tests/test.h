@@ -112,7 +112,7 @@ extern size_t tests_passed;
     }
 
 #define ASSERT_ARRAY_EQUAL(expected, actual, size) \
-    for (int i = 0; i < size; i++)                 \
+    for (size_t i = 0; i < size; i++)                 \
     {                                              \
         if (!((actual[i]) == (expected[i])))       \
         {                                          \
@@ -122,7 +122,7 @@ extern size_t tests_passed;
     }
 
 #define ASSERT_ARRAY_NOT_EQUAL(expected, actual, size)       \
-    for (int i = 0; i < size; i++)                       \
+    for (size_t i = 0; i < size; i++)                       \
     {                                                    \
         if (!((actual[i]) != (expected[i])))             \
         {                                                \

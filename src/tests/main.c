@@ -15,6 +15,8 @@ void launch_test()
     TEST_FILE(tests__random_functions);
     TEST_FILE(tests__IntelligentAntiBolt_functions);
     TEST_FILE(tests__server_functions);
+    TEST_FILE(tests__dijsktra_functions);
+    TEST_FILE(tests__correlation_graph_functions);
 }
 
 int main(int argc, char *argv[])

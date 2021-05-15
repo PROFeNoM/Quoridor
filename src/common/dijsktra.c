@@ -56,7 +56,6 @@ size_t look_for_jump(struct graph_t *graph, struct near_neighbours neighbours_gr
     {
         if (can_player_move_to(graph, possibilities[i], 0, player, other_player))
         {
-            //printf("possibility : %ld\n", possibilities[i]);
             distance[possibilities[i]] = 1;
             predecessor[possibilities[i]] = player;
             return 1;
@@ -66,7 +65,6 @@ size_t look_for_jump(struct graph_t *graph, struct near_neighbours neighbours_gr
     {
         if (can_player_move_to(graph, possibilities[i], 0, player, other_player))
         {
-            //printf("possibility : %ld\n", possibilities[i]);
             distance[possibilities[i]] = 1;
             predecessor[possibilities[i]] = player;
         }
@@ -133,7 +131,6 @@ void update_distance_and_predecessor(struct graph_t *graph, size_t distance[], s
     {
         if (distance[from] + 1 < distance[neighbour])
         {
-            //printf(" -> Index : %ld, i : %ld, distance from %ld to %ld\n", index, i, distance[i], length);
             distance[neighbour] = distance[from] + 1;
             predecessor[neighbour] = from;
         }
