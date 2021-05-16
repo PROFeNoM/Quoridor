@@ -61,8 +61,8 @@ void initialize(enum color_t id, struct graph_t *graph, size_t num_walls)
 
 		player.num_walls = num_walls;
 
-		player.position[BLACK] = graph->num_vertices;
-		player.position[WHITE] = graph->num_vertices;
+		player.position[BLACK] = graph->t->size1;
+		player.position[WHITE] = graph->t->size1;
 
 		player.neighbours_graph = get_correlated_graph(graph);
 
@@ -97,11 +97,11 @@ struct move_t set_move(size_t position, struct edge_t edge1, struct edge_t edge2
  */
 struct move_t get_first_move()
 {
-	size_t starting_positions[player.graph->num_vertices];
+	size_t starting_positions[player.graph->t->size1];
 	size_t nb_pos = 0;
 
 	//searching for available positions
-	for (size_t index = 0; index < player.graph->num_vertices; index++)
+	for (size_t index = 0; index < player.graph->t->size1; index++)
 		if (is_owned(player.graph, player.id, index) == 1)
 			starting_positions[nb_pos++] = index;
 
@@ -121,7 +121,7 @@ struct move_t get_first_move()
  */
 int is_first_move()
 {
-	return player.position[player.id] == player.graph->num_vertices;
+	return player.position[player.id] == player.graph->t->size1;
 }
 
 
@@ -192,7 +192,7 @@ int get_distance_between_positions(struct graph_t* graph, size_t initial_positio
 {
 	struct list* dist = list__empty(int_copy, free_int);
 
-	for (size_t vertex = 0; vertex < graph->num_vertices; vertex++)
+	for (size_t vertex = 0; vertex < graph->t->size1; vertex++)
 		list__add(dist, (void*)&INF);
 	int dist_zero = 0;
 	list__change(dist, initial_position, &dist_zero);
@@ -213,7 +213,7 @@ int get_distance_between_positions(struct graph_t* graph, size_t initial_positio
 			return distance_to_target;
 		}
 
-		for (unsigned int v = 0; v < graph->num_vertices; v++)
+		for (unsigned int v = 0; v < graph->t->size1; v++)
 			if (is_connected(graph, *u, v) && *((int*)list__get(dist, v)) == INF)
 			{
 				queue__enqueue(q, &v);
@@ -241,7 +241,7 @@ int get_distance_between_positions(struct graph_t* graph, size_t initial_positio
 int get_minimal_distance_to_opponent_area(struct graph_t* graph, int opponent, size_t player_position)
 {
 	int minimal_distance = UNINITIALIZED_MINIMAL_DISTANCE;
-	for (size_t vertex = 0; vertex < graph->num_vertices; vertex++)
+	for (size_t vertex = 0; vertex < graph->t->size1; vertex++)
 		if (is_owned(graph, opponent, vertex))
 		{
 			int distance = get_distance_between_positions(graph, player_position, vertex);
@@ -281,7 +281,7 @@ int heuristic_evaluation(struct graph_t* graph, int active_player, int opponent,
  */
 int get_vertex_by_connection_type(struct graph_t* graph, size_t from, int direction)
 {
-	for (size_t to = 0; to < graph->num_vertices; to++)
+	for (size_t to = 0; to < graph->t->size1; to++)
 		if (get_connection_type(graph, from, to) == direction)
 			return (int)to;
 
