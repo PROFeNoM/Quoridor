@@ -6,10 +6,10 @@ struct graph_t* graph_copy(struct graph_t* graph)
 
     cp->num_vertices = graph->num_vertices;
 
-    cp->t = gsl_spmatrix_uint_alloc(graph->num_vertices, graph->num_vertices);
+    cp->t = gsl_spmatrix_uint_alloc(graph->t->size1, graph->t->size2);
     gsl_spmatrix_uint_memcpy(cp->t, graph->t);
 
-    cp->o = gsl_spmatrix_uint_alloc(2, graph->num_vertices);
+    cp->o = gsl_spmatrix_uint_alloc(graph->o->size1, graph->o->size2);
     gsl_spmatrix_uint_memcpy(cp->o, graph->o);
 
     return cp;
@@ -83,7 +83,7 @@ int is_connected(struct graph_t* graph, size_t from, size_t to)
 
 int is_vertex_in_graph(struct graph_t* graph, size_t vertex)
 {
-    return vertex < graph->num_vertices;
+    return vertex < graph->t->size1;
 }
 
 int is_horizontal_connection(struct graph_t* graph, size_t from, size_t to)
@@ -148,7 +148,7 @@ int is_path_existing(struct graph_t *graph, int visited[], size_t position, enum
     if (is_winning(graph, player_id, position) && position != opponent_position)
         return 1;
 
-    for (size_t j = 0; j < graph->num_vertices; j++)
+    for (size_t j = 0; j < graph->t->size1; j++)
 		if (is_connected(graph, position, j) && !visited[(int)j] && is_path_existing(graph, visited, j, player_id, opponent_position))
 			return 1;
 
@@ -160,8 +160,8 @@ int is_player_blocked(struct graph_t* graph, size_t position, enum color_t playe
 	if (!is_vertex_in_graph(graph, position))
 		return 1;
 
-    int visited[graph->num_vertices];
-    for (size_t i = 0; i < graph->num_vertices; i++)
+    int visited[graph->t->size1];
+    for (size_t i = 0; i < graph->t->size1; i++)
         visited[i] = 0;
 
     return !is_path_existing(graph, visited, position, player_id, opponent_position);
@@ -244,7 +244,7 @@ int is_vertex_available(size_t vertex, size_t p1_position, size_t p2_position)
 
 int is_connection_existing(struct graph_t* graph, size_t i, int direction)
 {
-    for (size_t j = 0; j < graph->num_vertices; j++)
+    for (size_t j = 0; j < graph->t->size1; j++)
         if (get_connection_type(graph, i, j) == direction)
             return 1;
 
